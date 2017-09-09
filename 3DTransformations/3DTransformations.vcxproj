@@ -30,7 +30,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -184,7 +184,9 @@
   <ItemGroup>
     <ClInclude Include="3DTransformations.h" />
     <ClInclude Include="ChildView.h" />
+    <ClInclude Include="CoordinateSystem.h" />
     <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="Plot.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -192,7 +194,9 @@
   <ItemGroup>
     <ClCompile Include="3DTransformations.cpp" />
     <ClCompile Include="ChildView.cpp" />
+    <ClCompile Include="CoordinateSystem.cpp" />
     <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="Plot.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

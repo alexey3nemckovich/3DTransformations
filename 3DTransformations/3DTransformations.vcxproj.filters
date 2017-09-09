@@ -36,6 +36,12 @@
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CoordinateSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Plot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3DTransformations.cpp">
@@ -48,6 +54,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ChildView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CoordinateSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Plot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
