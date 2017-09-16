@@ -1,8 +1,8 @@
 #pragma once
-#include <vector>
 #include <map>
-#include <exception>
 #include <memory>
+#include <vector>
+#include <exception>
 using namespace std;
 
 
@@ -51,6 +51,17 @@ namespace cs
 			{
 				this->logicPoint = p;
 				this->color = cl;
+			}
+			ColorLogicPoint(const ColorLogicPoint& other)
+			{
+				this->logicPoint = other.logicPoint;
+				this->color = other.color;
+			}
+			ColorLogicPoint* operator=(const ColorLogicPoint& other)
+			{
+				logicPoint = other.logicPoint;
+				color = other.color;
+				return this;
 			}
 			bool operator==(const ColorLogicPoint& other)
 			{
@@ -116,11 +127,6 @@ namespace cs
 			double rotationAngle;
 		};
 
-		typedef struct RenderingContext
-		{
-
-		};
-
 	public:
 		static CoordinateSystem *GetInstance();
 
@@ -136,22 +142,21 @@ namespace cs
 		inline void AddLogicPoint(double x, double y, double z, COLORREF cl = RGB(0, 0, 0), bool xDetection = false, bool yDetection = false, bool zDetection = true, bool xDetectLine = true, bool yDetectLine = true, bool zDetectionLine = true);
 		inline void AddGraphicObject(GraphicsObject* obj, COLORREF color = RGB(0, 0, 0));
 		inline GraphicsObject* LastGraphicObject();
-		inline vector<shared_ptr<GraphicsObject>> GetGraphicObejctsList();
+		inline const vector<shared_ptr<GraphicsObject>>& GetGraphicObejctsList();
 
 		//Properties
 	public:
 		inline void EnableGridRendering(bool enable = true);
 		inline void EnableAxisRendering(Axis axis, bool enable = true);
+
 		inline void SetAxisRenderingName(Axis axis, CString renderName);
-		inline void SetAxisLogicBounds(Axis axis, double minVal, double maxVal);
-		inline void SetAxisRenderingValues(Axis axis, double value);
+		inline void SetAxisRenderingBorders(Axis axis, double minVal, double maxVal);
+		inline void SetAxisRenderingDivisions(Axis axis, double value);
+
+		inline void SetPhysOrigin(CPoint physOrigin);
 
 		//Convertations
 	public:
-		int		   ConvertLogicXToPhys(double x) const;
-		int		   ConvertLogicYToPhys(double x) const;
-		double	   ConvertPhysXToLogic(double x) const;
-		double     ConvertPhysYToLogic(double y) const;
 		LogicPoint ConvertPhysPointToLogic(const CPoint& point) const;
 		CPoint	   ConvertLogicPointToPhys(const LogicPoint& point) const;
 
@@ -172,37 +177,39 @@ namespace cs
 		CoordinateSystem::~CoordinateSystem();
 
 		friend class GraphicsObject;
-
-	private:
-		void InitRenderingContext(CPaintDC *dc, RenderingContext&);
+		friend class LinearGraphicsObject;
+		friend class Polygon;
+		friend class Polyhedron;
 
 	private:
 		void CheckAxisBounds(Axis axis, double v);
 
 	private:
-		void RenderAxes(CPaintDC *dc, const RenderingContext&);
-		void RenderGraphicObjects(CPaintDC *dc, const RenderingContext&);
-		void RenerColorPoints(CPaintDC *dc, const RenderingContext&);
-		void RenderDetectPoints(CPaintDC *dc, const RenderingContext&);
-		void RenderTexts(CPaintDC *dc, const RenderingContext&);
+		void RenderAxes(CPaintDC *dc);
+		void RenderGraphicObjects(CPaintDC *dc);
+		void RenerColorPoints(CPaintDC *dc);
+		void RenderDetectPoints(CPaintDC *dc);
+		void RenderTexts(CPaintDC *dc);
 
 	private:
-		void RenderAxis(CPaintDC *dc, const RenderingContext&, const AxisInfo&);
+		void RenderAxis(CPaintDC *dc, const AxisInfo&);
 
-		void RenderArrow(CPaintDC *dc, const RenderingContext&, Side type);
+		void RenderArrow(CPaintDC *dc, Side type);
 
-		void RenderColorPoint(CPaintDC *dc, const RenderingContext&, const ColorLogicPoint&);
-		void RenderDetectPoint(CPaintDC *dc, const RenderingContext&, const DetectLogicPoint&);
+		void RenderColorPoint(CPaintDC *dc, const ColorLogicPoint&);
+		void RenderDetectPoint(CPaintDC *dc, const DetectLogicPoint&);
 
-		void RenderDivision(CPaintDC *dc, const RenderingContext&, Axis axis, double value);
+		void RenderDivision(CPaintDC *dc, Axis axis, double value);
 
-		void RenderText(CPaintDC *dc, const RenderingContext&, const Text& text);
-		void RenderTextOnAxis(CPaintDC *dc, const RenderingContext&, Axis axis, double value, CString text);
+		void RenderText(CPaintDC *dc, const Text& text);
+		void RenderText(CPaintDC *dc, const CPoint& physPoint, CString text);
+		void RenderTextOnAxis(CPaintDC *dc, Axis axis, double value, CString text);
 
 		//System state
 	private:
 		CPen _axisPen;
 		CPen _gridPen;
+		CPoint _physOrigin;
 		vector<Text> _texts;
 		vector<shared_ptr<GraphicsObject>> _objects;
 		vector<ColorLogicPoint> _points;
@@ -226,29 +233,71 @@ namespace cs
 	{
 	public:
 		typedef shared_ptr<GraphicsObject> Ptr;
-
-		GraphicsObject() = default;
-		GraphicsObject(vector<LogicPoint> &points, int penStyle = PS_SOLID, int penWidth = 1, COLORREF penColor = RGB(0, 0, 0));
-		GraphicsObject(const GraphicsObject& other);
-		GraphicsObject(const GraphicsObject&& other);
-		~GraphicsObject();
-
 		friend class CoordinateSystem;
 
+		GraphicsObject(int penStyle = PS_SOLID, int penWidth = 1, COLORREF penColor = RGB(0, 0, 0));
+		GraphicsObject(const GraphicsObject& other);
+		~GraphicsObject();
+
 	public:
-		inline GraphicsObject* operator=(const GraphicsObject& other);
-		inline LogicPoint& operator[](int index);
+		inline virtual GraphicsObject* operator=(const GraphicsObject& other);
 
 	protected:
-		virtual void Render(const CoordinateSystem*, const CoordinateSystem::RenderingContext&, CPaintDC *dc) = 0;
-
-	protected:
-		vector<LogicPoint> _points;
+		virtual void Render(const CoordinateSystem*, CPaintDC *dc) = 0;
 
 	protected:
 		int _penStyle;
 		int _penWidth;
 		COLORREF _penColor;
+	};
+
+
+	class LinearGraphicsObject
+		: public GraphicsObject
+	{
+	public:
+		friend class CoordinateSystem;
+
+		LinearGraphicsObject(const vector<LogicPoint>& points, int penStyle = PS_SOLID, int penWidth = 1, COLORREF penColor = RGB(0, 0, 0));
+		LinearGraphicsObject(const LinearGraphicsObject& other);
+
+	protected:
+		virtual void Render(const CoordinateSystem*, CPaintDC *dc) override;
+
+	private:
+		vector<LogicPoint> _points;
+	};
+
+
+	class Polygon
+		: public LinearGraphicsObject
+	{
+	public:
+		friend class CoordinateSystem;
+		friend class Polyhedron;
+
+		Polygon(const vector<LogicPoint>& points, int penStyle = PS_SOLID, int penWidth = 1, COLORREF penColor = RGB(0, 0, 0));
+		Polygon(const Polygon& other);
+
+	protected:
+		virtual void Render(const CoordinateSystem*, CPaintDC *dc) override;
+	};
+
+
+	class Polyhedron
+		: public GraphicsObject
+	{
+	public:
+		friend class CoordinateSystem;
+
+		Polyhedron(const vector<Polygon>& facets, int penStyle = PS_SOLID, int penWidth = 1, COLORREF penColor = RGB(0, 0, 0));
+		Polyhedron(const Polyhedron& other);
+
+	protected:
+		virtual void Render(const CoordinateSystem*, CPaintDC *dc) override;
+
+	private:
+		vector<Polygon> _facets;
 	};
 
 
