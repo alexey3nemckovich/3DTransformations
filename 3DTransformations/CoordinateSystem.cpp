@@ -1,5 +1,7 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "CoordinateSystem.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
 using namespace cs;
 
 
@@ -19,7 +21,7 @@ CoordinateSystem::CoordinateSystem(
 	COLORREF gridColor/* = RGB(0, 0, 0)*/
 )
 {
-
+	Init();
 }
 
 
@@ -31,7 +33,47 @@ CoordinateSystem::CoordinateSystem(
 	COLORREF gridColor/* = RGB(0, 0, 0)*/
 )
 {
+	Init();
+}
 
+
+void CoordinateSystem::Init()
+{
+	_projectionMatrix = Matrix<double>(4, 4);
+	_projectionMatrix[0][0] = _projectionMatrix[1][1] = _projectionMatrix[3][3] = 1;
+
+	_physOrigin = CPoint(300, 300);
+
+	_points.push_back(ColorLogicPoint(LogicPoint(50, 50, 0), RGB(255, 0, 0)));
+
+	_axisInfoMap[Axis::X] = AxisInfo();
+	_axisInfoMap[Axis::Y] = AxisInfo();
+	_axisInfoMap[Axis::Z] = AxisInfo();
+	for(auto it = _axisInfoMap.begin(); it != _axisInfoMap.end(); it++)
+	{
+		it->second.rendering = true;
+		switch (it->first)
+		{
+		case Axis::X:
+			{
+				it->second.basicVector = LogicPoint{ 100, 0, 0 };
+				it->second.renderingName = "x";
+			}
+			break;
+		case Axis::Y:
+			{
+				it->second.basicVector = LogicPoint{ 0, 100, 0 };
+				it->second.renderingName = "y";
+			}
+			break;
+		case Axis::Z:
+			{
+				it->second.basicVector = LogicPoint{ 0, 0, 100 };
+				it->second.renderingName = "z";
+			}
+			break;
+		}
+	}
 }
 
 
@@ -50,6 +92,23 @@ void CoordinateSystem::Render(CPaintDC *dc)
 	RenderDetectPoints(dc);
 
 	RenderTexts(dc);
+}
+
+
+void CoordinateSystem::RotateAroundAxis(Axis axis, double deltaAngle)
+{
+	switch (axis)
+	{
+	case Axis::X:
+		_projectionMatrix = GetXAxisRotationMatrix(deltaAngle) * _projectionMatrix;
+		break;
+	case Axis::Y:
+		_projectionMatrix = GetYAxisRotationMatrix(deltaAngle) * _projectionMatrix;
+		break;
+	case Axis::Z:
+		_projectionMatrix = GetZAxisRotationMatrix(deltaAngle) * _projectionMatrix;
+		break;
+	}
 }
 
 
@@ -177,7 +236,7 @@ void CoordinateSystem::SetPhysOrigin(CPoint physOrigin)
 }
 
 
-LogicPoint CoordinateSystem::ConvertPhysPointToLogic(const CPoint& point) const
+LogicPoint CoordinateSystem::ConvertPhysPointToLogic(const CPoint& point)
 {
 	LogicPoint lp;
 
@@ -185,11 +244,17 @@ LogicPoint CoordinateSystem::ConvertPhysPointToLogic(const CPoint& point) const
 }
 
 
-CPoint CoordinateSystem::ConvertLogicPointToPhys(const LogicPoint& lp) const
+CPoint CoordinateSystem::ConvertLogicPointToPhys(const LogicPoint& lp)
 {
-	CPoint p;
+	static Matrix<double> pointMatrix(1, 4);
+	pointMatrix[0][0] = lp.x;
+	pointMatrix[0][1] = lp.y;
+	pointMatrix[0][2] = lp.z;
+	pointMatrix[0][3] = 1;
 
-	return p;
+	Matrix<double> res = pointMatrix * _projectionMatrix;
+
+	return CPoint((int)res[0][0] + _physOrigin.x, (int)res[0][1] + _physOrigin.y);
 }
 
 
@@ -209,7 +274,6 @@ void CoordinateSystem::CheckAxisBounds(Axis ax, double v)
 void CoordinateSystem::RenderAxes(CPaintDC *dc)
 {
 	CPoint tmp = dc->GetCurrentPosition();
-	CPen *oldPen = (CPen *)dc->SelectObject(&_axisPen);
 
 	bool renderSystemOrigin = false;
 	for each(auto& axisInfo in _axisInfoMap)
@@ -226,7 +290,6 @@ void CoordinateSystem::RenderAxes(CPaintDC *dc)
 	}
 
 	dc->MoveTo(tmp);
-	dc->SelectObject(oldPen);
 }
 
 
@@ -266,48 +329,16 @@ void CoordinateSystem::RenderTexts(CPaintDC *dc)
 }
 
 
-void CoordinateSystem::RenderAxis(CPaintDC *dc, const AxisInfo&)
+void CoordinateSystem::RenderAxis(CPaintDC *dc, const AxisInfo& axisInfo)
 {
-	//    dc->MoveTo(_physOrigin.x, _physRect.bottom);
-	//    dc->LineTo(_physOrigin.x, 0);
-	//    RenderArrow(dc, TOP);
-	//    CSize size;
-	//    size = dc->GetTextExtent(_vertAxisName);
-	//    dc->TextOut(
-	//        _physOrigin.x + AXIS_INDENT,
-	//        size.cy,
-	//        _vertAxisName
-	//    );
-	//
-	//    vector<LogicPoint> divisions;
-	//    int vertLogicLen = _logicRect.top - _logicRect.bottom;
-	//    int division = vertLogicLen / 10;
-	//    if (!division) division = 1;
-	//    int y = 0;
-	//    while (y += division, y < _logicRect.top)
-	//    {
-	//        divisions.push_back(LogicPoint(0, y));   
-	//    }
-	//    y = 0;
-	//    while (y -= division, y > _logicRect.bottom)
-	//    {
-	//        divisions.push_back(LogicPoint(0, y));
-	//    }
-	//
-	//    for each(LogicPoint lp in divisions)
-	//    {
-	//        CPoint p = ConvertLogicPointToPhys(lp);
-	//        dc->MoveTo(p.x - DIVISION_HALF_LEN, p.y);
-	//        dc->LineTo(p.x + DIVISION_HALF_LEN, p.y);
-	//        RenderDivision(dc, Axis::Y, int(lp.y));
-	//        if (_gridRender)
-	//        {
-	//            dc->MoveTo(0, p.y);
-	//            CPen *oldPen = (CPen*)dc->SelectObject(&_gridPen);
-	//            dc->LineTo(_physRect.right, p.y);
-	//            dc->SelectObject(oldPen);
-	//        }
-	//    }
+	CRect physRect;
+	dc->GetClipBox(&physRect);
+	CPoint phPoint = ConvertLogicPointToPhys(axisInfo.basicVector);
+
+	CPoint prevPos = dc->MoveTo(_physOrigin);
+	dc->LineTo(phPoint);
+	dc->TextOut(phPoint.x, phPoint.y, axisInfo.renderingName);
+	dc->MoveTo(prevPos);
 }
 
 
@@ -431,4 +462,37 @@ void CoordinateSystem::RenderTextOnAxis(CPaintDC *dc, Axis axis, double value, C
 		p.y = ConvertLogicYToPhys(0) - size.cy - AXIS_INDENT;
 	}*/
 	//RenderText(dc, p, text);
+}
+
+
+Matrix<double>& CoordinateSystem::GetXAxisRotationMatrix(double angle)
+{
+	static Matrix<double> matr(4, 4);
+	matr[0][0] = matr[3][3] = 1;
+	matr[1][1] = matr[2][2] = cos(angle);
+	matr[2][1] = -(matr[1][2] = sin(angle));
+
+	return matr;
+}
+
+
+Matrix<double>& CoordinateSystem::GetYAxisRotationMatrix(double angle)
+{
+	static Matrix<double> matr(4, 4);
+	matr[1][1] = matr[3][3] = 1;
+	matr[0][0] = matr[2][2] = cos(angle);
+	matr[2][0] = -(matr[0][2] = sin(angle));
+
+	return matr;
+}
+
+
+Matrix<double>& CoordinateSystem::GetZAxisRotationMatrix(double angle)
+{
+	static Matrix<double> matr(4, 4);
+	matr[2][2] = matr[3][3] = 1;
+	matr[0][0] = matr[1][1] = cos(angle);
+	matr[1][0] = -(matr[0][1] = sin(angle));
+
+	return matr;
 }

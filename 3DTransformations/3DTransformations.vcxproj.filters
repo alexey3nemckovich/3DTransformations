@@ -65,9 +65,6 @@
     <ClCompile Include="GraphicsObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Martix.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LinearGraphicsObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

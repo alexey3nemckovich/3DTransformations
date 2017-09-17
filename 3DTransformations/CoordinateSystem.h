@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <exception>
+#include "Martix.h"
 using namespace std;
 
 
@@ -16,11 +17,15 @@ namespace cs
 		LogicPoint();
 		LogicPoint(double x, double y);
 		LogicPoint(double x, double y, double z);
+		LogicPoint(const LogicPoint& other);
+
+	public:
+	 	LogicPoint& operator=(const LogicPoint& other);
+		inline LogicPoint* operator+=(const LogicPoint& other);
+		inline LogicPoint* operator-=(const LogicPoint& other);
 
 	public:
 		inline bool operator==(const LogicPoint& other);
-		inline LogicPoint* operator+=(const LogicPoint& other);
-		inline LogicPoint* operator-=(const LogicPoint& other);
 		inline int operator*(LogicPoint other);
 
 	public:
@@ -31,6 +36,8 @@ namespace cs
 	class GraphicsObject;
 	class CoordinateSystem
 	{
+	public:
+		enum class Axis { X, Y, Z };
 		//Type definitions
 	private:
 		class Exception
@@ -113,7 +120,7 @@ namespace cs
 			}
 		};
 		enum Side { LEFT, RIGHT, TOP, BOTTOM };
-		enum class Axis { X, Y, Z };
+		
 
 		typedef struct AxisInfo
 		{
@@ -125,6 +132,7 @@ namespace cs
 			double maxRenderingValue;
 
 			double rotationAngle;
+			LogicPoint basicVector;
 		};
 
 	public:
@@ -133,6 +141,7 @@ namespace cs
 		//Main interface
 	public:
 		void Render(CPaintDC *dc);
+		void RotateAroundAxis(Axis axis, double deltaAngle);
 		void Clear();
 
 	public:
@@ -157,8 +166,8 @@ namespace cs
 
 		//Convertations
 	public:
-		LogicPoint ConvertPhysPointToLogic(const CPoint& point) const;
-		CPoint	   ConvertLogicPointToPhys(const LogicPoint& point) const;
+		LogicPoint ConvertPhysPointToLogic(const CPoint& point);
+		CPoint	   ConvertLogicPointToPhys(const LogicPoint& point);
 
 	private:
 		CoordinateSystem(
@@ -205,18 +214,25 @@ namespace cs
 		void RenderText(CPaintDC *dc, const CPoint& physPoint, CString text);
 		void RenderTextOnAxis(CPaintDC *dc, Axis axis, double value, CString text);
 
-		//System state
 	private:
-		CPen _axisPen;
-		CPen _gridPen;
-		CPoint _physOrigin;
+		void Init();
+		Matrix<double>& GetXAxisRotationMatrix(double angle);
+		Matrix<double>& GetYAxisRotationMatrix(double angle);
+		Matrix<double>& GetZAxisRotationMatrix(double angle);
+
+	private:
 		vector<Text> _texts;
 		vector<shared_ptr<GraphicsObject>> _objects;
 		vector<ColorLogicPoint> _points;
 		vector<DetectLogicPoint> _detectPoints;
 
+		//System state
+	private:
+		CPoint _physOrigin;
+
 		bool _gridRender = false;
 		map<Axis, AxisInfo> _axisInfoMap;
+		Matrix<double> _projectionMatrix;
 
 		//Constants
 	private:

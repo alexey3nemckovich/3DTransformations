@@ -45,7 +45,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -199,7 +199,6 @@
     <ClCompile Include="LogicPoint.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="GraphicsObject.cpp" />
-    <ClCompile Include="Martix.cpp" />
     <ClCompile Include="Polygon.cpp" />
     <ClCompile Include="Polyhedron.cpp" />
     <ClCompile Include="stdafx.cpp">

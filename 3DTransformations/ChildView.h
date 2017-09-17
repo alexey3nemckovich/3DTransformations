@@ -1,36 +1,29 @@
-
-// ChildView.h : interface of the CChildView class
-//
-
-
 #pragma once
+#include "CoordinateSystem.h"
 
-
-// CChildView window
 
 class CChildView : public CWnd
 {
-// Construction
 public:
 	CChildView();
-
-// Attributes
-public:
-
-// Operations
-public:
-
-// Overrides
-	protected:
-	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-
-// Implementation
-public:
 	virtual ~CChildView();
 
-	// Generated message map functions
+protected:
+	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+
 protected:
 	afx_msg void OnPaint();
+	afx_msg void OnIncreaseAngle();
+	afx_msg void OnDecreaseAngle();
+	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	DECLARE_MESSAGE_MAP()
-};
 
+private:
+	enum class WorkingMode {
+		RotatingSystemAroundAxis,
+		RotatingObjectsArountAxis
+	};
+
+	WorkingMode _mode = WorkingMode::RotatingSystemAroundAxis;
+	cs::CoordinateSystem::Axis _workingAxis;
+};
