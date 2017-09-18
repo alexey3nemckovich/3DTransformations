@@ -37,6 +37,11 @@ BEGIN_MESSAGE_MAP(CChildView, CWnd)
 	ON_WM_KEYDOWN()
 	ON_COMMAND(VK_ADD, OnIncreaseAngle)
 	ON_COMMAND(VK_SUBTRACT, OnDecreaseAngle)
+	ON_WM_MOUSEMOVE()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_LBUTTONUP()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_LBUTTONUP()
 END_MESSAGE_MAP()
 
 
@@ -69,7 +74,7 @@ afx_msg void CChildView::OnIncreaseAngle()
 
 afx_msg void CChildView::OnDecreaseAngle()
 {
-	static auto coordSystem = cs::CoordinateSystem::GetInstance();
+	auto coordSystem = cs::CoordinateSystem::GetInstance();
 	const double deltaAngel = - M_PI / 180;
 
 	if (WorkingMode::RotatingSystemAroundAxis == _mode)
@@ -80,6 +85,24 @@ afx_msg void CChildView::OnDecreaseAngle()
 	{
 
 	}
+
+	RedrawWindow();
+}
+
+
+afx_msg void CChildView::OnZoomIn()
+{
+	static const double zoomVal = 1.5;
+	cs::CoordinateSystem::GetInstance()->Zoom(zoomVal);
+
+	RedrawWindow();
+}
+
+
+afx_msg void CChildView::OnZoomOut()
+{
+	static const double zoomVal = 0.5;
+	cs::CoordinateSystem::GetInstance()->Zoom(zoomVal);
 
 	RedrawWindow();
 }
@@ -106,19 +129,64 @@ afx_msg void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	case 's':
 		_mode = WorkingMode::RotatingObjectsArountAxis;
 		break;
-	default:
-		{
-			if (nChar == VK_ADD)
-			{
-				OnIncreaseAngle();
-			}
-			if (nChar == VK_SUBTRACT)
-			{
-				OnDecreaseAngle();
-			}
-		}
+	}
+
+	switch (nChar)
+	{
+	case VK_ADD:
+		OnIncreaseAngle();
+		break;
+	case VK_SUBTRACT:
+		OnDecreaseAngle();
+		break;
+	case VK_UP:
+		OnZoomIn();
+		break;
+	case VK_DOWN:
+		OnZoomOut();
 		break;
 	}
 
 	CWnd::OnKeyUp(nChar, nRepCnt, nFlags);
+}
+
+
+void CChildView::OnMouseMove(UINT nFlags, CPoint point)
+{
+	static CPoint prevPoint;
+
+	if (_moving)
+	{
+		if (_firstMove)
+		{
+			prevPoint = point;
+			_firstMove = false;
+		}
+		else
+		{
+			cs::CoordinateSystem::GetInstance()->Move(point.x - prevPoint.x, point.y - prevPoint.y);
+			prevPoint = point;
+			RedrawWindow();
+		}
+	}
+
+	CWnd::OnMouseMove(nFlags, point);
+}
+
+
+void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	_moving = true;
+	_firstMove = true;
+
+	CWnd::OnLButtonDown(nFlags, point);
+}
+
+
+void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	_moving = false;
+	_firstMove = true;
+
+	CWnd::OnLButtonUp(nFlags, point);
 }

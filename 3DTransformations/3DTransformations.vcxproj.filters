@@ -39,7 +39,7 @@
     <ClInclude Include="CoordinateSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Martix.h">
+    <ClInclude Include="PrimitiveTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

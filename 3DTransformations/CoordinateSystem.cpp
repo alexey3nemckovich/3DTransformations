@@ -46,31 +46,26 @@ void CoordinateSystem::Init()
 
 	_points.push_back(ColorLogicPoint(LogicPoint(50, 50, 0), RGB(255, 0, 0)));
 
-	_axisInfoMap[Axis::X] = AxisInfo();
-	_axisInfoMap[Axis::Y] = AxisInfo();
-	_axisInfoMap[Axis::Z] = AxisInfo();
-	for(auto it = _axisInfoMap.begin(); it != _axisInfoMap.end(); it++)
+	for (int axisIndex = (int)Axis::X; (int)axisIndex < (int)Axis::Z + 1; axisIndex++)
 	{
-		it->second.rendering = true;
-		switch (it->first)
+		Axis axis = Axis(axisIndex);
+		_axisInfoMap[axis] = AxisInfo();
+
+		AxisInfo& axisInfo = _axisInfoMap[axis];
+		axisInfo.rendering = true;
+		axisInfo.minPoint[(int)axis] = -100;
+		axisInfo.maxPoint[(int)axis] = 100;
+
+		switch (axis)
 		{
 		case Axis::X:
-			{
-				it->second.basicVector = LogicPoint{ 100, 0, 0 };
-				it->second.renderingName = "x";
-			}
+			axisInfo.renderingName = "x";
 			break;
 		case Axis::Y:
-			{
-				it->second.basicVector = LogicPoint{ 0, 100, 0 };
-				it->second.renderingName = "y";
-			}
+			axisInfo.renderingName = "y";
 			break;
 		case Axis::Z:
-			{
-				it->second.basicVector = LogicPoint{ 0, 0, 100 };
-				it->second.renderingName = "z";
-			}
+			axisInfo.renderingName = "z";
 			break;
 		}
 	}
@@ -92,6 +87,19 @@ void CoordinateSystem::Render(CPaintDC *dc)
 	RenderDetectPoints(dc);
 
 	RenderTexts(dc);
+}
+
+
+void CoordinateSystem::Zoom(double val)
+{
+	_scale *= val;
+}
+
+
+void CoordinateSystem::Move(double dx, double dy)
+{
+	_physOrigin.x += dx;
+	_physOrigin.y += dy;
 }
 
 
@@ -219,8 +227,8 @@ void CoordinateSystem::SetAxisRenderingName(Axis axis, CString renderingName)
 
 void CoordinateSystem::SetAxisRenderingBorders(Axis axis, double minVal, double maxVal)
 {
-	_axisInfoMap[axis].minRenderingValue = minVal;
-	_axisInfoMap[axis].maxRenderingValue = minVal;
+	_axisInfoMap[axis].minPoint[0] = 1;// minPoint[(int)axis] = minVal;
+	_axisInfoMap[axis].maxPoint[(int)axis] = maxVal;
 }
 
 
@@ -246,28 +254,32 @@ LogicPoint CoordinateSystem::ConvertPhysPointToLogic(const CPoint& point)
 
 CPoint CoordinateSystem::ConvertLogicPointToPhys(const LogicPoint& lp)
 {
-	static Matrix<double> pointMatrix(1, 4);
-	pointMatrix[0][0] = lp.x;
-	pointMatrix[0][1] = lp.y;
-	pointMatrix[0][2] = lp.z;
-	pointMatrix[0][3] = 1;
+	static HomogeneousPoint<double> point;
+	point[0] = lp.x;
+	point[1] = lp.y;
+	point[2] = lp.z;
 
-	Matrix<double> res = pointMatrix * _projectionMatrix;
+	return ConvertLogicPointToPhys(point);
+}
 
-	return CPoint((int)res[0][0] + _physOrigin.x, (int)res[0][1] + _physOrigin.y);
+
+CPoint CoordinateSystem::ConvertLogicPointToPhys(const HomogeneousPoint<double>& point)
+{
+	Matrix<double> res = point * _projectionMatrix;
+	return CPoint( _scale * res[0][0] + _physOrigin.x, _scale * res[0][1] + _physOrigin.y);
 }
 
 
 void CoordinateSystem::CheckAxisBounds(Axis ax, double v)
 {
-	if (v > _axisInfoMap[ax].maxRenderingValue)
+	/*if (v > _axisInfoMap[ax].maxRenderingValue)
 	{
 		_axisInfoMap[ax].maxRenderingValue = v + 1;
 	}
 	else if (v < _axisInfoMap[ax].minRenderingValue)
 	{
 		_axisInfoMap[ax].maxRenderingValue = v - 1;
-	}
+	}*/
 }
 
 
@@ -331,13 +343,12 @@ void CoordinateSystem::RenderTexts(CPaintDC *dc)
 
 void CoordinateSystem::RenderAxis(CPaintDC *dc, const AxisInfo& axisInfo)
 {
-	CRect physRect;
-	dc->GetClipBox(&physRect);
-	CPoint phPoint = ConvertLogicPointToPhys(axisInfo.basicVector);
+	CPoint minPointPhysic = ConvertLogicPointToPhys(axisInfo.minPoint);
+	CPoint maxPointPhysic = ConvertLogicPointToPhys(axisInfo.maxPoint);
 
-	CPoint prevPos = dc->MoveTo(_physOrigin);
-	dc->LineTo(phPoint);
-	dc->TextOut(phPoint.x, phPoint.y, axisInfo.renderingName);
+	CPoint prevPos = dc->MoveTo(minPointPhysic);
+	dc->LineTo(maxPointPhysic);
+	dc->TextOut(maxPointPhysic.x, maxPointPhysic.y, axisInfo.renderingName);
 	dc->MoveTo(prevPos);
 }
 

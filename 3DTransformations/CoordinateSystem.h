@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 #include <exception>
-#include "Martix.h"
+#include "PrimitiveTypes.h"
 using namespace std;
 
 
@@ -37,7 +37,11 @@ namespace cs
 	class CoordinateSystem
 	{
 	public:
-		enum class Axis { X, Y, Z };
+		enum class Axis {
+			X = 0,
+			Y = 1,
+			Z = 2 
+		};
 		//Type definitions
 	private:
 		class Exception
@@ -121,18 +125,16 @@ namespace cs
 		};
 		enum Side { LEFT, RIGHT, TOP, BOTTOM };
 		
-
 		typedef struct AxisInfo
 		{
 			bool rendering;
 			CString renderingName;
 
+			double scale = 5;
 			double divisionValue;
-			double minRenderingValue;
-			double maxRenderingValue;
 
-			double rotationAngle;
-			LogicPoint basicVector;
+			HomogeneousPoint<double> minPoint;
+			HomogeneousPoint<double> maxPoint;
 		};
 
 	public:
@@ -141,6 +143,8 @@ namespace cs
 		//Main interface
 	public:
 		void Render(CPaintDC *dc);
+		void Zoom(double val);
+		void Move(double dx, double dy);
 		void RotateAroundAxis(Axis axis, double deltaAngle);
 		void Clear();
 
@@ -168,7 +172,8 @@ namespace cs
 	public:
 		LogicPoint ConvertPhysPointToLogic(const CPoint& point);
 		CPoint	   ConvertLogicPointToPhys(const LogicPoint& point);
-
+		CPoint	   ConvertLogicPointToPhys(const HomogeneousPoint<double>& point);
+		
 	private:
 		CoordinateSystem(
 			CString xAxisName = "x",
@@ -228,6 +233,7 @@ namespace cs
 
 		//System state
 	private:
+		double _scale = 1;
 		CPoint _physOrigin;
 
 		bool _gridRender = false;
