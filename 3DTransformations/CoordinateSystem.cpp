@@ -252,7 +252,7 @@ LogicPoint CoordinateSystem::ConvertPhysPointToLogic(const CPoint& point)
 }
 
 
-CPoint CoordinateSystem::ConvertLogicPointToPhys(const LogicPoint& lp)
+CPoint CoordinateSystem::ConvertLogicPointToPhys(const LogicPoint& lp) const
 {
 	static HomogeneousPoint<double> point;
 	point[0] = lp.x;
@@ -263,7 +263,7 @@ CPoint CoordinateSystem::ConvertLogicPointToPhys(const LogicPoint& lp)
 }
 
 
-CPoint CoordinateSystem::ConvertLogicPointToPhys(const HomogeneousPoint<double>& point)
+CPoint CoordinateSystem::ConvertLogicPointToPhys(const HomogeneousPoint<double>& point) const
 {
 	Matrix<double> res = point * _projectionMatrix;
 	return CPoint( _scale * res[0][0] + _physOrigin.x, _scale * res[0][1] + _physOrigin.y);

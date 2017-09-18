@@ -7,6 +7,7 @@
 #include "afxdialogex.h"
 #include "3DTransformations.h"
 #include "MainFrm.h"
+#include "CTriangleDlg.h"
 
 
 #ifdef _DEBUG
@@ -18,6 +19,7 @@
 
 BEGIN_MESSAGE_MAP(CMy3DTransformationsApp, CWinApp)
 	ON_COMMAND(ID_APP_ABOUT, &CMy3DTransformationsApp::OnAppAbout)
+	ON_COMMAND(ID_FILE_SHOWTRIANGLE, &CMy3DTransformationsApp::OnShowTriangle)
 END_MESSAGE_MAP()
 
 
@@ -160,6 +162,13 @@ void CMy3DTransformationsApp::OnAppAbout()
 {
 	CAboutDlg aboutDlg;
 	aboutDlg.DoModal();
+}
+
+
+afx_msg void CMy3DTransformationsApp::OnShowTriangle()
+{
+	CTriangleDlg trDlg;
+	trDlg.DoModal();
 }
 
 // CMy3DTransformationsApp message handlers

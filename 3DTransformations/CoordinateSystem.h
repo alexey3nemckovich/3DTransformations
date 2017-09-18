@@ -153,7 +153,7 @@ namespace cs
 		inline void AddLogicPoint(LogicPoint point, COLORREF cl = RGB(0, 0, 0), bool xDetection = true, bool yDetection = true, bool zDetection = true, bool xDetectionLine = true, bool yDetectionLine = true, bool zDetectionLine = true);
 		inline void AddLogicPoint(double x, double y, COLORREF cl = RGB(0, 0, 0), bool xDetection = false, bool yDetection = false, bool xDetectionLine = true, bool yDetectionLine = true);
 		inline void AddLogicPoint(double x, double y, double z, COLORREF cl = RGB(0, 0, 0), bool xDetection = false, bool yDetection = false, bool zDetection = true, bool xDetectLine = true, bool yDetectLine = true, bool zDetectionLine = true);
-		inline void AddGraphicObject(GraphicsObject* obj, COLORREF color = RGB(0, 0, 0));
+		void AddGraphicObject(GraphicsObject* obj, COLORREF color = RGB(0, 0, 0));
 		inline GraphicsObject* LastGraphicObject();
 		inline const vector<shared_ptr<GraphicsObject>>& GetGraphicObejctsList();
 
@@ -171,8 +171,8 @@ namespace cs
 		//Convertations
 	public:
 		LogicPoint ConvertPhysPointToLogic(const CPoint& point);
-		CPoint	   ConvertLogicPointToPhys(const LogicPoint& point);
-		CPoint	   ConvertLogicPointToPhys(const HomogeneousPoint<double>& point);
+		CPoint	   ConvertLogicPointToPhys(const LogicPoint& point) const;
+		CPoint	   ConvertLogicPointToPhys(const HomogeneousPoint<double>& point) const;
 		
 	private:
 		CoordinateSystem(
@@ -286,7 +286,7 @@ namespace cs
 	protected:
 		virtual void Render(const CoordinateSystem*, CPaintDC *dc) override;
 
-	private:
+	protected:
 		vector<LogicPoint> _points;
 	};
 
@@ -298,6 +298,9 @@ namespace cs
 		friend class CoordinateSystem;
 		friend class Polyhedron;
 
+		typedef shared_ptr<Polygon> Ptr;
+
+	public:
 		Polygon(const vector<LogicPoint>& points, int penStyle = PS_SOLID, int penWidth = 1, COLORREF penColor = RGB(0, 0, 0));
 		Polygon(const Polygon& other);
 
@@ -312,14 +315,15 @@ namespace cs
 	public:
 		friend class CoordinateSystem;
 
-		Polyhedron(const vector<Polygon>& facets, int penStyle = PS_SOLID, int penWidth = 1, COLORREF penColor = RGB(0, 0, 0));
+	public:
+		Polyhedron(const vector<Polygon::Ptr>& facets, int penStyle = PS_SOLID, int penWidth = 1, COLORREF penColor = RGB(0, 0, 0));
 		Polyhedron(const Polyhedron& other);
 
 	protected:
 		virtual void Render(const CoordinateSystem*, CPaintDC *dc) override;
 
 	private:
-		vector<Polygon> _facets;
+		vector<Polygon::Ptr> _facets;
 	};
 
 

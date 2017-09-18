@@ -17,7 +17,17 @@ Polygon::Polygon(const Polygon& other)
 }
 
 
-void Polygon::Render(const CoordinateSystem*, CPaintDC *dc)
+void Polygon::Render(const CoordinateSystem* cs, CPaintDC *dc)
 {
+	LinearGraphicsObject::Render(cs, dc);
 
+	auto oldPoint = dc->MoveTo(
+		cs->ConvertLogicPointToPhys(_points[_points.size() - 1])
+	);
+
+	dc->LineTo(
+		cs->ConvertLogicPointToPhys(_points[0])
+	);
+
+	dc->MoveTo(oldPoint);
 }
