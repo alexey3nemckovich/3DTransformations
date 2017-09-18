@@ -64,6 +64,24 @@ namespace cs
 					topLittleTrianglePoints[(i + 1) % 3]
 				}))
 			);
+
+			facets.push_back(
+				Polygon::Ptr(new Polygon({
+					topLittleTrianglePoints[i],
+					topBigTrianglePoints[i],
+					topBigTrianglePoints[(i + 1) % 3],
+					topLittleTrianglePoints[(i + 1) % 3]
+				}))
+			);
+
+			facets.push_back(
+				Polygon::Ptr(new Polygon({
+					bottomLittleTrianglePoints[i],
+					bottomBigTrianglePoints[i],
+					bottomBigTrianglePoints[(i + 1) % 3],
+					bottomLittleTrianglePoints[(i + 1) % 3]
+				}))
+			);
 		}
 
 		return new Polyhedron(facets);

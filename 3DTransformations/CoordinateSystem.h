@@ -146,6 +146,8 @@ namespace cs
 		void Zoom(double val);
 		void Move(double dx, double dy);
 		void RotateAroundAxis(Axis axis, double deltaAngle);
+
+		CPoint GetOriginPhysPoint() const;
 		void Clear();
 
 	public:
@@ -306,6 +308,12 @@ namespace cs
 
 	protected:
 		virtual void Render(const CoordinateSystem*, CPaintDC *dc) override;
+
+	private:
+		void Init();
+
+	private:
+		LogicPoint _nVector;
 	};
 
 

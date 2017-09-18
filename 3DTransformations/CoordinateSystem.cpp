@@ -120,6 +120,12 @@ void CoordinateSystem::RotateAroundAxis(Axis axis, double deltaAngle)
 }
 
 
+CPoint CoordinateSystem::GetOriginPhysPoint() const
+{
+	return _physOrigin;
+}
+
+
 void CoordinateSystem::Clear()
 {
 	_texts.clear();
