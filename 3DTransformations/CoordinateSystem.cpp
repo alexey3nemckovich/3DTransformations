@@ -79,15 +79,34 @@ CoordinateSystem::~CoordinateSystem()
 }
 
 
-void CoordinateSystem::Render(CPaintDC *dc)
+void CoordinateSystem::Render(CPaintDC *dc, CWnd *wnd)
 {
-    RenderAxes(dc);
-	RenderGraphicObjects(dc);
+	RECT rect;
+	dc->GetClipBox(&rect);
 
-	RenerColorPoints(dc);
-	RenderDetectPoints(dc);
+	int width = rect.right - rect.left;
+	int height = rect.bottom - rect.top;
+	
+	//Creating buffer
+	CDC memDc;
+	CBitmap memBitmap;
+	memDc.CreateCompatibleDC(dc);
+	memBitmap.CreateCompatibleBitmap(dc, width, height);
+	memDc.SelectObject(memBitmap);
+	memDc.FillSolidRect(&rect, GetSysColor(COLOR_WINDOW));
 
-	RenderTexts(dc);
+	//Drawing
+    RenderAxes(&memDc);
+	RenderGraphicObjects(&memDc);
+
+	RenerColorPoints(&memDc);
+	RenderDetectPoints(&memDc);
+
+	RenderTexts(&memDc);
+	//
+
+	//Flushing
+	dc->BitBlt(0, 0, width, height, &memDc, 0, 0, SRCCOPY);
 }
 
 
@@ -311,7 +330,7 @@ void CoordinateSystem::CheckAxisBounds(Axis ax, double v)
 }
 
 
-void CoordinateSystem::RenderAxes(CPaintDC *dc)
+void CoordinateSystem::RenderAxes(CDC *dc)
 {
 	CPoint tmp = dc->GetCurrentPosition();
 
@@ -333,7 +352,7 @@ void CoordinateSystem::RenderAxes(CPaintDC *dc)
 }
 
 
-void CoordinateSystem::RenderGraphicObjects(CPaintDC *dc)
+void CoordinateSystem::RenderGraphicObjects(CDC *dc)
 {
 	for each(GraphicsObject::Ptr pObj in _objects)
 	{
@@ -342,7 +361,7 @@ void CoordinateSystem::RenderGraphicObjects(CPaintDC *dc)
 }
 
 
-void CoordinateSystem::RenerColorPoints(CPaintDC *dc)
+void CoordinateSystem::RenerColorPoints(CDC *dc)
 {
 	ColorLogicPoint p(LogicPoint(_watcherVector.x(), _watcherVector.y(), _watcherVector.z()), RGB(0, 255, 0));
 	RenderColorPoint(dc, p);
@@ -354,7 +373,7 @@ void CoordinateSystem::RenerColorPoints(CPaintDC *dc)
 }
 
 
-void CoordinateSystem::RenderDetectPoints(CPaintDC *dc)
+void CoordinateSystem::RenderDetectPoints(CDC *dc)
 {
 	for each(const DetectLogicPoint& p in _detectPoints)
 	{
@@ -363,7 +382,7 @@ void CoordinateSystem::RenderDetectPoints(CPaintDC *dc)
 }
 
 
-void CoordinateSystem::RenderTexts(CPaintDC *dc)
+void CoordinateSystem::RenderTexts(CDC *dc)
 {
 	for each(const Text& text in _texts)
 	{
@@ -372,7 +391,7 @@ void CoordinateSystem::RenderTexts(CPaintDC *dc)
 }
 
 
-void CoordinateSystem::RenderAxis(CPaintDC *dc, const AxisInfo& axisInfo)
+void CoordinateSystem::RenderAxis(CDC *dc, const AxisInfo& axisInfo)
 {
 	CPoint minPointPhysic = ConvertLogicPointToPhys(axisInfo.minPoint);
 	CPoint maxPointPhysic = ConvertLogicPointToPhys(axisInfo.maxPoint);
@@ -384,7 +403,7 @@ void CoordinateSystem::RenderAxis(CPaintDC *dc, const AxisInfo& axisInfo)
 }
 
 
-void CoordinateSystem::RenderArrow(CPaintDC *dc, Side type)
+void CoordinateSystem::RenderArrow(CDC *dc, Side type)
 {
 #define ARROW_LEN 50
 #define ARROW_HEIGHT 10
@@ -424,7 +443,7 @@ void CoordinateSystem::RenderArrow(CPaintDC *dc, Side type)
 }
 
 
-void CoordinateSystem::RenderColorPoint(CPaintDC *dc, const ColorLogicPoint &colorPoint)
+void CoordinateSystem::RenderColorPoint(CDC *dc, const ColorLogicPoint &colorPoint)
 {
 #define POINT_RECT_SZ 5
 	CPoint pp = ConvertLogicPointToPhys(colorPoint.logicPoint);
@@ -435,7 +454,7 @@ void CoordinateSystem::RenderColorPoint(CPaintDC *dc, const ColorLogicPoint &col
 }
 
 
-void CoordinateSystem::RenderDetectPoint(CPaintDC *dc, const DetectLogicPoint &detectPoint)
+void CoordinateSystem::RenderDetectPoint(CDC *dc, const DetectLogicPoint &detectPoint)
 {
 	//CPoint pp = ConvertLogicPointToPhys(detectPoint.logicPoint);
 	//CPoint tmp = dc->GetCurrentPosition();
@@ -467,7 +486,7 @@ void CoordinateSystem::RenderDetectPoint(CPaintDC *dc, const DetectLogicPoint &d
 }
 
 
-void CoordinateSystem::RenderDivision(CPaintDC *dc, Axis axis, double value)
+void CoordinateSystem::RenderDivision(CDC *dc, Axis axis, double value)
 {
 	CString str;
 	str.Format("%.1f", value);
@@ -475,7 +494,7 @@ void CoordinateSystem::RenderDivision(CPaintDC *dc, Axis axis, double value)
 }
 
 
-void CoordinateSystem::RenderText(CPaintDC *dc, const Text& text)
+void CoordinateSystem::RenderText(CDC *dc, const Text& text)
 {
 	/*int tmp = dc->SetBkMode(TRANSPARENT);
 	dc->TextOut(p.x, p.y, text);
@@ -483,13 +502,13 @@ void CoordinateSystem::RenderText(CPaintDC *dc, const Text& text)
 }
 
 
-void CoordinateSystem::RenderText(CPaintDC *dc, const CPoint& physPoint, CString text)
+void CoordinateSystem::RenderText(CDC *dc, const CPoint& physPoint, CString text)
 {
 
 }
 
 
-void CoordinateSystem::RenderTextOnAxis(CPaintDC *dc, Axis axis, double value, CString text)
+void CoordinateSystem::RenderTextOnAxis(CDC *dc, Axis axis, double value, CString text)
 {
 	/*CPoint p;
 	if (Axis::Y == axis)

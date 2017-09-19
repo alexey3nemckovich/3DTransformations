@@ -24,7 +24,9 @@ Polygon::Polygon(const Polygon& other)
 
 void Polygon::Init()
 {
+	_brush.CreateSolidBrush(RGB(0, 255, 0));
 	_nVector = FindNormalVectorToPlane(_points[0], _points[1], _points[2], _rightHandNormalVector);
+
 	double module = FindVectorModule(_nVector);
 	_nVector[0] = _nVector[0] * 100 / module;
 	_nVector[1] = _nVector[1] * 100 / module;
@@ -44,7 +46,7 @@ void Polygon::Init()
 }
 
 
-void Polygon::Render(const CoordinateSystem* cs, CPaintDC *dc)
+void Polygon::Render(const CoordinateSystem* cs, CDC *dc)
 {
 	bool isVisible = true;
 	auto watcherVector = cs->GetWatcherVector();
@@ -56,21 +58,34 @@ void Polygon::Render(const CoordinateSystem* cs, CPaintDC *dc)
 
 	if (isVisible)
 	{
+		int countPoints = _points.size();
+
+		//Get phys points
+		CPoint* physPoints = new CPoint[_points.size()];
+		for (int i = 0; i < countPoints; i++)
+		{
+			physPoints[i] = cs->ConvertLogicPointToPhys(_points[i]);
+		}
+
+		//Render carcas
 		auto oldPoint = dc->MoveTo(
-			cs->ConvertLogicPointToPhys(_points[0])
+			physPoints[0]
 		);
 
-		int countPoints = _points.size();
 		for (int i = 1; i < countPoints; i++)
 		{
 			dc->LineTo(
-				cs->ConvertLogicPointToPhys(_points[i])
+				physPoints[i]
 			);
 		}
 		dc->LineTo(
-			cs->ConvertLogicPointToPhys(_points[0])
+			physPoints[0]
 		);
 
 		dc->MoveTo(oldPoint);
+
+		//Fill carcas with brush
+		dc->SelectObject(&_brush);
+		dc->Polygon(physPoints, countPoints);
 	}
 }

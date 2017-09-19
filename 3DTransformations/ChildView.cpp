@@ -50,7 +50,7 @@ afx_msg void CChildView::OnPaint()
 	static auto coordSystem = cs::CoordinateSystem::GetInstance();
 
 	CPaintDC dc(this);
-	coordSystem->Render(&dc);
+	coordSystem->Render(&dc, this);
 }
 
 

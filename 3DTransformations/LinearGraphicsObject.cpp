@@ -17,7 +17,7 @@ LinearGraphicsObject::LinearGraphicsObject(const LinearGraphicsObject& other)
 }
 
 
-void LinearGraphicsObject::Render(const CoordinateSystem* cs, CPaintDC *dc)
+void LinearGraphicsObject::Render(const CoordinateSystem* cs, CDC *dc)
 {
 	auto oldPoint = dc->MoveTo(
 		cs->ConvertLogicPointToPhys(_points[0])

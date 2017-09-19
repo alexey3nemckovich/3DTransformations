@@ -17,7 +17,7 @@ Polyhedron::Polyhedron(const Polyhedron& other)
 }
 
 
-void Polyhedron::Render(const CoordinateSystem* cs, CPaintDC *dc)
+void Polyhedron::Render(const CoordinateSystem* cs, CDC *dc)
 {
 	int countFacets = _facets.size();
 	for (int i = 0; i < countFacets; i++)

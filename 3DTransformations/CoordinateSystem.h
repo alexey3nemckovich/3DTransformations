@@ -142,7 +142,7 @@ namespace cs
 
 		//Main interface
 	public:
-		void Render(CPaintDC *dc);
+		void Render(CPaintDC *dc, CWnd *wnd);
 		void Zoom(double val);
 		void Move(double dx, double dy);
 		void RotateAroundAxis(Axis axis, double deltaAngle);
@@ -202,25 +202,25 @@ namespace cs
 		void CheckAxisBounds(Axis axis, double v);
 
 	private:
-		void RenderAxes(CPaintDC *dc);
-		void RenderGraphicObjects(CPaintDC *dc);
-		void RenerColorPoints(CPaintDC *dc);
-		void RenderDetectPoints(CPaintDC *dc);
-		void RenderTexts(CPaintDC *dc);
+		void RenderAxes(CDC *dc);
+		void RenderGraphicObjects(CDC *dc);
+		void RenerColorPoints(CDC *dc);
+		void RenderDetectPoints(CDC *dc);
+		void RenderTexts(CDC *dc);
 
 	private:
-		void RenderAxis(CPaintDC *dc, const AxisInfo&);
+		void RenderAxis(CDC *dc, const AxisInfo&);
 
-		void RenderArrow(CPaintDC *dc, Side type);
+		void RenderArrow(CDC *dc, Side type);
 
-		void RenderColorPoint(CPaintDC *dc, const ColorLogicPoint&);
-		void RenderDetectPoint(CPaintDC *dc, const DetectLogicPoint&);
+		void RenderColorPoint(CDC *dc, const ColorLogicPoint&);
+		void RenderDetectPoint(CDC *dc, const DetectLogicPoint&);
 
-		void RenderDivision(CPaintDC *dc, Axis axis, double value);
+		void RenderDivision(CDC *dc, Axis axis, double value);
 
-		void RenderText(CPaintDC *dc, const Text& text);
-		void RenderText(CPaintDC *dc, const CPoint& physPoint, CString text);
-		void RenderTextOnAxis(CPaintDC *dc, Axis axis, double value, CString text);
+		void RenderText(CDC *dc, const Text& text);
+		void RenderText(CDC *dc, const CPoint& physPoint, CString text);
+		void RenderTextOnAxis(CDC *dc, Axis axis, double value, CString text);
 
 	private:
 		void Init();
@@ -269,7 +269,7 @@ namespace cs
 		inline virtual GraphicsObject* operator=(const GraphicsObject& other);
 
 	protected:
-		virtual void Render(const CoordinateSystem*, CPaintDC *dc) = 0;
+		virtual void Render(const CoordinateSystem*, CDC *dc) = 0;
 
 	protected:
 		int _penStyle;
@@ -288,7 +288,7 @@ namespace cs
 		LinearGraphicsObject(const LinearGraphicsObject& other);
 
 	protected:
-		virtual void Render(const CoordinateSystem*, CPaintDC *dc) override;
+		virtual void Render(const CoordinateSystem*, CDC *dc) override;
 
 	protected:
 		vector<LogicPoint> _points;
@@ -309,12 +309,13 @@ namespace cs
 		Polygon(const Polygon& other);
 
 	protected:
-		virtual void Render(const CoordinateSystem*, CPaintDC *dc) override;
+		virtual void Render(const CoordinateSystem*, CDC *dc) override;
 
 	private:
 		void Init();
 
 	private:
+		CBrush _brush;
 		bool _rightHandNormalVector;
 		HomogeneousPoint<double> _nVector;
 	};
@@ -331,7 +332,7 @@ namespace cs
 		Polyhedron(const Polyhedron& other);
 
 	protected:
-		virtual void Render(const CoordinateSystem*, CPaintDC *dc) override;
+		virtual void Render(const CoordinateSystem*, CDC *dc) override;
 
 	private:
 		vector<Polygon::Ptr> _facets;
