@@ -42,9 +42,10 @@ void CoordinateSystem::Init()
 	_projectionMatrix = Matrix<double>(4, 4);
 	_projectionMatrix[0][0] = _projectionMatrix[1][1] = _projectionMatrix[3][3] = 1;
 
-	_physOrigin = CPoint(300, 300);
+	_physOrigin = CPoint(0, 0);
 
-	_points.push_back(ColorLogicPoint(LogicPoint(50, 50, 0), RGB(255, 0, 0)));
+	_watcherVector[0] = _watcherVector[1] = 0;
+	_watcherVector[2] = 100;
 
 	for (int axisIndex = (int)Axis::X; (int)axisIndex < (int)Axis::Z + 1; axisIndex++)
 	{
@@ -105,24 +106,45 @@ void CoordinateSystem::Move(double dx, double dy)
 
 void CoordinateSystem::RotateAroundAxis(Axis axis, double deltaAngle)
 {
+	Matrix<double> newWatchVectorMatrix(1, 4);
+
 	switch (axis)
 	{
 	case Axis::X:
-		_projectionMatrix = GetXAxisRotationMatrix(deltaAngle) * _projectionMatrix;
+		{
+			newWatchVectorMatrix = _watcherVector * GetXAxisRotationMatrix(-deltaAngle);
+			_projectionMatrix = GetXAxisRotationMatrix(deltaAngle) * _projectionMatrix;
+		}
 		break;
 	case Axis::Y:
-		_projectionMatrix = GetYAxisRotationMatrix(deltaAngle) * _projectionMatrix;
+		{
+			newWatchVectorMatrix = _watcherVector * GetYAxisRotationMatrix(-deltaAngle);
+			_projectionMatrix = GetYAxisRotationMatrix(deltaAngle) * _projectionMatrix;
+		}
 		break;
 	case Axis::Z:
-		_projectionMatrix = GetZAxisRotationMatrix(deltaAngle) * _projectionMatrix;
+		{
+			newWatchVectorMatrix = _watcherVector * GetZAxisRotationMatrix(-deltaAngle);
+			_projectionMatrix = GetZAxisRotationMatrix(deltaAngle) * _projectionMatrix;
+		}
 		break;
 	}
+
+	_watcherVector[0] = newWatchVectorMatrix[0][0];
+	_watcherVector[1] = newWatchVectorMatrix[0][1];
+	_watcherVector[2] = newWatchVectorMatrix[0][2];
 }
 
 
-CPoint CoordinateSystem::GetOriginPhysPoint() const
+CPoint CoordinateSystem::GetPhysOrigin() const
 {
 	return _physOrigin;
+}
+
+
+const HomogeneousPoint<double>& CoordinateSystem::GetWatcherVector() const
+{
+	return _watcherVector;
 }
 
 
@@ -322,6 +344,9 @@ void CoordinateSystem::RenderGraphicObjects(CPaintDC *dc)
 
 void CoordinateSystem::RenerColorPoints(CPaintDC *dc)
 {
+	ColorLogicPoint p(LogicPoint(_watcherVector.x(), _watcherVector.y(), _watcherVector.z()), RGB(0, 255, 0));
+	RenderColorPoint(dc, p);
+
 	for each(const ColorLogicPoint& p in _points)
 	{
 		RenderColorPoint(dc, p);

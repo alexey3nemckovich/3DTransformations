@@ -312,7 +312,7 @@ namespace cs
 	template<typename Element>
 	Matrix<Element> HomogeneousPoint<Element>::operator*(const Matrix<Element>& other)
 	{
-		return (Matrix<Element>)this * other;
+		return this->Matrix<Element>::operator*(other);// (Matrix<Element>)this * other;
 	}
 
 

@@ -56,7 +56,7 @@ namespace cs
 				}))
 			);
 
-			facets.push_back(
+			/*facets.push_back(
 				Polygon::Ptr(new Polygon({
 					topLittleTrianglePoints[i],
 					bottomLittleTrianglePoints[i],
@@ -64,7 +64,7 @@ namespace cs
 					topLittleTrianglePoints[(i + 1) % 3]
 				}))
 			);
-
+*/
 			facets.push_back(
 				Polygon::Ptr(new Polygon({
 					topLittleTrianglePoints[i],
@@ -79,8 +79,8 @@ namespace cs
 					bottomLittleTrianglePoints[i],
 					bottomBigTrianglePoints[i],
 					bottomBigTrianglePoints[(i + 1) % 3],
-					bottomLittleTrianglePoints[(i + 1) % 3]
-				}))
+					bottomLittleTrianglePoints[(i + 1) % 3],
+				}, false))
 			);
 		}
 

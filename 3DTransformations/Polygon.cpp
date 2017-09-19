@@ -1,11 +1,15 @@
 ﻿#include "stdafx.h"
 #include "CoordinateSystem.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
+#include "Geometry.h"
 using namespace cs;
 
 
-Polygon::Polygon(const vector<LogicPoint>& points, int penStyle/* = PS_SOLID*/, int penWidth/* = 1*/, COLORREF penColor/* = RGB(0, 0, 0)*/)
+Polygon::Polygon(const vector<LogicPoint>& points, bool rightHandNormalVector/* = true*/, int penStyle/* = PS_SOLID*/, int penWidth/* = 1*/, COLORREF penColor/* = RGB(0, 0, 0)*/)
 	: LinearGraphicsObject(points, penStyle, penWidth, penColor)
 {
+	_rightHandNormalVector = rightHandNormalVector;
 	Init();
 }
 
@@ -13,37 +17,42 @@ Polygon::Polygon(const vector<LogicPoint>& points, int penStyle/* = PS_SOLID*/, 
 Polygon::Polygon(const Polygon& other)
 	: LinearGraphicsObject(other)
 {
+	_rightHandNormalVector = other._rightHandNormalVector;
 	Init();
 }
 
 
 void Polygon::Init()
 {
-	LogicPoint& A = _points[0];
-	LogicPoint& B = _points[1];
-	LogicPoint& C = _points[2];
-	double vx1 = A.x - B.x;
-	double vy1 = A.y - B.y;
-	double vz1 = A.z - B.z;
-	double vx2 = C.x - B.x;
-	double vy2 = C.y - B.y;
-	double vz2 = C.z - B.z;
+	_nVector = FindNormalVectorToPlane(_points[0], _points[1], _points[2], _rightHandNormalVector);
+	double module = FindVectorModule(_nVector);
+	_nVector[0] = _nVector[0] * 100 / module;
+	_nVector[1] = _nVector[1] * 100 / module;
+	_nVector[2] = _nVector[2] * 100 / module;
 
-	_nVector.x = vy1 * vz2 - vz1 * vy2;
-	_nVector.y = vz1 * vx2 - vx1 * vz2;
-	_nVector.z = vx1 * vy2 - vy1 * vx2;
+	CoordinateSystem::GetInstance()->AddLogicPoint(
+		LogicPoint(
+			_nVector.x(),
+			_nVector.y(),
+			_nVector.z()
+		),
+		RGB(0, 0, 255),
+		false,
+		false,
+		false
+	);
 }
 
 
 void Polygon::Render(const CoordinateSystem* cs, CPaintDC *dc)
 {
 	bool isVisible = true;
-	/*CPoint physOrigin = cs->GetOriginPhysPoint();
-	CPoint nVectorPhysPoint = cs->ConvertLogicPointToPhys(_nVector);
-	if (nVectorPhysPoint.y > physOrigin.y)
+	auto watcherVector = cs->GetWatcherVector();
+	double angleToWatcher = FindAnglebetweenVectors(watcherVector, _nVector);
+	if (angleToWatcher > M_PI_2)
 	{
 		isVisible = false;
-	}*/
+	}
 
 	if (isVisible)
 	{
@@ -64,23 +73,4 @@ void Polygon::Render(const CoordinateSystem* cs, CPaintDC *dc)
 
 		dc->MoveTo(oldPoint);
 	}
-	//LinearGraphicsObject::Render(cs, dc);
-
-	/*auto countPoints = _points.size();
-	POINT* physPoints = new POINT[countPoints];
-	for (int i = 0; i < countPoints; i++)
-	{
-		physPoints[i] = cs->ConvertLogicPointToPhys(_points[i]);
-	}
-
-	dc->Polygon(physPoints, countPoints);*/
-	/*auto oldPoint = dc->MoveTo(
-		cs->ConvertLogicPointToPhys(_points[_points.size() - 1])
-	);
-
-	dc->LineTo(
-		cs->ConvertLogicPointToPhys(_points[0])
-	);
-
-	dc->MoveTo(oldPoint);*/
 }

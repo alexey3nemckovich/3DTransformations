@@ -21,12 +21,12 @@ namespace cs
 
 	public:
 	 	LogicPoint& operator=(const LogicPoint& other);
-		inline LogicPoint* operator+=(const LogicPoint& other);
-		inline LogicPoint* operator-=(const LogicPoint& other);
+		LogicPoint* operator+=(const LogicPoint& other);
+		LogicPoint* operator-=(const LogicPoint& other);
 
 	public:
-		inline bool operator==(const LogicPoint& other);
-		inline int operator*(LogicPoint other);
+		bool operator==(const LogicPoint& other);
+		int operator*(LogicPoint other);
 
 	public:
 		double x, y, z;
@@ -146,15 +146,13 @@ namespace cs
 		void Zoom(double val);
 		void Move(double dx, double dy);
 		void RotateAroundAxis(Axis axis, double deltaAngle);
-
-		CPoint GetOriginPhysPoint() const;
 		void Clear();
 
 	public:
 		inline void AddText(LogicPoint p, CString text);
-		inline void AddLogicPoint(LogicPoint point, COLORREF cl = RGB(0, 0, 0), bool xDetection = true, bool yDetection = true, bool zDetection = true, bool xDetectionLine = true, bool yDetectionLine = true, bool zDetectionLine = true);
-		inline void AddLogicPoint(double x, double y, COLORREF cl = RGB(0, 0, 0), bool xDetection = false, bool yDetection = false, bool xDetectionLine = true, bool yDetectionLine = true);
-		inline void AddLogicPoint(double x, double y, double z, COLORREF cl = RGB(0, 0, 0), bool xDetection = false, bool yDetection = false, bool zDetection = true, bool xDetectLine = true, bool yDetectLine = true, bool zDetectionLine = true);
+		void AddLogicPoint(LogicPoint point, COLORREF cl = RGB(0, 0, 0), bool xDetection = true, bool yDetection = true, bool zDetection = true, bool xDetectionLine = true, bool yDetectionLine = true, bool zDetectionLine = true);
+		void AddLogicPoint(double x, double y, COLORREF cl = RGB(0, 0, 0), bool xDetection = false, bool yDetection = false, bool xDetectionLine = true, bool yDetectionLine = true);
+		void AddLogicPoint(double x, double y, double z, COLORREF cl = RGB(0, 0, 0), bool xDetection = false, bool yDetection = false, bool zDetection = true, bool xDetectLine = true, bool yDetectLine = true, bool zDetectionLine = true);
 		void AddGraphicObject(GraphicsObject* obj, COLORREF color = RGB(0, 0, 0));
 		inline GraphicsObject* LastGraphicObject();
 		inline const vector<shared_ptr<GraphicsObject>>& GetGraphicObejctsList();
@@ -169,6 +167,9 @@ namespace cs
 		inline void SetAxisRenderingDivisions(Axis axis, double value);
 
 		inline void SetPhysOrigin(CPoint physOrigin);
+		inline CPoint GetPhysOrigin() const;
+
+		const HomogeneousPoint<double>& GetWatcherVector() const;
 
 		//Convertations
 	public:
@@ -237,6 +238,7 @@ namespace cs
 	private:
 		double _scale = 1;
 		CPoint _physOrigin;
+		HomogeneousPoint<double> _watcherVector;
 
 		bool _gridRender = false;
 		map<Axis, AxisInfo> _axisInfoMap;
@@ -303,7 +305,7 @@ namespace cs
 		typedef shared_ptr<Polygon> Ptr;
 
 	public:
-		Polygon(const vector<LogicPoint>& points, int penStyle = PS_SOLID, int penWidth = 1, COLORREF penColor = RGB(0, 0, 0));
+		Polygon(const vector<LogicPoint>& points, bool rightHandNormalVector = true, int penStyle = PS_SOLID, int penWidth = 1, COLORREF penColor = RGB(0, 0, 0));
 		Polygon(const Polygon& other);
 
 	protected:
@@ -313,7 +315,8 @@ namespace cs
 		void Init();
 
 	private:
-		LogicPoint _nVector;
+		bool _rightHandNormalVector;
+		HomogeneousPoint<double> _nVector;
 	};
 
 

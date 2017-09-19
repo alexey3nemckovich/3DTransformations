@@ -186,6 +186,7 @@
     <ClInclude Include="ChildView.h" />
     <ClInclude Include="CoordinateSystem.h" />
     <ClInclude Include="CTriangleDlg.h" />
+    <ClInclude Include="Geometry.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="PrimitiveTypes.h" />
     <ClInclude Include="Resource.h" />
