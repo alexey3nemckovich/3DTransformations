@@ -25,24 +25,7 @@ Polygon::Polygon(const Polygon& other)
 void Polygon::Init()
 {
 	_brush.CreateSolidBrush(RGB(0, 255, 0));
-	_nVector = FindNormalVectorToPlane(_points[0], _points[1], _points[2], _rightHandNormalVector);
-
-	double module = FindVectorModule(_nVector);
-	_nVector[0] = _nVector[0] * 100 / module;
-	_nVector[1] = _nVector[1] * 100 / module;
-	_nVector[2] = _nVector[2] * 100 / module;
-
-	CoordinateSystem::GetInstance()->AddLogicPoint(
-		LogicPoint(
-			_nVector.x(),
-			_nVector.y(),
-			_nVector.z()
-		),
-		RGB(0, 0, 255),
-		false,
-		false,
-		false
-	);
+	_nVector = FindNormalVectorToPlane(_points[0], _points[1], _points[2], 100, _rightHandNormalVector);
 }
 
 

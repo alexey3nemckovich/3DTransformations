@@ -96,7 +96,7 @@ void CoordinateSystem::Render(CPaintDC *dc, CWnd *wnd)
 	memDc.FillSolidRect(&rect, GetSysColor(COLOR_WINDOW));
 
 	//Drawing
-    RenderAxes(&memDc);
+    //RenderAxes(&memDc);
 	RenderGraphicObjects(&memDc);
 
 	RenerColorPoints(&memDc);
@@ -363,9 +363,6 @@ void CoordinateSystem::RenderGraphicObjects(CDC *dc)
 
 void CoordinateSystem::RenerColorPoints(CDC *dc)
 {
-	ColorLogicPoint p(LogicPoint(_watcherVector.x(), _watcherVector.y(), _watcherVector.z()), RGB(0, 255, 0));
-	RenderColorPoint(dc, p);
-
 	for each(const ColorLogicPoint& p in _points)
 	{
 		RenderColorPoint(dc, p);

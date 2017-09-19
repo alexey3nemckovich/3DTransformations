@@ -57,7 +57,7 @@ afx_msg void CChildView::OnPaint()
 afx_msg void CChildView::OnIncreaseAngle()
 {
 	static auto coordSystem = cs::CoordinateSystem::GetInstance();
-	const double deltaAngel = M_PI / 90;
+	const double deltaAngel = M_PI / 45;
 
 	if (WorkingMode::RotatingSystemAroundAxis == _mode)
 	{
@@ -75,7 +75,7 @@ afx_msg void CChildView::OnIncreaseAngle()
 afx_msg void CChildView::OnDecreaseAngle()
 {
 	auto coordSystem = cs::CoordinateSystem::GetInstance();
-	const double deltaAngel = - M_PI / 180;
+	const double deltaAngel = - M_PI / 45;
 
 	if (WorkingMode::RotatingSystemAroundAxis == _mode)
 	{

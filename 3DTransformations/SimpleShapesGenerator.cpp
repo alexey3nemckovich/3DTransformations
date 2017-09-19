@@ -48,6 +48,18 @@ namespace cs
 		for (int i = 0; i < 3; i++)
 		{
 			facets.push_back(
+				Polygon::Ptr(new Polygon({
+					topLittleTrianglePoints[i],
+					bottomLittleTrianglePoints[i],
+					bottomLittleTrianglePoints[(i + 1) % 3],
+					topLittleTrianglePoints[(i + 1) % 3]
+				}, false))
+			);
+		}
+		
+		for (int i = 0; i < 3; i++)
+		{
+			facets.push_back(
 				Polygon::Ptr(new Polygon({ 
 						topBigTrianglePoints[i], 
 						bottomBigTrianglePoints[i], 

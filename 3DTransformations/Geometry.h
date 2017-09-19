@@ -5,7 +5,15 @@
 namespace cs
 {
 
-	HomogeneousPoint<double> FindNormalVectorToPlane(const LogicPoint& a, const LogicPoint& b, const LogicPoint& c, bool rightHande = true)
+
+	template<typename Element>
+	double FindVectorModule(HomogeneousPoint<Element> a)
+	{
+		return sqrt(a.x() * a.x() + a.y() * a.y() + a.z() * a.z());
+	}
+
+
+	HomogeneousPoint<double> FindNormalVectorToPlane(const LogicPoint& a, const LogicPoint& b, const LogicPoint& c, double module, bool rightHande = true)
 	{
 		double vx1 = b.x - a.x;
 		double vy1 = b.y - a.y;
@@ -27,20 +35,12 @@ namespace cs
 			vector[2] *= -1;
 		}
 
-		return vector;
-		/*LogicPoint& A = _points[0];
-		LogicPoint& B = _points[1];
-		LogicPoint& C = _points[2];
-		double vx1 = A.x - B.x;
-		double vy1 = A.y - B.y;
-		double vz1 = A.z - B.z;
-		double vx2 = C.x - B.x;
-		double vy2 = C.y - B.y;
-		double vz2 = C.z - B.z;
+		double curModule = FindVectorModule<double>(vector);
+		vector[0] = vector[0] * 100 / module;
+		vector[1] = vector[1] * 100 / module;
+		vector[2] = vector[2] * 100 / module;
 
-		_nVector.x = vy1 * vz2 - vz1 * vy2;
-		_nVector.y = vz1 * vx2 - vx1 * vz2;
-		_nVector.z = vx1 * vy2 - vy1 * vx2;*/
+		return vector;
 	}
 
 
@@ -53,13 +53,6 @@ namespace cs
 
 		double cosVal = scalarMul / (aModule * bModule);
 		return acos(cosVal);
-	}
-
-
-	template<typename Element>
-	double FindVectorModule(HomogeneousPoint<Element> a)
-	{
-		return sqrt(a.x() * a.x() + a.y() * a.y() + a.z() * a.z());
 	}
 
 }
