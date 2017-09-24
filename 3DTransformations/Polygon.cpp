@@ -67,8 +67,8 @@ void Polygon::Render(const CoordinateSystem* cs, CDC *dc)
 
 		dc->MoveTo(oldPoint);
 
-		//Fill carcas with brush
-		dc->SelectObject(&_brush);
-		dc->Polygon(physPoints, countPoints);
+		////Fill carcas with brush
+		//dc->SelectObject(&_brush);
+		//dc->Polygon(physPoints, countPoints);
 	}
 }

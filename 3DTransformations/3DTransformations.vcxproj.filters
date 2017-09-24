@@ -51,6 +51,12 @@
     <ClInclude Include="Geometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CAdditionalAxisConfigDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AdditionalAxis.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3DTransformations.cpp">
@@ -87,6 +93,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SimpleShapesGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CAdditionalAxisConfigDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AdditionalAxis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

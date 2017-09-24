@@ -42,6 +42,7 @@ void CoordinateSystem::Init()
 	_projectionMatrix = Matrix<double>(4, 4);
 	_projectionMatrix[0][0] = _projectionMatrix[1][1] = _projectionMatrix[3][3] = 1;
 
+	_origin = LogicPoint(0, 0);
 	_physOrigin = CPoint(0, 0);
 
 	_watcherVector[0] = _watcherVector[1] = 0;
@@ -96,7 +97,7 @@ void CoordinateSystem::Render(CPaintDC *dc, CWnd *wnd)
 	memDc.FillSolidRect(&rect, GetSysColor(COLOR_WINDOW));
 
 	//Drawing
-    //RenderAxes(&memDc);
+    RenderAxes(&memDc);
 	RenderGraphicObjects(&memDc);
 
 	RenerColorPoints(&memDc);
@@ -116,10 +117,25 @@ void CoordinateSystem::Zoom(double val)
 }
 
 
-void CoordinateSystem::Move(double dx, double dy)
+void CoordinateSystem::Move(double dx, double dy, double dz)
+{
+	_projectionMatrix = GetTransferenceMatrix(dx, dy, dz) * _projectionMatrix;
+}
+
+
+void CoordinateSystem::MoveOriginPhysPoint(double dx, double dy)
 {
 	_physOrigin.x += dx;
 	_physOrigin.y += dy;
+}
+
+
+void CoordinateSystem::SetOriginTo(LogicPoint p)
+{
+	auto physPointNewOrigin = ConvertLogicPointToPhys(p);
+	_physOrigin = physPointNewOrigin;
+
+	Move(-p.x, -p.y, -p.z);
 }
 
 
@@ -152,6 +168,32 @@ void CoordinateSystem::RotateAroundAxis(Axis axis, double deltaAngle)
 	_watcherVector[0] = newWatchVectorMatrix[0][0];
 	_watcherVector[1] = newWatchVectorMatrix[0][1];
 	_watcherVector[2] = newWatchVectorMatrix[0][2];
+}
+
+
+void CoordinateSystem::RotateAroundAxis(std::pair<LogicPoint, LogicPoint> axisPoints, double deltaAngle)
+{
+	double cx = axisPoints.second.x - axisPoints.first.x;
+	double cy = axisPoints.second.y - axisPoints.first.y;
+	double cz = axisPoints.second.z - axisPoints.first.z;
+
+	double dzy = sqrt(cz * cz + cy * cy);
+	double dzx = sqrt(cz * cz + cx * cx);
+
+	double xRotAngle = asin(cy / dzy);
+	double yRotAngle = asin(cx / dzx);
+
+	Move(axisPoints.first.x, axisPoints.first.y, axisPoints.first.z);
+
+	RotateAroundAxis(Axis::X, -xRotAngle);
+	RotateAroundAxis(Axis::Y, -yRotAngle);
+	
+	RotateAroundAxis(Axis::Z, deltaAngle);
+
+	RotateAroundAxis(Axis::Y, yRotAngle);
+	RotateAroundAxis(Axis::X, xRotAngle);
+
+	Move(-axisPoints.first.x, -axisPoints.first.y, -axisPoints.first.z);
 }
 
 
@@ -551,6 +593,18 @@ Matrix<double>& CoordinateSystem::GetZAxisRotationMatrix(double angle)
 	matr[2][2] = matr[3][3] = 1;
 	matr[0][0] = matr[1][1] = cos(angle);
 	matr[1][0] = -(matr[0][1] = sin(angle));
+
+	return matr;
+}
+
+
+Matrix<double>& CoordinateSystem::GetTransferenceMatrix(double dx, double dy, double dz)
+{
+	static Matrix<double> matr(4, 4);
+	matr[0][0] = matr[1][1] = matr[2][2] = matr[3][3] = 1;
+	matr[3][0] = dx;
+	matr[3][1] = dy;
+	matr[3][2] = dz;
 
 	return matr;
 }

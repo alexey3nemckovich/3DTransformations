@@ -8,6 +8,7 @@
 #include "3DTransformations.h"
 #include "MainFrm.h"
 #include "CTriangleDlg.h"
+#include "CAdditionalAxisConfigDlg.h"
 
 
 #ifdef _DEBUG
@@ -20,6 +21,7 @@
 BEGIN_MESSAGE_MAP(CMy3DTransformationsApp, CWinApp)
 	ON_COMMAND(ID_APP_ABOUT, &CMy3DTransformationsApp::OnAppAbout)
 	ON_COMMAND(ID_FILE_SHOWTRIANGLE, &CMy3DTransformationsApp::OnShowTriangle)
+	ON_COMMAND(ID_FILE_CONFIGUREADDITIONALAXIS, &CMy3DTransformationsApp::OnConfigureAdditionalAxis)
 END_MESSAGE_MAP()
 
 
@@ -171,10 +173,14 @@ afx_msg void CMy3DTransformationsApp::OnShowTriangle()
 	trDlg.DoModal();
 }
 
-// CMy3DTransformationsApp message handlers
 
-
-
+afx_msg void CMy3DTransformationsApp::OnConfigureAdditionalAxis()
+{
+	/*CAdditionalAxisConfigDlg dlg;
+	dlg.DoModal();*/
+	cs::CoordinateSystem::GetInstance()->SetOriginTo(cs::LogicPoint(50, 50, 50));
+	m_pMainWnd->RedrawWindow();
+}
 
 
 void CAboutDlg::OnLButtonDown(UINT nFlags, CPoint point)

@@ -11,6 +11,13 @@ namespace cs
 {
 
 
+	enum class Axis {
+		X = 0,
+		Y = 1,
+		Z = 2
+	};
+
+
 	struct LogicPoint 
 	{
 	public:
@@ -33,15 +40,14 @@ namespace cs
 	};
 
 
+	typedef std::pair<LogicPoint, LogicPoint> AxisPoints;
+
+
 	class GraphicsObject;
 	class CoordinateSystem
 	{
 	public:
-		enum class Axis {
-			X = 0,
-			Y = 1,
-			Z = 2 
-		};
+		
 		//Type definitions
 	private:
 		class Exception
@@ -144,8 +150,11 @@ namespace cs
 	public:
 		void Render(CPaintDC *dc, CWnd *wnd);
 		void Zoom(double val);
-		void Move(double dx, double dy);
+		void Move(double dx, double dy, double dz);
+		void MoveOriginPhysPoint(double dx, double dy);
+		void SetOriginTo(LogicPoint p);
 		void RotateAroundAxis(Axis axis, double deltaAngle);
+		void RotateAroundAxis(std::pair<LogicPoint, LogicPoint> axisPoints, double deltaAngle);
 		void Clear();
 
 	public:
@@ -227,6 +236,7 @@ namespace cs
 		Matrix<double>& GetXAxisRotationMatrix(double angle);
 		Matrix<double>& GetYAxisRotationMatrix(double angle);
 		Matrix<double>& GetZAxisRotationMatrix(double angle);
+		Matrix<double>& GetTransferenceMatrix(double dx, double dy, double dz);
 
 	private:
 		vector<Text> _texts;
@@ -238,6 +248,7 @@ namespace cs
 	private:
 		double _scale = 1;
 		CPoint _physOrigin;
+		LogicPoint _origin;
 		HomogeneousPoint<double> _watcherVector;
 
 		bool _gridRender = false;

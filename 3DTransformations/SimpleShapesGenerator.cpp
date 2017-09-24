@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "SimpleShapesGenerator.h"
+#include "AdditionalAxis.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 
@@ -17,6 +18,8 @@ namespace cs
 
 	GraphicsObject* SimpleShapesGenerator::CreateTriangle(int h)
 	{
+		static auto additionalAxis = AdditionalAxis::GetInstance();
+
 		double r = 3 * sqrt(3) * h / 4;
 		double R = r * 3;
 		double pH = (double)h / 2;
@@ -42,6 +45,23 @@ namespace cs
 
 			angle += (M_PI * 2) / 3;
 		}
+
+		additionalAxis->SetPoints(
+			bottomBigTrianglePoints[0],
+			LogicPoint(
+				(topLittleTrianglePoints[1].x + topLittleTrianglePoints[2].x) / 2,
+				(topLittleTrianglePoints[1].y + topLittleTrianglePoints[2].y) / 2,
+				topBigTrianglePoints[1].z
+			)
+		);
+		
+		CoordinateSystem::GetInstance()->AddLogicPoint(
+			additionalAxis->GetPoints().first, 0, false, false, false, false, false, false
+		);
+
+		CoordinateSystem::GetInstance()->AddLogicPoint(
+			additionalAxis->GetPoints().second, 0, false, false, false, false, false, false
+		);
 
 		//Find facets
 		vector<Polygon::Ptr> facets;

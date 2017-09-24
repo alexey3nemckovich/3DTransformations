@@ -30,6 +30,7 @@ public:
 public:
 	afx_msg void OnAppAbout();
 	afx_msg void OnShowTriangle();
+	afx_msg void OnConfigureAdditionalAxis();
 	DECLARE_MESSAGE_MAP()
 };
 

@@ -2,6 +2,7 @@
 #include "3DTransformations.h"
 #include "ChildView.h"
 #include "CoordinateSystem.h"
+#include "AdditionalAxis.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 
@@ -57,6 +58,7 @@ afx_msg void CChildView::OnPaint()
 afx_msg void CChildView::OnIncreaseAngle()
 {
 	static auto coordSystem = cs::CoordinateSystem::GetInstance();
+	static auto additionalAxis = AdditionalAxis::GetInstance();
 	const double deltaAngel = M_PI / 45;
 
 	if (WorkingMode::RotatingSystemAroundAxis == _mode)
@@ -65,7 +67,7 @@ afx_msg void CChildView::OnIncreaseAngle()
 	}
 	else
 	{
-
+		coordSystem->RotateAroundAxis(additionalAxis->GetPoints(), deltaAngel);
 	}
 
 	RedrawWindow();
@@ -75,6 +77,7 @@ afx_msg void CChildView::OnIncreaseAngle()
 afx_msg void CChildView::OnDecreaseAngle()
 {
 	auto coordSystem = cs::CoordinateSystem::GetInstance();
+	static auto additionalAxis = AdditionalAxis::GetInstance();
 	const double deltaAngel = - M_PI / 45;
 
 	if (WorkingMode::RotatingSystemAroundAxis == _mode)
@@ -83,7 +86,7 @@ afx_msg void CChildView::OnDecreaseAngle()
 	}
 	else
 	{
-
+		coordSystem->RotateAroundAxis(additionalAxis->GetPoints(), deltaAngel);
 	}
 
 	RedrawWindow();
@@ -115,19 +118,19 @@ afx_msg void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	switch (ch)
 	{
 	case 'z':
-		_workingAxis = cs::CoordinateSystem::Axis::Z;
+		_workingAxis = cs::Axis::Z;
 		break;
 	case 'y':
-		_workingAxis = cs::CoordinateSystem::Axis::Y;
+		_workingAxis = cs::Axis::Y;
 		break;
 	case 'x':
-		_workingAxis = cs::CoordinateSystem::Axis::X;
+		_workingAxis = cs::Axis::X;
 		break;
 	case 'a':
 		_mode = WorkingMode::RotatingSystemAroundAxis;
 		break;
 	case 's':
-		_mode = WorkingMode::RotatingObjectsArountAxis;
+		_mode = WorkingMode::RotatingObjectsArountAdditionalAxis;
 		break;
 	}
 
@@ -164,7 +167,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 		}
 		else
 		{
-			cs::CoordinateSystem::GetInstance()->Move(point.x - prevPoint.x, point.y - prevPoint.y);
+			cs::CoordinateSystem::GetInstance()->MoveOriginPhysPoint(point.x - prevPoint.x, point.y - prevPoint.y);
 			prevPoint = point;
 			RedrawWindow();
 		}

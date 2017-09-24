@@ -26,11 +26,11 @@ protected:
 private:
 	enum class WorkingMode {
 		RotatingSystemAroundAxis,
-		RotatingObjectsArountAxis
+		RotatingObjectsArountAdditionalAxis
 	};
 
 	WorkingMode _mode = WorkingMode::RotatingSystemAroundAxis;
-	cs::CoordinateSystem::Axis _workingAxis;
+	cs::Axis _workingAxis;
 
 	bool _moving = false;
 	bool _firstMove = true;
