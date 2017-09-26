@@ -1,5 +1,5 @@
 #pragma once
-#include "CoordinateSystem.h"
+#include "GraphicObject.h"
 
 
 namespace cs
@@ -12,7 +12,7 @@ namespace cs
 		static SimpleShapesGenerator* GetInstance();
 
 	public:
-		GraphicsObject* CreateTriangle(int h);
+		GraphicObject* CreateTriangle(int h);
 	};
 
 

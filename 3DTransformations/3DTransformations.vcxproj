@@ -189,12 +189,18 @@
     <ClInclude Include="CoordinateSystem.h" />
     <ClInclude Include="CTriangleDlg.h" />
     <ClInclude Include="Geometry.h" />
+    <ClInclude Include="GraphicObject.h" />
+    <ClInclude Include="LinearGraphicObject.h" />
     <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="Polygon.h" />
+    <ClInclude Include="Polyhedron.h" />
     <ClInclude Include="PrimitiveTypes.h" />
+    <ClInclude Include="PrimitiveTypesTemplates.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SimpleShapesGenerator.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="ZBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3DTransformations.cpp" />
@@ -203,10 +209,10 @@
     <ClCompile Include="ChildView.cpp" />
     <ClCompile Include="CoordinateSystem.cpp" />
     <ClCompile Include="CTriangleDlg.cpp" />
-    <ClCompile Include="LinearGraphicsObject.cpp" />
+    <ClCompile Include="LinearGraphicObject.cpp" />
     <ClCompile Include="LogicPoint.cpp" />
     <ClCompile Include="MainFrm.cpp" />
-    <ClCompile Include="GraphicsObject.cpp" />
+    <ClCompile Include="GraphicObject.cpp" />
     <ClCompile Include="Polygon.cpp" />
     <ClCompile Include="Polyhedron.cpp" />
     <ClCompile Include="SimpleShapesGenerator.cpp" />
@@ -216,6 +222,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="ZBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="3DTransformations.rc" />

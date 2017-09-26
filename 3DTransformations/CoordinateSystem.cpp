@@ -1,7 +1,5 @@
 ﻿#include "stdafx.h"
 #include "CoordinateSystem.h"
-#define _USE_MATH_DEFINES
-#include <math.h>
 using namespace cs;
 
 
@@ -96,14 +94,11 @@ void CoordinateSystem::Render(CPaintDC *dc, CWnd *wnd)
 	memDc.SelectObject(memBitmap);
 	memDc.FillSolidRect(&rect, GetSysColor(COLOR_WINDOW));
 
-	//Drawing
-    RenderAxes(&memDc);
-	RenderGraphicObjects(&memDc);
+	//Rendering algorithm
 
-	RenerColorPoints(&memDc);
-	RenderDetectPoints(&memDc);
+	StandardRenderingAlgorithm(&memDc);
+	//ZBufferRenderingAlgorithm(&memDc);
 
-	RenderTexts(&memDc);
 	//
 
 	//Flushing
@@ -273,13 +268,13 @@ void CoordinateSystem::AddLogicPoint(double x, double y, double z, COLORREF cl/*
 }
 
 
-void CoordinateSystem::AddGraphicObject(GraphicsObject* obj, COLORREF color /*= RGB(0, 0, 0)*/)
+void CoordinateSystem::AddGraphicObject(GraphicObject* obj, COLORREF color /*= RGB(0, 0, 0)*/)
 {
-	_objects.push_back(shared_ptr<GraphicsObject>(obj));
+	_objects.push_back(shared_ptr<GraphicObject>(obj));
 }
 
 
-GraphicsObject* CoordinateSystem::LastGraphicObject()
+GraphicObject* CoordinateSystem::LastGraphicObject()
 {
 	if (_objects.size())
 	{
@@ -290,7 +285,7 @@ GraphicsObject* CoordinateSystem::LastGraphicObject()
 }
 
 
-const vector<GraphicsObject::Ptr>& CoordinateSystem::GetGraphicObejctsList()
+const vector<GraphicObject::Ptr>& CoordinateSystem::GetGraphicObejctsList()
 {
 	return _objects;
 }
@@ -372,6 +367,29 @@ void CoordinateSystem::CheckAxisBounds(Axis ax, double v)
 }
 
 
+void CoordinateSystem::StandardRenderingAlgorithm(CDC *dc)
+{
+	RenderAxes(dc);
+	RenderGraphicObjects(dc);
+
+	RenerColorPoints(dc);
+	RenderDetectPoints(dc);
+
+	RenderTexts(dc);
+}
+
+
+void CoordinateSystem::ZBufferRenderingAlgorithm(CDC *dc)
+{
+
+
+	for each(GraphicObject::Ptr pObj in _objects)
+	{
+		pObj->Render(this, dc);
+	}
+}
+
+
 void CoordinateSystem::RenderAxes(CDC *dc)
 {
 	CPoint tmp = dc->GetCurrentPosition();
@@ -396,7 +414,7 @@ void CoordinateSystem::RenderAxes(CDC *dc)
 
 void CoordinateSystem::RenderGraphicObjects(CDC *dc)
 {
-	for each(GraphicsObject::Ptr pObj in _objects)
+	for each(GraphicObject::Ptr pObj in _objects)
 	{
 		pObj->Render(this, dc);
 	}

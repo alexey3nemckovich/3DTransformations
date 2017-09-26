@@ -1,13 +1,13 @@
 ﻿#include "stdafx.h"
-#include "CoordinateSystem.h"
-#define _USE_MATH_DEFINES
-#include <math.h>
 #include "Geometry.h"
+//
+#include "Polygon.h"
+#include "CoordinateSystem.h"
 using namespace cs;
 
 
 Polygon::Polygon(const vector<LogicPoint>& points, bool rightHandNormalVector/* = true*/, int penStyle/* = PS_SOLID*/, int penWidth/* = 1*/, COLORREF penColor/* = RGB(0, 0, 0)*/)
-	: LinearGraphicsObject(points, penStyle, penWidth, penColor)
+	: LinearGraphicObject(points, penStyle, penWidth, penColor)
 {
 	_rightHandNormalVector = rightHandNormalVector;
 	Init();
@@ -15,7 +15,7 @@ Polygon::Polygon(const vector<LogicPoint>& points, bool rightHandNormalVector/* 
 
 
 Polygon::Polygon(const Polygon& other)
-	: LinearGraphicsObject(other)
+	: LinearGraphicObject(other)
 {
 	_rightHandNormalVector = other._rightHandNormalVector;
 	Init();
@@ -29,7 +29,7 @@ void Polygon::Init()
 }
 
 
-void Polygon::Render(const CoordinateSystem* cs, CDC *dc)
+void Polygon::Render(const CoordinateSystem* cs, CDC *dc) const
 {
 	bool isVisible = true;
 	auto watcherVector = cs->GetWatcherVector();

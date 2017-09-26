@@ -1,8 +1,10 @@
 #include "stdafx.h"
-#include "SimpleShapesGenerator.h"
-#include "AdditionalAxis.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include "AdditionalAxis.h"
+#include "Polygon.h"
+#include "Polyhedron.h"
+#include "SimpleShapesGenerator.h"
 
 
 namespace cs
@@ -16,7 +18,7 @@ namespace cs
 	}
 
 
-	GraphicsObject* SimpleShapesGenerator::CreateTriangle(int h)
+	GraphicObject* SimpleShapesGenerator::CreateTriangle(int h)
 	{
 		static auto additionalAxis = AdditionalAxis::GetInstance();
 

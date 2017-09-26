@@ -4,6 +4,9 @@
 #include <vector>
 #include <exception>
 #include "PrimitiveTypes.h"
+#include "PrimitiveTypesTemplates.h"
+//
+#include "GraphicObject.h"
 using namespace std;
 
 
@@ -11,43 +14,8 @@ namespace cs
 {
 
 
-	enum class Axis {
-		X = 0,
-		Y = 1,
-		Z = 2
-	};
-
-
-	struct LogicPoint 
-	{
-	public:
-		LogicPoint();
-		LogicPoint(double x, double y);
-		LogicPoint(double x, double y, double z);
-		LogicPoint(const LogicPoint& other);
-
-	public:
-	 	LogicPoint& operator=(const LogicPoint& other);
-		LogicPoint* operator+=(const LogicPoint& other);
-		LogicPoint* operator-=(const LogicPoint& other);
-
-	public:
-		bool operator==(const LogicPoint& other);
-		int operator*(LogicPoint other);
-
-	public:
-		double x, y, z;
-	};
-
-
-	typedef std::pair<LogicPoint, LogicPoint> AxisPoints;
-
-
-	class GraphicsObject;
 	class CoordinateSystem
 	{
-	public:
-		
 		//Type definitions
 	private:
 		class Exception
@@ -158,13 +126,13 @@ namespace cs
 		void Clear();
 
 	public:
-		inline void AddText(LogicPoint p, CString text);
+		void AddText(LogicPoint p, CString text);
 		void AddLogicPoint(LogicPoint point, COLORREF cl = RGB(0, 0, 0), bool xDetection = true, bool yDetection = true, bool zDetection = true, bool xDetectionLine = true, bool yDetectionLine = true, bool zDetectionLine = true);
 		void AddLogicPoint(double x, double y, COLORREF cl = RGB(0, 0, 0), bool xDetection = false, bool yDetection = false, bool xDetectionLine = true, bool yDetectionLine = true);
 		void AddLogicPoint(double x, double y, double z, COLORREF cl = RGB(0, 0, 0), bool xDetection = false, bool yDetection = false, bool zDetection = true, bool xDetectLine = true, bool yDetectLine = true, bool zDetectionLine = true);
-		void AddGraphicObject(GraphicsObject* obj, COLORREF color = RGB(0, 0, 0));
-		inline GraphicsObject* LastGraphicObject();
-		inline const vector<shared_ptr<GraphicsObject>>& GetGraphicObejctsList();
+		void AddGraphicObject(GraphicObject* obj, COLORREF color = RGB(0, 0, 0));
+		GraphicObject* LastGraphicObject();
+		const vector<shared_ptr<GraphicObject>>& GetGraphicObejctsList();
 
 		//Properties
 	public:
@@ -202,13 +170,12 @@ namespace cs
 		);
 		CoordinateSystem::~CoordinateSystem();
 
-		friend class GraphicsObject;
-		friend class LinearGraphicsObject;
-		friend class Polygon;
-		friend class Polyhedron;
-
 	private:
 		void CheckAxisBounds(Axis axis, double v);
+
+	private:
+		void StandardRenderingAlgorithm(CDC *dc);
+		void ZBufferRenderingAlgorithm(CDC *dc);
 
 	private:
 		void RenderAxes(CDC *dc);
@@ -239,114 +206,33 @@ namespace cs
 		Matrix<double>& GetTransferenceMatrix(double dx, double dy, double dz);
 
 	private:
-		vector<Text> _texts;
-		vector<shared_ptr<GraphicsObject>> _objects;
-		vector<ColorLogicPoint> _points;
-		vector<DetectLogicPoint> _detectPoints;
+		vector<Text>				      _texts;
+		vector<GraphicObject::Ptr>	      _objects;
+		vector<ColorLogicPoint>			  _points;
+		vector<DetectLogicPoint>		  _detectPoints;
 
 		//System state
 	private:
-		double _scale = 1;
-		CPoint _physOrigin;
-		LogicPoint _origin;
-		HomogeneousPoint<double> _watcherVector;
+		double							  _scale = 1;
+		CPoint							  _physOrigin;
+		LogicPoint						  _origin;
+		HomogeneousPoint<double>		  _watcherVector;
 
-		bool _gridRender = false;
-		map<Axis, AxisInfo> _axisInfoMap;
-		Matrix<double> _projectionMatrix;
+		bool							  _gridRender = false;
+		map<Axis, AxisInfo>				  _axisInfoMap;
+		Matrix<double>					  _projectionMatrix;
 
 		//Constants
 	private:
-		#define DEFAULT_LLEFT_BOUND     -5
-		#define DEFAULT_LRIGHT_BOUND     5
-		#define DEFAULT_LTOP_BOUND       5
-		#define DEFAULT_LBOTTOM_BOUND   -5
-		#define DIVISION_HALF_LEN        5
-		#define AXIS_INDENT              2
-	};
-
-
-	class GraphicsObject
-	{
-	public:
-		typedef shared_ptr<GraphicsObject> Ptr;
-		friend class CoordinateSystem;
-
-		GraphicsObject(int penStyle = PS_SOLID, int penWidth = 1, COLORREF penColor = RGB(0, 0, 0));
-		GraphicsObject(const GraphicsObject& other);
-		~GraphicsObject();
-
-	public:
-		inline virtual GraphicsObject* operator=(const GraphicsObject& other);
-
-	protected:
-		virtual void Render(const CoordinateSystem*, CDC *dc) = 0;
-
-	protected:
-		int _penStyle;
-		int _penWidth;
-		COLORREF _penColor;
-	};
-
-
-	class LinearGraphicsObject
-		: public GraphicsObject
-	{
-	public:
-		friend class CoordinateSystem;
-
-		LinearGraphicsObject(const vector<LogicPoint>& points, int penStyle = PS_SOLID, int penWidth = 1, COLORREF penColor = RGB(0, 0, 0));
-		LinearGraphicsObject(const LinearGraphicsObject& other);
-
-	protected:
-		virtual void Render(const CoordinateSystem*, CDC *dc) override;
-
-	protected:
-		vector<LogicPoint> _points;
-	};
-
-
-	class Polygon
-		: public LinearGraphicsObject
-	{
-	public:
-		friend class CoordinateSystem;
-		friend class Polyhedron;
-
-		typedef shared_ptr<Polygon> Ptr;
-
-	public:
-		Polygon(const vector<LogicPoint>& points, bool rightHandNormalVector = true, int penStyle = PS_SOLID, int penWidth = 1, COLORREF penColor = RGB(0, 0, 0));
-		Polygon(const Polygon& other);
-
-	protected:
-		virtual void Render(const CoordinateSystem*, CDC *dc) override;
-
-	private:
-		void Init();
-
-	private:
-		CBrush _brush;
-		bool _rightHandNormalVector;
-		HomogeneousPoint<double> _nVector;
-	};
-
-
-	class Polyhedron
-		: public GraphicsObject
-	{
-	public:
-		friend class CoordinateSystem;
-
-	public:
-		Polyhedron(const vector<Polygon::Ptr>& facets, int penStyle = PS_SOLID, int penWidth = 1, COLORREF penColor = RGB(0, 0, 0));
-		Polyhedron(const Polyhedron& other);
-
-	protected:
-		virtual void Render(const CoordinateSystem*, CDC *dc) override;
-
-	private:
-		vector<Polygon::Ptr> _facets;
+		enum class Defaults
+		{
+			DEFAULT_LLEFT_BOUND		 = -5,
+			DEFAULT_LRIGHT_BOUND	 =	5,
+			DEFAULT_LTOP_BOUND		 =  5,
+			DEFAULT_LBOTTOM_BOUND	 = -5,
+			DIVISION_HALF_LEN		 =  5,
+			AXIS_INDENT				 =  2,
+		};
 	};
 
 

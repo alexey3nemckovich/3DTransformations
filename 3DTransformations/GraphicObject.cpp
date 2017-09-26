@@ -1,16 +1,17 @@
 #include "stdafx.h"
+#include "GraphicObject.h"
 #include "CoordinateSystem.h"
 using namespace cs;
 
 
-GraphicsObject::GraphicsObject(int penStyle/* = PS_SOLID*/, int penWidth/* = 1*/, COLORREF penColor/* = RGB(0, 0, 0)*/)
+GraphicObject::GraphicObject(int penStyle/* = PS_SOLID*/, int penWidth/* = 1*/, COLORREF penColor/* = RGB(0, 0, 0)*/)
 	: _penStyle(penStyle), _penWidth(penWidth), _penColor(penColor)
 {
 
 }
 
 
-GraphicsObject::GraphicsObject(const GraphicsObject& other)
+GraphicObject::GraphicObject(const GraphicObject& other)
 {
 	_penStyle = other._penStyle;
 	_penWidth = other._penWidth;
@@ -18,13 +19,13 @@ GraphicsObject::GraphicsObject(const GraphicsObject& other)
 }
 
 
-GraphicsObject::~GraphicsObject()
+GraphicObject::~GraphicObject()
 {
 
 }
 
 
-GraphicsObject* GraphicsObject::operator=(const GraphicsObject& other)
+GraphicObject* GraphicObject::operator=(const GraphicObject& other)
 {
 	_penStyle = other._penStyle;
 	_penWidth = other._penWidth;

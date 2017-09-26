@@ -1,5 +1,9 @@
 #pragma once
-#include "CoordinateSystem.h"
+#include "PrimitiveTypes.h"
+#include "PrimitiveTypesTemplates.h"
+
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 
 namespace cs
