@@ -34,3 +34,9 @@ void LinearGraphicObject::Render(const CoordinateSystem* cs, CDC *dc) const
 
 	dc->MoveTo(oldPoint);
 }
+
+
+void LinearGraphicObject::Rasterize() const
+{
+
+}

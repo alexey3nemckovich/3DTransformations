@@ -31,3 +31,9 @@ void Polyhedron::Render(const CoordinateSystem* cs, CDC *dc) const
 		_facets[i]->Render(cs, dc);
 	}
 }
+
+
+void Polyhedron::Rasterize() const
+{
+
+}

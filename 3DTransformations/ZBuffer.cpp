@@ -67,5 +67,17 @@ void ZBuffer::ProcessObj(const GraphicObject* obj)
 {
 	static auto coordSystem = CoordinateSystem::GetInstance();
 	
-	
+	const vector<GraphicObject::RasterizationUnit>& rasterization = obj->GetRasterization();
+
+	int rasterSize = rasterization.size();
+	for (int i = 0; i < rasterSize; i++)
+	{
+		const GraphicObject::RasterizationUnit& objRasterUnit = rasterization[i];
+		Element buffElement = _buffer[objRasterUnit.point.y][objRasterUnit.point.x];
+		if (objRasterUnit.zValue > buffElement.zValue)
+		{
+			buffElement.color = objRasterUnit.color;
+			buffElement.zValue = objRasterUnit.zValue;
+		}
+	}
 }

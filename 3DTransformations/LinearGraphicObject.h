@@ -20,6 +20,7 @@ namespace cs
 
 	protected:
 		virtual void Render(const CoordinateSystem*, CDC *dc) const override;
+		virtual void Rasterize() const override;
 
 	protected:
 		vector<LogicPoint> _points;

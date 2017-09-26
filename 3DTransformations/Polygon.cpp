@@ -72,3 +72,9 @@ void Polygon::Render(const CoordinateSystem* cs, CDC *dc) const
 		//dc->Polygon(physPoints, countPoints);
 	}
 }
+
+
+void Polygon::Rasterize() const
+{
+
+}
