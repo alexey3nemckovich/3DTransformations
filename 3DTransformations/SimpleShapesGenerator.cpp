@@ -67,6 +67,7 @@ namespace cs
 
 		//Find facets
 		vector<Polygon::Ptr> facets;
+
 		for (int i = 0; i < 3; i++)
 		{
 			facets.push_back(
@@ -75,10 +76,10 @@ namespace cs
 					bottomLittleTrianglePoints[i],
 					bottomLittleTrianglePoints[(i + 1) % 3],
 					topLittleTrianglePoints[(i + 1) % 3]
-				}, false))
+				}, false, 0, 1, RGB(0, 0, 0), RGB(100, 100, 100)))
 			);
 		}
-		
+
 		for (int i = 0; i < 3; i++)
 		{
 			facets.push_back(
@@ -87,25 +88,16 @@ namespace cs
 						bottomBigTrianglePoints[i], 
 						bottomBigTrianglePoints[(i + 1) % 3], 
 						topBigTrianglePoints[(i + 1) % 3]
-				}))
+				}, true, 0, 1, RGB(0, 0, 0), RGB(0, 255, 0)))
 			);
 
-			/*facets.push_back(
-				Polygon::Ptr(new Polygon({
-					topLittleTrianglePoints[i],
-					bottomLittleTrianglePoints[i],
-					bottomLittleTrianglePoints[(i + 1) % 3],
-					topLittleTrianglePoints[(i + 1) % 3]
-				}))
-			);
-*/
 			facets.push_back(
 				Polygon::Ptr(new Polygon({
 					topLittleTrianglePoints[i],
 					topBigTrianglePoints[i],
 					topBigTrianglePoints[(i + 1) % 3],
 					topLittleTrianglePoints[(i + 1) % 3]
-				}))
+				}, true, 0, 1, RGB(0, 0, 0), RGB(0, 0, 255)))
 			);
 
 			facets.push_back(
@@ -114,7 +106,7 @@ namespace cs
 					bottomBigTrianglePoints[i],
 					bottomBigTrianglePoints[(i + 1) % 3],
 					bottomLittleTrianglePoints[(i + 1) % 3],
-				}, false))
+				}, false, 0, 1, RGB(0, 0, 0), RGB(100, 100, 100)))
 			);
 		}
 

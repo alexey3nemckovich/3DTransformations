@@ -4,16 +4,28 @@ using namespace cs;
 
 
 Polyhedron::Polyhedron(const vector<cs::Polygon::Ptr>& facets, int penStyle/* = PS_SOLID*/, int penWidth/* = 1*/, COLORREF penColor/* = RGB(0, 0, 0)*/)
-	: GraphicObject(penStyle, penWidth, penColor)
+	: GraphicObject(penStyle, penWidth, penColor),
+	_facets(facets)
 {
-	_facets = facets;
+	Init();
 }
 
 
 Polyhedron::Polyhedron(const Polyhedron& other)
-	: GraphicObject(other)
+	: GraphicObject(other),
+	_facets(other._facets)
 {
+	Init();
+}
 
+
+void Polyhedron::Init()
+{
+	int cFacets = _facets.size();
+	for (int i = 0; i < cFacets; i++)
+	{
+		_rasterPrimitives.push_back(_facets[i].get());
+	}
 }
 
 
@@ -33,7 +45,7 @@ void Polyhedron::Render(const CoordinateSystem* cs, CDC *dc) const
 }
 
 
-void Polyhedron::Rasterize() const
+vector<const RasterizableGraphicObject*> Polyhedron::GetRasterizationPrimitives() const
 {
-
+	return _rasterPrimitives;
 }

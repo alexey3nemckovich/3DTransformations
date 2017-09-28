@@ -97,7 +97,6 @@ namespace cs
 				this->text = text;
 			}
 		};
-		enum Side { LEFT, RIGHT, TOP, BOTTOM };
 		
 		typedef struct AxisInfo
 		{
@@ -121,9 +120,13 @@ namespace cs
 		void Move(double dx, double dy, double dz);
 		void MoveOriginPhysPoint(double dx, double dy);
 		void SetOriginTo(LogicPoint p);
-		void RotateAroundAxis(Axis axis, double deltaAngle);
+		void RotateAroundAxis(CoordinateAxisName axis, double deltaAngle);
 		void RotateAroundAxis(std::pair<LogicPoint, LogicPoint> axisPoints, double deltaAngle);
 		void Clear();
+
+		//Vision interface
+	public:
+		double GetPointDistanceToProjectionPlane(const LogicPoint&) const;
 
 	public:
 		void AddText(LogicPoint p, CString text);
@@ -132,16 +135,16 @@ namespace cs
 		void AddLogicPoint(double x, double y, double z, COLORREF cl = RGB(0, 0, 0), bool xDetection = false, bool yDetection = false, bool zDetection = true, bool xDetectLine = true, bool yDetectLine = true, bool zDetectionLine = true);
 		void AddGraphicObject(GraphicObject* obj, COLORREF color = RGB(0, 0, 0));
 		GraphicObject* LastGraphicObject();
-		const vector<shared_ptr<GraphicObject>>& GetGraphicObejctsList();
+		const vector<shared_ptr<GraphicObject>>& GetGraphicObejctsList() const;
 
 		//Properties
 	public:
 		inline void EnableGridRendering(bool enable = true);
-		inline void EnableAxisRendering(Axis axis, bool enable = true);
+		inline void EnableAxisRendering(CoordinateAxisName axis, bool enable = true);
 
-		inline void SetAxisRenderingName(Axis axis, CString renderName);
-		inline void SetAxisRenderingBorders(Axis axis, double minVal, double maxVal);
-		inline void SetAxisRenderingDivisions(Axis axis, double value);
+		inline void SetAxisRenderingName(CoordinateAxisName axis, CString renderName);
+		inline void SetAxisRenderingBorders(CoordinateAxisName axis, double minVal, double maxVal);
+		inline void SetAxisRenderingDivisions(CoordinateAxisName axis, double value);
 
 		inline void SetPhysOrigin(CPoint physOrigin);
 		inline CPoint GetPhysOrigin() const;
@@ -171,7 +174,7 @@ namespace cs
 		CoordinateSystem::~CoordinateSystem();
 
 	private:
-		void CheckAxisBounds(Axis axis, double v);
+		void CheckAxisBounds(CoordinateAxisName axis, double v);
 
 	private:
 		void StandardRenderingAlgorithm(CDC *dc);
@@ -192,11 +195,11 @@ namespace cs
 		void RenderColorPoint(CDC *dc, const ColorLogicPoint&);
 		void RenderDetectPoint(CDC *dc, const DetectLogicPoint&);
 
-		void RenderDivision(CDC *dc, Axis axis, double value);
+		void RenderDivision(CDC *dc, CoordinateAxisName axis, double value);
 
 		void RenderText(CDC *dc, const Text& text);
 		void RenderText(CDC *dc, const CPoint& physPoint, CString text);
-		void RenderTextOnAxis(CDC *dc, Axis axis, double value, CString text);
+		void RenderTextOnAxis(CDC *dc, CoordinateAxisName axis, double value, CString text);
 
 	private:
 		void Init();
@@ -219,7 +222,7 @@ namespace cs
 		HomogeneousPoint<double>		  _watcherVector;
 
 		bool							  _gridRender = false;
-		map<Axis, AxisInfo>				  _axisInfoMap;
+		map<CoordinateAxisName, AxisInfo>				  _axisInfoMap;
 		Matrix<double>					  _projectionMatrix;
 
 		//Constants

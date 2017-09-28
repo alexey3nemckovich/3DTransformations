@@ -2,15 +2,16 @@
 #include <vector>
 #include "PrimitiveTypes.h"
 //
-#include "GraphicObject.h"
+#include "RasterizableGraphicObject.h"
 using namespace std;
 
 
 namespace cs
 {
 
+
 	class LinearGraphicObject
-		: public GraphicObject
+		: public RasterizableGraphicObject
 	{
 	public:
 		friend class CoordinateSystem;
@@ -20,10 +21,7 @@ namespace cs
 
 	protected:
 		virtual void Render(const CoordinateSystem*, CDC *dc) const override;
-		virtual void Rasterize() const override;
-
-	protected:
-		vector<LogicPoint> _points;
 	};
+
 
 }

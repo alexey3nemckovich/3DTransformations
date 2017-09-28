@@ -30,7 +30,7 @@ private:
 	};
 
 	WorkingMode _mode = WorkingMode::RotatingSystemAroundAxis;
-	cs::Axis _workingAxis;
+	cs::CoordinateAxisName _workingAxis;
 
 	bool _moving = false;
 	bool _firstMove = true;

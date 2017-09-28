@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
 #include "CoordinateSystem.h"
+#include "ZBuffer.h"
 using namespace cs;
 
 
@@ -38,17 +39,17 @@ CoordinateSystem::CoordinateSystem(
 void CoordinateSystem::Init()
 {
 	_projectionMatrix = Matrix<double>(4, 4);
-	_projectionMatrix[0][0] = _projectionMatrix[1][1] = _projectionMatrix[3][3] = 1;
+	_projectionMatrix[0][0] = _projectionMatrix[1][1] = _projectionMatrix[2][2] = _projectionMatrix[3][3] = 1;
 
 	_origin = LogicPoint(0, 0);
-	_physOrigin = CPoint(0, 0);
+	_physOrigin = CPoint(200, 200);
 
 	_watcherVector[0] = _watcherVector[1] = 0;
 	_watcherVector[2] = 100;
 
-	for (int axisIndex = (int)Axis::X; (int)axisIndex < (int)Axis::Z + 1; axisIndex++)
+	for (int axisIndex = (int)CoordinateAxisName::X; (int)axisIndex < (int)CoordinateAxisName::Z + 1; axisIndex++)
 	{
-		Axis axis = Axis(axisIndex);
+		CoordinateAxisName axis = CoordinateAxisName(axisIndex);
 		_axisInfoMap[axis] = AxisInfo();
 
 		AxisInfo& axisInfo = _axisInfoMap[axis];
@@ -58,13 +59,13 @@ void CoordinateSystem::Init()
 
 		switch (axis)
 		{
-		case Axis::X:
+		case CoordinateAxisName::X:
 			axisInfo.renderingName = "x";
 			break;
-		case Axis::Y:
+		case CoordinateAxisName::Y:
 			axisInfo.renderingName = "y";
 			break;
-		case Axis::Z:
+		case CoordinateAxisName::Z:
 			axisInfo.renderingName = "z";
 			break;
 		}
@@ -134,25 +135,25 @@ void CoordinateSystem::SetOriginTo(LogicPoint p)
 }
 
 
-void CoordinateSystem::RotateAroundAxis(Axis axis, double deltaAngle)
+void CoordinateSystem::RotateAroundAxis(CoordinateAxisName axis, double deltaAngle)
 {
 	Matrix<double> newWatchVectorMatrix(1, 4);
 
 	switch (axis)
 	{
-	case Axis::X:
+	case CoordinateAxisName::X:
 		{
 			newWatchVectorMatrix = _watcherVector * GetXAxisRotationMatrix(-deltaAngle);
 			_projectionMatrix = GetXAxisRotationMatrix(deltaAngle) * _projectionMatrix;
 		}
 		break;
-	case Axis::Y:
+	case CoordinateAxisName::Y:
 		{
 			newWatchVectorMatrix = _watcherVector * GetYAxisRotationMatrix(-deltaAngle);
 			_projectionMatrix = GetYAxisRotationMatrix(deltaAngle) * _projectionMatrix;
 		}
 		break;
-	case Axis::Z:
+	case CoordinateAxisName::Z:
 		{
 			newWatchVectorMatrix = _watcherVector * GetZAxisRotationMatrix(-deltaAngle);
 			_projectionMatrix = GetZAxisRotationMatrix(deltaAngle) * _projectionMatrix;
@@ -180,13 +181,13 @@ void CoordinateSystem::RotateAroundAxis(std::pair<LogicPoint, LogicPoint> axisPo
 
 	Move(axisPoints.first.x, axisPoints.first.y, axisPoints.first.z);
 
-	RotateAroundAxis(Axis::X, -xRotAngle);
-	RotateAroundAxis(Axis::Y, -yRotAngle);
+	RotateAroundAxis(CoordinateAxisName::X, -xRotAngle);
+	RotateAroundAxis(CoordinateAxisName::Y, -yRotAngle);
 	
-	RotateAroundAxis(Axis::Z, deltaAngle);
+	RotateAroundAxis(CoordinateAxisName::Z, deltaAngle);
 
-	RotateAroundAxis(Axis::Y, yRotAngle);
-	RotateAroundAxis(Axis::X, xRotAngle);
+	RotateAroundAxis(CoordinateAxisName::Y, yRotAngle);
+	RotateAroundAxis(CoordinateAxisName::X, xRotAngle);
 
 	Move(-axisPoints.first.x, -axisPoints.first.y, -axisPoints.first.z);
 }
@@ -210,6 +211,13 @@ void CoordinateSystem::Clear()
 	_objects.clear();
 	_points.clear();
 	_detectPoints.clear();
+}
+
+
+double CoordinateSystem::GetPointDistanceToProjectionPlane(const LogicPoint& point) const
+{
+	Matrix<double> res = HomogeneousPoint<double>(point.x, point.y, point.z) * _projectionMatrix;
+	return res[0][2];
 }
 
 
@@ -249,9 +257,9 @@ void CoordinateSystem::AddLogicPoint(LogicPoint point, COLORREF color/* = RGB(0,
 
 	if (!exist)
 	{
-		CheckAxisBounds(Axis::X, point.x);
-		CheckAxisBounds(Axis::Y, point.y);
-		CheckAxisBounds(Axis::Z, point.z);
+		CheckAxisBounds(CoordinateAxisName::X, point.x);
+		CheckAxisBounds(CoordinateAxisName::Y, point.y);
+		CheckAxisBounds(CoordinateAxisName::Z, point.z);
 	}
 }
 
@@ -285,7 +293,7 @@ GraphicObject* CoordinateSystem::LastGraphicObject()
 }
 
 
-const vector<GraphicObject::Ptr>& CoordinateSystem::GetGraphicObejctsList()
+const vector<GraphicObject::Ptr>& CoordinateSystem::GetGraphicObejctsList() const
 {
 	return _objects;
 }
@@ -297,26 +305,26 @@ void CoordinateSystem::EnableGridRendering(bool enable/* = true*/)
 }
 
 
-void CoordinateSystem::EnableAxisRendering(Axis axis, bool enable/* = true*/)
+void CoordinateSystem::EnableAxisRendering(CoordinateAxisName axis, bool enable/* = true*/)
 {
 	_axisInfoMap[axis].rendering = enable;
 }
 
 
-void CoordinateSystem::SetAxisRenderingName(Axis axis, CString renderingName)
+void CoordinateSystem::SetAxisRenderingName(CoordinateAxisName axis, CString renderingName)
 {
 	_axisInfoMap[axis].renderingName = renderingName;
 }
 
 
-void CoordinateSystem::SetAxisRenderingBorders(Axis axis, double minVal, double maxVal)
+void CoordinateSystem::SetAxisRenderingBorders(CoordinateAxisName axis, double minVal, double maxVal)
 {
 	_axisInfoMap[axis].minPoint[0] = 1;// minPoint[(int)axis] = minVal;
 	_axisInfoMap[axis].maxPoint[(int)axis] = maxVal;
 }
 
 
-void CoordinateSystem::SetAxisRenderingDivisions(Axis axis, double value)
+void CoordinateSystem::SetAxisRenderingDivisions(CoordinateAxisName axis, double value)
 {
 	_axisInfoMap[axis].divisionValue = value;
 }
@@ -354,7 +362,7 @@ CPoint CoordinateSystem::ConvertLogicPointToPhys(const HomogeneousPoint<double>&
 }
 
 
-void CoordinateSystem::CheckAxisBounds(Axis ax, double v)
+void CoordinateSystem::CheckAxisBounds(CoordinateAxisName ax, double v)
 {
 	/*if (v > _axisInfoMap[ax].maxRenderingValue)
 	{
@@ -381,12 +389,13 @@ void CoordinateSystem::StandardRenderingAlgorithm(CDC *dc)
 
 void CoordinateSystem::ZBufferRenderingAlgorithm(CDC *dc)
 {
+	CRect rect;
+	dc->GetClipBox(&rect);
 
-
-	for each(GraphicObject::Ptr pObj in _objects)
-	{
-		pObj->Render(this, dc);
-	}
+	ZBuffer buff;
+	buff.Resize(rect.bottom - rect.top, rect.right - rect.left);
+	buff.Init(this, _objects);
+	buff.Render(dc);
 }
 
 
@@ -543,7 +552,7 @@ void CoordinateSystem::RenderDetectPoint(CDC *dc, const DetectLogicPoint &detect
 }
 
 
-void CoordinateSystem::RenderDivision(CDC *dc, Axis axis, double value)
+void CoordinateSystem::RenderDivision(CDC *dc, CoordinateAxisName axis, double value)
 {
 	CString str;
 	str.Format("%.1f", value);
@@ -565,7 +574,7 @@ void CoordinateSystem::RenderText(CDC *dc, const CPoint& physPoint, CString text
 }
 
 
-void CoordinateSystem::RenderTextOnAxis(CDC *dc, Axis axis, double value, CString text)
+void CoordinateSystem::RenderTextOnAxis(CDC *dc, CoordinateAxisName axis, double value, CString text)
 {
 	/*CPoint p;
 	if (Axis::Y == axis)

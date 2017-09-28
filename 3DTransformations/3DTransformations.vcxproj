@@ -196,6 +196,7 @@
     <ClInclude Include="Polyhedron.h" />
     <ClInclude Include="PrimitiveTypes.h" />
     <ClInclude Include="PrimitiveTypesTemplates.h" />
+    <ClInclude Include="RasterizableGraphicObject.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SimpleShapesGenerator.h" />
     <ClInclude Include="stdafx.h" />
@@ -209,12 +210,15 @@
     <ClCompile Include="ChildView.cpp" />
     <ClCompile Include="CoordinateSystem.cpp" />
     <ClCompile Include="CTriangleDlg.cpp" />
+    <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="LinearGraphicObject.cpp" />
     <ClCompile Include="LogicPoint.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="GraphicObject.cpp" />
     <ClCompile Include="Polygon.cpp" />
     <ClCompile Include="Polyhedron.cpp" />
+    <ClCompile Include="Plane.cpp" />
+    <ClCompile Include="RasterizableGraphicObject.cpp" />
     <ClCompile Include="SimpleShapesGenerator.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

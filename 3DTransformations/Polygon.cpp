@@ -6,18 +6,18 @@
 using namespace cs;
 
 
-Polygon::Polygon(const vector<LogicPoint>& points, bool rightHandNormalVector/* = true*/, int penStyle/* = PS_SOLID*/, int penWidth/* = 1*/, COLORREF penColor/* = RGB(0, 0, 0)*/)
-	: LinearGraphicObject(points, penStyle, penWidth, penColor)
+Polygon::Polygon(const vector<LogicPoint>& points, bool rightHandNormalVector/* = true*/, int penStyle/* = PS_SOLID*/, int penWidth/* = 1*/, COLORREF penColor/* = RGB(0, 0, 0)*/, COLORREF brushColor/* = RGB(0, 0, 0)*/)
+	: RasterizableGraphicObject(points, penStyle, penWidth, penColor, brushColor),
+	_rightHandNormalVector(rightHandNormalVector)
 {
-	_rightHandNormalVector = rightHandNormalVector;
 	Init();
 }
 
 
 Polygon::Polygon(const Polygon& other)
-	: LinearGraphicObject(other)
+	: RasterizableGraphicObject(other),
+	_rightHandNormalVector(other._rightHandNormalVector)
 {
-	_rightHandNormalVector = other._rightHandNormalVector;
 	Init();
 }
 
@@ -68,13 +68,7 @@ void Polygon::Render(const CoordinateSystem* cs, CDC *dc) const
 		dc->MoveTo(oldPoint);
 
 		////Fill carcas with brush
-		//dc->SelectObject(&_brush);
-		//dc->Polygon(physPoints, countPoints);
+		dc->SelectObject(const_cast<CBrush*>(&_brush));
+		dc->Polygon(physPoints, countPoints);
 	}
-}
-
-
-void Polygon::Rasterize() const
-{
-
 }

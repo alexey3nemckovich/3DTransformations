@@ -11,11 +11,17 @@ namespace cs
 	class ZBuffer
 	{
 	public:
-		typedef struct
+		struct Element
 		{
+			Element()
+			{
+				color = RGB(255, 255, 255);
+				zValue = INT_MAX;
+			}
+
 			double zValue;
 			COLORREF color;
-		}Element;
+		};
 
 		static ZBuffer* GetInstance();
 
@@ -26,14 +32,14 @@ namespace cs
 		void Render(CDC*);
 
 	public:
-		void Init(const vector<GraphicObject::Ptr>& objList);
+		void Init(const CoordinateSystem* coordinateSystem, const vector<GraphicObject::Ptr>& objList);
 		void Resize(int cRows, int cCols);
 
 	public:
 		Element* operator[](int row) const;
 
 	private:
-		void ProcessObj(const GraphicObject* obj);
+		void ProcessObj(__in const CoordinateSystem* coordinateSystem, __in const GraphicObject*);
 
 	private:
 		Matrix<Element> _buffer;

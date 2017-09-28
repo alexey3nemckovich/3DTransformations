@@ -22,10 +22,14 @@ namespace cs
 
 	protected:
 		virtual void Render(const CoordinateSystem*, CDC *dc) const override;
-		virtual void Rasterize() const override;
+		virtual vector<const RasterizableGraphicObject*> GetRasterizationPrimitives() const override;
+
+	private:
+		void Init();
 
 	private:
 		vector<Polygon::Ptr> _facets;
+		vector<const RasterizableGraphicObject*> _rasterPrimitives;
 	};
 
 

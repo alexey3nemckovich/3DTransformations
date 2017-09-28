@@ -118,13 +118,13 @@ afx_msg void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	switch (ch)
 	{
 	case 'z':
-		_workingAxis = cs::Axis::Z;
+		_workingAxis = cs::CoordinateAxisName::Z;
 		break;
 	case 'y':
-		_workingAxis = cs::Axis::Y;
+		_workingAxis = cs::CoordinateAxisName::Y;
 		break;
 	case 'x':
-		_workingAxis = cs::Axis::X;
+		_workingAxis = cs::CoordinateAxisName::X;
 		break;
 	case 'a':
 		_mode = WorkingMode::RotatingSystemAroundAxis;

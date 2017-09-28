@@ -29,21 +29,24 @@ void ZBuffer::Render(CDC* dc)
 	{
 		for (int j = 0; j < cCols; j++)
 		{
-			point.y = i;
-			point.x = j;
+			if (RGB(255, 255, 255) != _buffer[i][j].color)
+			{
+				point.y = i;
+				point.x = j;
 
-			dc->SetPixel(point, _buffer[i][j].color);
+				dc->SetPixel(point, _buffer[i][j].color);
+			}
 		}
 	}
 }
 
 
-void ZBuffer::Init(const vector<GraphicObject::Ptr>& objList)
+void ZBuffer::Init(const CoordinateSystem* coordinateSystem, const vector<GraphicObject::Ptr>& objList)
 {
 	int cObj = objList.size();
 	for (int i = 0; i < cObj; i++)
 	{
-		ProcessObj(objList[i].get());
+		ProcessObj(coordinateSystem, objList[i].get());
 	}
 }
 
@@ -63,21 +66,29 @@ ZBuffer::Element* ZBuffer::operator[](int row) const
 }
 
 
-void ZBuffer::ProcessObj(const GraphicObject* obj)
+void ZBuffer::ProcessObj(__in const CoordinateSystem* coordinateSystem, __in const GraphicObject* obj)
 {
-	static auto coordSystem = CoordinateSystem::GetInstance();
-	
-	const vector<GraphicObject::RasterizationUnit>& rasterization = obj->GetRasterization();
+	auto objRasterizationPrimitivesList = obj->GetRasterizationPrimitives();
+	auto cRasterPrimitives = objRasterizationPrimitivesList.size();
 
-	int rasterSize = rasterization.size();
-	for (int i = 0; i < rasterSize; i++)
+	for (int i = 0; i < cRasterPrimitives; i++)
 	{
-		const GraphicObject::RasterizationUnit& objRasterUnit = rasterization[i];
-		Element buffElement = _buffer[objRasterUnit.point.y][objRasterUnit.point.x];
-		if (objRasterUnit.zValue > buffElement.zValue)
+		auto rasterization = objRasterizationPrimitivesList[i]->CalcRasterization(coordinateSystem);
+		auto cRasterPoints = (*rasterization).points.size();
+
+		for (int j = 0; j < cRasterPoints; j++)
 		{
-			buffElement.color = objRasterUnit.color;
-			buffElement.zValue = objRasterUnit.zValue;
+			RasterizationPoint* objRasterPoint = (*rasterization).points[j].get();
+			if (objRasterPoint->point.x >= 0 && objRasterPoint->point.y >= 0)
+			{
+				Element& buffElement = _buffer[objRasterPoint->point.y][objRasterPoint->point.x];
+
+				if (objRasterPoint->zValue < buffElement.zValue)
+				{
+					buffElement.color = objRasterPoint->color;
+					buffElement.zValue = objRasterPoint->zValue;
+				}
+			}
 		}
 	}
 }

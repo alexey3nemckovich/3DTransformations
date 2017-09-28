@@ -5,14 +5,14 @@ using namespace cs;
 
 
 LinearGraphicObject::LinearGraphicObject(const vector<LogicPoint>& points, int penStyle/* = PS_SOLID*/, int penWidth/* = 1*/, COLORREF penColor/* = RGB(0, 0, 0)*/)
-	: GraphicObject(penStyle, penWidth, penColor),
-	_points(points)
+	: RasterizableGraphicObject(points, penStyle, penWidth, penColor)
 {
 
 }
 
 
 LinearGraphicObject::LinearGraphicObject(const LinearGraphicObject& other)
+	: RasterizableGraphicObject(other)
 {
 
 }
@@ -33,10 +33,4 @@ void LinearGraphicObject::Render(const CoordinateSystem* cs, CDC *dc) const
 	}
 
 	dc->MoveTo(oldPoint);
-}
-
-
-void LinearGraphicObject::Rasterize() const
-{
-
 }

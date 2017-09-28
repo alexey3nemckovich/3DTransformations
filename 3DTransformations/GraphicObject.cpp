@@ -1,24 +1,23 @@
 #include "stdafx.h"
 #include "GraphicObject.h"
 #include "CoordinateSystem.h"
+#include "RasterizableGraphicObject.h"
 using namespace cs;
 
 
-GraphicObject::GraphicObject(int penStyle/* = PS_SOLID*/, int penWidth/* = 1*/, COLORREF penColor/* = RGB(0, 0, 0)*/)
-	: _penStyle(penStyle),
+GraphicObject::GraphicObject(int penStyle/* = PS_SOLID*/, int penWidth/* = 1*/, COLORREF penColor/* = RGB(0, 0, 0)*/):
+	_penStyle(penStyle),
 	_penWidth(penWidth), 
-	_penColor(penColor),
-	_rasterized(false)
+	_penColor(penColor)
 {
 
 }
 
 
-GraphicObject::GraphicObject(const GraphicObject& other)
-	: _penStyle(other._penStyle),
+GraphicObject::GraphicObject(const GraphicObject& other):
+	_penStyle(other._penStyle),
 	_penWidth(other._penWidth),
-	_penColor(other._penColor),
-	_rasterized(false)
+	_penColor(other._penColor)
 {
 
 }
@@ -27,18 +26,6 @@ GraphicObject::GraphicObject(const GraphicObject& other)
 GraphicObject::~GraphicObject()
 {
 
-}
-
-
-const vector<GraphicObject::RasterizationUnit>& GraphicObject::GetRasterization() const
-{
-	if (!_rasterized)
-	{
-		Rasterize();
-		_rasterized = true;
-	}
-
-	return _rasterizaion;
 }
 
 
