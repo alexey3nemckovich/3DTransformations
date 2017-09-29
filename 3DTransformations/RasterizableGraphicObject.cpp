@@ -92,6 +92,8 @@ namespace cs
 			_points[2]
 		);
 
+		LogicPoint tmpPoint;
+
 		int y = minY;
 		while (y <= maxY)
 		{
@@ -100,8 +102,13 @@ namespace cs
 			{
 				if (DoesPointBelongToPolygon(cornersPoints, _penWidth, x, y, borderPoint))
 				{
-					LogicPoint spacePoint = plane.FindPointByXAndY(x, y);
-					zValue = coordSystem->GetPointDistanceToProjectionPlane(spacePoint);
+					tmpPoint.x = x;
+					tmpPoint.y = y;
+
+					if (false == plane.FindZByXAndY(x, y, tmpPoint.z))
+					{
+						tmpPoint.z = FindNearestPointToWatcherIntersectionWithBordersDepth(coordSystem, x, y);
+					}
 
 					if (borderPoint)
 					{
@@ -120,6 +127,12 @@ namespace cs
 		}
 
 		return Rasterization::Ptr(rasterization);
+	}
+
+
+	double RasterizableGraphicObject::FindNearestPointToWatcherIntersectionWithBordersDepth(const CoordinateSystem* coordSystem, int x, int y) const
+	{
+		return 0;
 	}
 
 

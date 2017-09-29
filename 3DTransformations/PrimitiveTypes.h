@@ -60,6 +60,9 @@ namespace cs
 		}
 
 	public:
+		bool FindIntersectionWith(const Axis&, LogicPoint&);
+		
+	public:
 		LogicPoint vector;
 		int x0, y0, z0;
 	};
@@ -76,7 +79,7 @@ namespace cs
 
 	public:
 		LogicPoint FindIntersectionWithAxis(const Axis&);
-		LogicPoint FindPointByXAndY(double x, double y);
+		bool FindZByXAndY(double x, double y, double &z);
 
 	public:
 		double A;

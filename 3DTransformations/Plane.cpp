@@ -34,20 +34,15 @@ namespace cs
 	}
 
 
-	LogicPoint Plane::FindPointByXAndY(double x, double y)
+	bool Plane::FindZByXAndY(double x, double y, double& z)
 	{
-		double z = 0;
-
 		if (C)
 		{
 			z = (-A*x -B*y -D) / C;
+			return true;
 		}
-		else
-		{
-			throw exception("Kick yourself");
-		}
-
-		return LogicPoint(x, y, z);
+		
+		return false;
 	}
 
 

@@ -206,6 +206,7 @@
   <ItemGroup>
     <ClCompile Include="3DTransformations.cpp" />
     <ClCompile Include="AdditionalAxis.cpp" />
+    <ClCompile Include="Axis.cpp" />
     <ClCompile Include="CAdditionalAxisConfigDlg.cpp" />
     <ClCompile Include="ChildView.cpp" />
     <ClCompile Include="CoordinateSystem.cpp" />

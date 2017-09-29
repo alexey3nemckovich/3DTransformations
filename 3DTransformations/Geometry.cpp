@@ -37,6 +37,14 @@ namespace cs
 	}
 
 
+	LogicPoint GetNearestToWatcherIntersectionPointWithBorder(const vector<LogicPoint>&, const LogicPoint&)
+	{
+
+
+		return LogicPoint();
+	}
+
+
 	bool DoesPointBelongToPolygon(
 		const vector<CPoint>& cornersPoints,
 		int borderThickness,

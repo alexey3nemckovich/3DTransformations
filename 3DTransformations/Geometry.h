@@ -34,6 +34,9 @@ namespace cs
 	HomogeneousPoint<double> FindNormalVectorToPlane(const LogicPoint& a, const LogicPoint& b, const LogicPoint& c, double module, bool rightHande = true);
 
 
+	LogicPoint GetNearestToWatcherIntersectionPointWithBorder(const vector<LogicPoint>&, const LogicPoint&);
+
+
 	bool DoesPointBelongToPolygon(
 		const vector<CPoint>& cornersPoints,
 		int borderThickness,

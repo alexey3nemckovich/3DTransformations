@@ -86,10 +86,15 @@ namespace cs
 	public:
 		virtual const Rasterization::Ptr CalcRasterization(const CoordinateSystem*) const;
 
+	private:
+		//Point with such x and y belongs to graphic object
+		double FindNearestPointToWatcherIntersectionWithBordersDepth(const CoordinateSystem* coordSystem, int x, int y) const;
+
 	protected:
 		COLORREF _brushColor;
 
 	protected:
+		vector<Axis> _axises;
 		vector<LogicPoint> _points;
 	};
 
