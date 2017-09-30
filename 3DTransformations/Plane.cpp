@@ -15,11 +15,11 @@ namespace cs
 	{
 		HomogeneousPoint<double> normVector = FindNormalVectorToPlane(a, b, c, 100);
 
-		A = normVector.x();
-		B = normVector.y();
-		C = normVector.z();
+		_A = normVector.x();
+		_B = normVector.y();
+		_C = normVector.z();
 
-		D = - (
+		_D = - (
 			normVector.x() * a.x + 
 			normVector.y() * a.y + 
 			normVector.z() * a.z
@@ -34,15 +34,45 @@ namespace cs
 	}
 
 
-	bool Plane::FindZByXAndY(double x, double y, double& z)
+	bool Plane::IsParallelToOx() const
 	{
-		if (C)
-		{
-			z = (-A*x -B*y -D) / C;
-			return true;
-		}
-		
-		return false;
+		return 0 == _A;
+	}
+
+
+	bool Plane::IsParallelToOy() const
+	{
+		return 0 == _B;
+	}
+
+
+	bool Plane::IsParallelToOz() const
+	{
+		return 0 == _C;
+	}
+
+
+	double Plane::A() const
+	{
+		return _A;
+	}
+
+
+	double Plane::B() const
+	{
+		return _B;
+	}
+
+
+	double Plane::C() const
+	{
+		return _C;
+	}
+
+
+	double Plane::D() const
+	{
+		return _D;
 	}
 
 

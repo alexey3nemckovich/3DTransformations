@@ -68,9 +68,26 @@ namespace cs
 		//Find facets
 		vector<Polygon::Ptr> facets;
 
+		/*facets.push_back(
+			Polygon::Ptr(new Polygon({
+				LogicPoint(0, 0),
+				LogicPoint(100, 0),
+				LogicPoint(200, 100),
+				LogicPoint(0, 100)
+			}, false, 0, 1, RGB(0, 0, 0), RGB(0, 255, 0)))
+		);*/
+
+		/*facets.push_back(
+			Polygon::Ptr(new Polygon({
+				LogicPoint(100, 0, 20),
+				LogicPoint(100, 100, 20),
+				LogicPoint(100, 100, 100),
+				LogicPoint(100, 0, 100)
+			}, false, 0, 1, RGB(0, 0, 0), RGB(0, 255, 0)))
+		);*/
 		for (int i = 0; i < 3; i++)
 		{
-			facets.push_back(
+			/*facets.push_back(
 				Polygon::Ptr(new Polygon({
 					topLittleTrianglePoints[i],
 					bottomLittleTrianglePoints[i],
@@ -78,18 +95,24 @@ namespace cs
 					topLittleTrianglePoints[(i + 1) % 3]
 				}, false, 0, 1, RGB(0, 0, 0), RGB(100, 100, 100)))
 			);
-		}
 
-		for (int i = 0; i < 3; i++)
-		{
 			facets.push_back(
 				Polygon::Ptr(new Polygon({ 
 						topBigTrianglePoints[i], 
 						bottomBigTrianglePoints[i], 
-						bottomBigTrianglePoints[(i + 1) % 3], 
+						bottomBigTrianglePoints[(i + 1) % 3],
 						topBigTrianglePoints[(i + 1) % 3]
 				}, true, 0, 1, RGB(0, 0, 0), RGB(0, 255, 0)))
-			);
+			);*/
+
+			/*facets.push_back(
+				Polygon::Ptr(new Polygon({
+					bottomLittleTrianglePoints[i],
+					bottomBigTrianglePoints[i],
+					bottomBigTrianglePoints[(i + 1) % 3],
+					bottomLittleTrianglePoints[(i + 1) % 3],
+				}, false, 0, 1, RGB(0, 0, 0), RGB(100, 100, 100)))
+			);*/
 
 			facets.push_back(
 				Polygon::Ptr(new Polygon({
@@ -98,15 +121,6 @@ namespace cs
 					topBigTrianglePoints[(i + 1) % 3],
 					topLittleTrianglePoints[(i + 1) % 3]
 				}, true, 0, 1, RGB(0, 0, 0), RGB(0, 0, 255)))
-			);
-
-			facets.push_back(
-				Polygon::Ptr(new Polygon({
-					bottomLittleTrianglePoints[i],
-					bottomBigTrianglePoints[i],
-					bottomBigTrianglePoints[(i + 1) % 3],
-					bottomLittleTrianglePoints[(i + 1) % 3],
-				}, false, 0, 1, RGB(0, 0, 0), RGB(100, 100, 100)))
 			);
 		}
 

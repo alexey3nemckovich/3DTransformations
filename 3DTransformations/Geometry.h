@@ -1,5 +1,6 @@
 #pragma once
 #include "PrimitiveTypes.h"
+#include "RasterizationPrimitiveTypes.h"
 #include "PrimitiveTypesTemplates.h"
 
 #define _USE_MATH_DEFINES
@@ -10,25 +11,10 @@ namespace cs
 {
 
 
-	enum class PointSideToAxis
-	{
-		LEFT,
-		RIGHT,
-		ON_AXIS,
-	};
+	class CoordinateSystem;
 
 
-	struct PointPositionToAxis
-	{
-		PointSideToAxis sideToAxis;
-		double distance;
-	};
-
-	
-	PointPositionToAxis FindPointPositionToAxis(const CPoint& axisA, const CPoint& axisB, int x, int y);
-
-
-	PointPositionToAxis FindPointPositionToAxis(const CPoint& axisA, const CPoint& axisB, const CPoint& p);
+	Rasterization::Ptr RasterizeLineSegment(const CoordinateSystem* coordSystem, const Axis& axis, const LogicPoint& a, const LogicPoint& b, COLORREF color = 0, int thickness = 1);
 
 
 	HomogeneousPoint<double> FindNormalVectorToPlane(const LogicPoint& a, const LogicPoint& b, const LogicPoint& c, double module, bool rightHande = true);
@@ -37,8 +23,14 @@ namespace cs
 	LogicPoint GetNearestToWatcherIntersectionPointWithBorder(const vector<LogicPoint>&, const LogicPoint&);
 
 
+	double FindDistance(const CPoint& a, const CPoint& b);
+
+
+	double FindDistance(const LogicPoint&, const LogicPoint&);
+
+
 	bool DoesPointBelongToPolygon(
-		const vector<CPoint>& cornersPoints,
+		const vector<Axis>& sidesAxises,
 		int borderThickness,
 		int x,
 		int y,

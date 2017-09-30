@@ -147,13 +147,14 @@ namespace cs
 		inline void SetAxisRenderingDivisions(CoordinateAxisName axis, double value);
 
 		inline void SetPhysOrigin(CPoint physOrigin);
-		inline CPoint GetPhysOrigin() const;
+		CPoint GetPhysOrigin() const;
 
 		const HomogeneousPoint<double>& GetWatcherVector() const;
 
 		//Convertations
 	public:
 		LogicPoint ConvertPhysPointToLogic(const CPoint& point);
+		LogicPoint ConvertToProjectionSytemPoint(const LogicPoint& point) const;
 		CPoint	   ConvertLogicPointToPhys(const LogicPoint& point) const;
 		CPoint	   ConvertLogicPointToPhys(const HomogeneousPoint<double>& point) const;
 		

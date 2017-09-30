@@ -1,9 +1,85 @@
 ﻿#include "stdafx.h"
 #include "Geometry.h"
+#include "CoordinateSystem.h"
 
 
 namespace cs
 {
+
+
+	Rasterization::Ptr RasterizeLineSegment(const CoordinateSystem* coordSystem, const Axis& axis, const LogicPoint& la, const LogicPoint& lb, COLORREF color/* = 0*/, int thickness/* = 1*/)
+	{
+		Rasterization* rasterization = new Rasterization();
+
+		CPoint physOrigin = coordSystem->GetPhysOrigin();
+		CPoint a = coordSystem->ConvertLogicPointToPhys(la);
+		CPoint b = coordSystem->ConvertLogicPointToPhys(lb);
+
+		double zValue = -1;
+
+		int dx = abs(b.x - a.x);
+		int dy = abs(b.y - a.y);
+		int sx = b.x >= a.x ? 1 : -1;
+		int sy = b.y >= a.y ? 1 : -1;
+		if (dy <= dx) {
+			int d = (dy << 1) - dx;
+			int d1 = dy << 1;
+			int d2 = (dy - dx) << 1;
+
+			auto lp = axis.GetPointByProjection(a.x - physOrigin.x, a.y - physOrigin.y);
+			zValue = coordSystem->GetPointDistanceToProjectionPlane(lp);
+			rasterization->AddPoint(
+				coordSystem->ConvertLogicPointToPhys(lp), zValue, color, true
+			);
+			//dc->SetPixel(a, color);
+
+			for (int x = a.x + sx, y = a.y, i = 1; i <= dx; i++, x += sx) {
+				if (d > 0) {
+					d += d2; y += sy;
+				}
+				else
+					d += d1;
+
+				auto lp = axis.GetPointByProjection(x - physOrigin.x, y - physOrigin.y);
+				zValue = coordSystem->GetPointDistanceToProjectionPlane(lp);
+				rasterization->AddPoint(
+					coordSystem->ConvertLogicPointToPhys(lp), zValue, color, true
+				);
+				//dc->SetPixel(x, y, color);
+
+			}
+		}
+		else {
+			int d = (dx << 1) - dy;
+			int d1 = dx << 1;
+			int d2 = (dx - dy) << 1;
+
+			auto lp = axis.GetPointByProjection(a.x - physOrigin.x, a.y - physOrigin.y);
+			zValue = coordSystem->GetPointDistanceToProjectionPlane(lp);
+			rasterization->AddPoint(
+				coordSystem->ConvertLogicPointToPhys(lp), zValue, color, true
+			);
+			//dc->SetPixel(a, color);
+
+			for (int x = a.x, y = a.y + sy, i = 1; i <= dy; i++, y += sy) {
+				if (d > 0) {
+					d += d2; x += sx;
+				}
+				else
+					d += d1;
+
+				auto lp = axis.GetPointByProjection(x - physOrigin.x, y - physOrigin.y);
+				zValue = coordSystem->GetPointDistanceToProjectionPlane(lp);
+				rasterization->AddPoint(
+					coordSystem->ConvertLogicPointToPhys(lp), zValue, color, true
+				);
+				//dc->SetPixel(x, y, color);
+
+			}
+		}
+
+		return Rasterization::Ptr(rasterization);
+	}
 
 
 	HomogeneousPoint<double> FindNormalVectorToPlane(const LogicPoint& a, const LogicPoint& b, const LogicPoint& c, double module, bool rightHande/* = true*/)
@@ -37,16 +113,27 @@ namespace cs
 	}
 
 
-	LogicPoint GetNearestToWatcherIntersectionPointWithBorder(const vector<LogicPoint>&, const LogicPoint&)
+	double FindDistance(const LogicPoint& a, const LogicPoint& b)
 	{
+		return sqrt(
+			(b.x - a.x) * (b.x - a.x) +
+			(b.y - a.y) * (b.y - a.y) +
+			(b.z - a.z) * (b.z - a.z)
+		);
+	}
 
 
-		return LogicPoint();
+	double FindDistance(const CPoint& a, const CPoint& b)
+	{
+		return sqrt(
+			(b.x - a.x) * (b.x - a.x) +
+			(b.y - a.y) * (b.y - a.y)
+		);
 	}
 
 
 	bool DoesPointBelongToPolygon(
-		const vector<CPoint>& cornersPoints,
+		const vector<Axis>& sidesAxises,
 		int borderThickness,
 		int x,
 		int y,
@@ -54,21 +141,16 @@ namespace cs
 	)
 	{
 		borderPoint = false;
-		double haldBorderThickness = (double)borderThickness / 2;
-		auto cCornerPoints = cornersPoints.size();
-		for (int i = 0; i < cCornerPoints; i++)
+		double halfBorderThickness = (double)borderThickness / 2;
+		auto cAxises = sidesAxises.size();
+		for (int i = 0; i < cAxises; i++)
 		{
-			if (cornersPoints[i] == cornersPoints[(i + 1) % cCornerPoints])
-			{
-				continue;
-			}
-
-			auto positionToAxis = FindPointPositionToAxis(cornersPoints[i], cornersPoints[(i + 1) % cCornerPoints], x, y);
+			auto positionToAxis = sidesAxises[i].FindPointRelativePosition(x, y);
 
 			if (borderThickness)
 			{
-				if (PointSideToAxis::LEFT == positionToAxis.sideToAxis &&
-					positionToAxis.distance > haldBorderThickness
+				if (Axis::PointSideToAxis::LEFT == positionToAxis.sideToAxis &&
+					positionToAxis.distance > halfBorderThickness
 				)
 				{
 					return false;
@@ -76,16 +158,15 @@ namespace cs
 			}
 			else
 			{
-				if (PointSideToAxis::LEFT == positionToAxis.sideToAxis)
+				if (Axis::PointSideToAxis::LEFT == positionToAxis.sideToAxis)
 				{
 					return false;
 				}
 			}
 
-			if (positionToAxis.distance <= haldBorderThickness)
+			if (positionToAxis.distance <= halfBorderThickness)
 			{
 				borderPoint = true;
-				return true;
 			}
 		}
 
@@ -93,7 +174,7 @@ namespace cs
 	}
 
 
-	PointPositionToAxis FindPointPositionToAxis(const CPoint& axisA, const CPoint& axisB, const CPoint& p)
+	/*PointPositionToAxis FindPointPositionToAxis(const CPoint& axisA, const CPoint& axisB, const CPoint& p)
 	{
 		return FindPointPositionToAxis(axisA, axisB, p.x, p.y);
 	}
@@ -125,7 +206,7 @@ namespace cs
 		}
 
 		return pos;
-	}
+	}*/
 
 
 }

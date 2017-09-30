@@ -197,6 +197,7 @@
     <ClInclude Include="PrimitiveTypes.h" />
     <ClInclude Include="PrimitiveTypesTemplates.h" />
     <ClInclude Include="RasterizableGraphicObject.h" />
+    <ClInclude Include="RasterizationPrimitiveTypes.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SimpleShapesGenerator.h" />
     <ClInclude Include="stdafx.h" />

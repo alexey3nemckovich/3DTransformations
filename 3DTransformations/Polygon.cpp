@@ -39,6 +39,7 @@ void Polygon::Render(const CoordinateSystem* cs, CDC *dc) const
 		isVisible = false;
 	}
 
+	isVisible = true;
 	if (isVisible)
 	{
 		int countPoints = _points.size();

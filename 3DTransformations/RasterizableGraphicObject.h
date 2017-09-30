@@ -1,72 +1,12 @@
 #pragma once
 #include "GraphicObject.h"
 #include "PrimitiveTypes.h"
+#include "RasterizationPrimitiveTypes.h"
 using namespace std;
 
 
 namespace cs
 {
-
-
-	struct RasterizationPoint
-	{
-	public:
-		typedef shared_ptr<RasterizationPoint> Ptr;
-
-	public:
-		RasterizationPoint(const CPoint& point, double zValue, COLORREF color)
-			: point(point),
-			zValue(zValue),
-			color(color)
-		{
-
-		}
-
-	public:
-		CPoint point;
-		double zValue;
-		COLORREF color;
-	};
-
-
-	struct Rasterization
-	{
-	public:
-		typedef shared_ptr<Rasterization> Ptr;
-
-	public:
-		void AddPoint(const CPoint& point, double zValue, COLORREF color, bool borderPoint)
-		{
-			RasterizationPoint* newPoint = new RasterizationPoint(
-				point,
-				zValue,
-				color
-			);
-
-			RasterizationPoint::Ptr pPoint = RasterizationPoint::Ptr(newPoint);
-			points.push_back(pPoint);
-			if (borderPoint)
-			{
-				RasterizationPoint::Ptr pBorderPoint = pPoint;
-				borderPoints.push_back(pBorderPoint);
-			}
-		}
-
-
-		void AddPoint(int x, int y, double zValue, COLORREF color, bool borderPoint)
-		{
-			AddPoint(
-				CPoint(x, y),
-				zValue,
-				color,
-				borderPoint
-			);
-		}
-
-	public:
-		vector<RasterizationPoint::Ptr> points;
-		vector<RasterizationPoint::Ptr> borderPoints;
-	};
 
 
 	class CoordinateSystem;
@@ -84,16 +24,22 @@ namespace cs
 		virtual vector<const RasterizableGraphicObject*> GetRasterizationPrimitives() const override;
 
 	public:
+		vector<LogicPoint> CalcProjectionSystemPoints(const CoordinateSystem*) const;
 		virtual const Rasterization::Ptr CalcRasterization(const CoordinateSystem*) const;
 
 	private:
-		//Point with such x and y belongs to graphic object
-		double FindNearestPointToWatcherIntersectionWithBordersDepth(const CoordinateSystem* coordSystem, int x, int y) const;
+		void Init();
+
+	private:
+		Rasterization::Ptr Rasterize(const CoordinateSystem*) const;
+		void CalcRasterizationBounds(const CoordinateSystem*, int& minX, int& minY, int& maxX, int& maxY) const;
+		pair<LogicPoint, LogicPoint> FindMaxDistanceProjectionLineSegment(const CoordinateSystem*) const;
 
 	protected:
 		COLORREF _brushColor;
 
 	protected:
+		Plane _plane;
 		vector<Axis> _axises;
 		vector<LogicPoint> _points;
 	};

@@ -78,6 +78,9 @@
     <ClInclude Include="RasterizableGraphicObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RasterizationPrimitiveTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3DTransformations.cpp">

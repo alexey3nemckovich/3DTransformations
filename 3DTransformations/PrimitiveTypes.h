@@ -32,7 +32,7 @@ namespace cs
 	public:
 		LogicPoint& operator=(const LogicPoint& other);
 		LogicPoint* operator+=(const LogicPoint& other);
-		LogicPoint* operator-=(const LogicPoint& other);
+		LogicPoint* operator-=(const LogicPoint& other);	
 
 	public:
 		bool operator==(const LogicPoint& other);
@@ -46,25 +46,40 @@ namespace cs
 	typedef std::pair<LogicPoint, LogicPoint> AxisPoints;
 
 
-	struct Axis
+	class Axis
 	{
 	public:
-		Axis() = default;
-		Axis(LogicPoint vector, int x0, int y0, int z0)
-			: vector(vector),
-			x0(x0),
-			y0(y0),
-			z0(z0)
+		enum class PointSideToAxis
 		{
+			LEFT,
+			RIGHT,
+			ON_AXIS,
+		};
 
-		}
+		typedef struct 
+		{
+			PointSideToAxis sideToAxis;
+			double distance;
+		}PointPositionToAxis;
 
 	public:
+		Axis() = default;
+		Axis(LogicPoint a, LogicPoint b);
+		Axis(LogicPoint directionVector, int x0, int y0, int z0 = 0);
+
+	public:
+		LogicPoint GetPointByProjection(int x, int y) const;
+		LogicPoint GetPointByProjection(const CPoint&) const;
 		bool FindIntersectionWith(const Axis&, LogicPoint&);
-		
-	public:
-		LogicPoint vector;
-		int x0, y0, z0;
+		PointPositionToAxis FindPointRelativePosition(int x, int y) const;
+		PointPositionToAxis FindPointRelativePosition(const CPoint& p) const;
+
+	private:
+		int _x0, _y0, _z0;
+		LogicPoint _directionVector;
+
+	private:
+		double _A, _B, _C;
 	};
 
 
@@ -79,13 +94,21 @@ namespace cs
 
 	public:
 		LogicPoint FindIntersectionWithAxis(const Axis&);
-		bool FindZByXAndY(double x, double y, double &z);
+		bool IsParallelToOx() const;
+		bool IsParallelToOy() const;
+		bool IsParallelToOz() const;
 
 	public:
-		double A;
-		double B;
-		double C;
-		double D;
+		double A() const;
+		double B() const;
+		double C() const;
+		double D() const;
+
+	private:
+		double _A;
+		double _B;
+		double _C;
+		double _D;
 	};
 
 

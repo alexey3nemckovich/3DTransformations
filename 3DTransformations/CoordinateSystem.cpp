@@ -344,6 +344,18 @@ LogicPoint CoordinateSystem::ConvertPhysPointToLogic(const CPoint& point)
 }
 
 
+LogicPoint CoordinateSystem::ConvertToProjectionSytemPoint(const LogicPoint& lp) const
+{
+	static HomogeneousPoint<double> point;
+	point[0] = lp.x;
+	point[1] = lp.y;
+	point[2] = lp.z;
+
+	Matrix<double> res = point * _projectionMatrix;
+	return LogicPoint(res[0][0], res[0][1], res[0][2]);
+}
+
+
 CPoint CoordinateSystem::ConvertLogicPointToPhys(const LogicPoint& lp) const
 {
 	static HomogeneousPoint<double> point;
