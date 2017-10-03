@@ -2,6 +2,7 @@
 #include "CTriangleDlg.h"
 #include "CoordinateSystem.h"
 #include "SimpleShapesGenerator.h"
+#include "AdditionalAxis.h"
 
 
 CTriangleDlg::CTriangleDlg()
@@ -30,6 +31,7 @@ afx_msg void CTriangleDlg::OnOk()
 	{
 		auto triangle = cs::SimpleShapesGenerator::GetInstance()->CreateTriangle(_h);
 		cs::CoordinateSystem::GetInstance()->AddGraphicObject(triangle);
+		cs::CoordinateSystem::GetInstance()->AddGraphicObject(AdditionalAxis::GetInstance(), false);
 
 		GetParent()->RedrawWindow();
 		EndDialog(true);

@@ -1,5 +1,7 @@
 #pragma once
 #include <utility>
+#include <memory>
+using namespace std;
 
 
 namespace cs
@@ -86,6 +88,8 @@ namespace cs
 	struct Plane
 	{
 	public:
+		typedef shared_ptr<Plane> Ptr;
+
 		Plane(
 			const LogicPoint& a,
 			const LogicPoint& b,

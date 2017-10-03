@@ -5,6 +5,7 @@
 #include "Polygon.h"
 #include "Polyhedron.h"
 #include "SimpleShapesGenerator.h"
+#include "CoordinateSystem.h"
 
 
 namespace cs
@@ -53,16 +54,16 @@ namespace cs
 			LogicPoint(
 				(topLittleTrianglePoints[1].x + topLittleTrianglePoints[2].x) / 2,
 				(topLittleTrianglePoints[1].y + topLittleTrianglePoints[2].y) / 2,
-				topBigTrianglePoints[1].z
+				topLittleTrianglePoints[1].z
 			)
 		);
 		
 		CoordinateSystem::GetInstance()->AddLogicPoint(
-			additionalAxis->GetPoints().first, 0, false, false, false, false, false, false
+			additionalAxis->GetPoints()[0], 0, false, false, false, false, false, false
 		);
 
 		CoordinateSystem::GetInstance()->AddLogicPoint(
-			additionalAxis->GetPoints().second, 0, false, false, false, false, false, false
+			additionalAxis->GetPoints()[1], 0, false, false, false, false, false, false
 		);
 
 		//Find facets

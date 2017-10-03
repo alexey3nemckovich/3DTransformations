@@ -139,7 +139,7 @@ namespace cs
 		void AddLogicPoint(LogicPoint point, COLORREF cl = RGB(0, 0, 0), bool xDetection = true, bool yDetection = true, bool zDetection = true, bool xDetectionLine = true, bool yDetectionLine = true, bool zDetectionLine = true);
 		void AddLogicPoint(double x, double y, COLORREF cl = RGB(0, 0, 0), bool xDetection = false, bool yDetection = false, bool xDetectionLine = true, bool yDetectionLine = true);
 		void AddLogicPoint(double x, double y, double z, COLORREF cl = RGB(0, 0, 0), bool xDetection = false, bool yDetection = false, bool zDetection = true, bool xDetectLine = true, bool yDetectLine = true, bool zDetectionLine = true);
-		void AddGraphicObject(GraphicObject* obj, COLORREF color = RGB(0, 0, 0));
+		void AddGraphicObject(GraphicObject* obj, bool deleteOnDestroy = true);
 		GraphicObject* LastGraphicObject();
 		const vector<shared_ptr<GraphicObject>>& GetGraphicObejctsList() const;
 

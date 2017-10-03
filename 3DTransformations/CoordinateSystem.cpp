@@ -287,9 +287,16 @@ void CoordinateSystem::AddLogicPoint(double x, double y, double z, COLORREF cl/*
 }
 
 
-void CoordinateSystem::AddGraphicObject(GraphicObject* obj, COLORREF color /*= RGB(0, 0, 0)*/)
+void CoordinateSystem::AddGraphicObject(GraphicObject* obj, bool deleteOnDestroy/* = true*/)
 {
-	_objects.push_back(shared_ptr<GraphicObject>(obj));
+	if (deleteOnDestroy)
+	{
+		_objects.push_back(shared_ptr<GraphicObject>(obj));
+	}
+	else
+	{
+		_objects.push_back(shared_ptr<GraphicObject>(obj, [](GraphicObject*) {}));
+	}
 }
 
 

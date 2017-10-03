@@ -87,7 +87,8 @@ afx_msg void CChildView::OnIncreaseAngle()
 	}
 	else
 	{
-		coordSystem->RotateAroundAxis(additionalAxis->GetPoints(), deltaAngel);
+		auto points = additionalAxis->GetPoints();
+		coordSystem->RotateAroundAxis(pair<LogicPoint, LogicPoint>(points[0], points[1]), deltaAngel);
 	}
 
 	RedrawWindow();
@@ -106,7 +107,8 @@ afx_msg void CChildView::OnDecreaseAngle()
 	}
 	else
 	{
-		coordSystem->RotateAroundAxis(additionalAxis->GetPoints(), deltaAngel);
+		auto points = additionalAxis->GetPoints();
+		coordSystem->RotateAroundAxis(pair<LogicPoint, LogicPoint>(points[0], points[1]), deltaAngel);
 	}
 
 	RedrawWindow();

@@ -21,6 +21,7 @@ namespace cs
 		~RasterizableGraphicObject();
 
 	public:
+		vector<LogicPoint> GetPoints() const;
 		virtual vector<const RasterizableGraphicObject*> GetRasterizationPrimitives() const override;
 
 	public:
@@ -31,6 +32,7 @@ namespace cs
 		void Init();
 
 	private:
+		Rasterization::Ptr RasterizeToLine(const CoordinateSystem*) const;
 		Rasterization::Ptr Rasterize(const CoordinateSystem*, const Plane& planeInProjectionSystem) const;
 		void CalcRasterizationBounds(const CoordinateSystem*, int& minX, int& minY, int& maxX, int& maxY) const;
 		pair<LogicPoint, LogicPoint> FindMaxDistanceProjectionLineSegment(const CoordinateSystem*) const;
@@ -39,7 +41,8 @@ namespace cs
 		COLORREF _brushColor;
 
 	protected:
-		Plane _plane;
+		bool _line;
+		Plane::Ptr _plane;
 		vector<Axis> _axises;
 		vector<LogicPoint> _points;
 	};

@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
 #include "AdditionalAxis.h"
+#include "CoordinateSystem.h"
 
 
 AdditionalAxis* AdditionalAxis::GetInstance()
@@ -10,19 +11,16 @@ AdditionalAxis* AdditionalAxis::GetInstance()
 
 
 AdditionalAxis::AdditionalAxis()
+	: LinearGraphicObject({})
 {
-	
-}
-
-
-AxisPoints& AdditionalAxis::GetPoints()
-{
-	return _points;
+	//cs::CoordinateSystem::GetInstance()->AddGraphicObject(this, false);
 }
 
 
 void AdditionalAxis::SetPoints(const LogicPoint& p1, const LogicPoint& p2)
 {
-	_points.first = p1;
-	_points.second = p2;
+	_points.clear();
+
+	_points.push_back(p1);
+	_points.push_back(p2);
 }

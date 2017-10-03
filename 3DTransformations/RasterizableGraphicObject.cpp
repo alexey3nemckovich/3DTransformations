@@ -11,12 +11,7 @@ namespace cs
 	RasterizableGraphicObject::RasterizableGraphicObject(const vector<LogicPoint>& points, int penStyle/* = PS_SOLID*/, int penWidth/* = 1*/, COLORREF penColor/* = RGB(0, 0, 0)*/, COLORREF brushColor/* = RGB(0, 0, 0)*/)
 		: GraphicObject(penStyle, penWidth, penColor),
 		_points(points),
-		_brushColor(brushColor),
-		_plane(
-			points[0],
-			points[1],
-			points[2]
-		)
+		_brushColor(brushColor)
 	{
 		Init();
 	}
@@ -25,12 +20,7 @@ namespace cs
 	RasterizableGraphicObject::RasterizableGraphicObject(const RasterizableGraphicObject& other)
 		: GraphicObject(other),
 		_points(other._points),
-		_brushColor(other._brushColor),
-		_plane(
-			other._points[0],
-			other._points[1],
-			other._points[2]
-		)
+		_brushColor(other._brushColor)
 	{
 		Init();
 	}
@@ -39,6 +29,12 @@ namespace cs
 	RasterizableGraphicObject::~RasterizableGraphicObject()
 	{
 
+	}
+
+
+	vector<LogicPoint> RasterizableGraphicObject::GetPoints() const
+	{
+		return _points;
 	}
 
 
@@ -64,29 +60,26 @@ namespace cs
 
 	const Rasterization::Ptr RasterizableGraphicObject::CalcRasterization(const CoordinateSystem* coordSystem) const
 	{
-		Plane planeInProjectionSystem(
-			coordSystem->ConvertToProjectionSytemPoint(_points[0]),
-			coordSystem->ConvertToProjectionSytemPoint(_points[1]),
-			coordSystem->ConvertToProjectionSytemPoint(_points[2])
-		);
-
-		if (false == planeInProjectionSystem.IsParallelToOz())
+		if (_line)
 		{
-			return Rasterize(coordSystem, planeInProjectionSystem);
+			return  RasterizeToLine(coordSystem);
 		}
 		else
 		{
-			auto projectionSegment = FindMaxDistanceProjectionLineSegment(coordSystem);
-			Axis projectionAxis(projectionSegment.first, projectionSegment.second);
-
-			return RasterizeLineSegment(
-				coordSystem, 
-				projectionAxis,
-				projectionSegment.first,
-				projectionSegment.second,
-				_penColor,
-				_penWidth
+			Plane planeInProjectionSystem(
+				coordSystem->ConvertToProjectionSytemPoint(_points[0]),
+				coordSystem->ConvertToProjectionSytemPoint(_points[1]),
+				coordSystem->ConvertToProjectionSytemPoint(_points[2])
 			);
+
+			if (false == planeInProjectionSystem.IsParallelToOz())
+			{
+				return Rasterize(coordSystem, planeInProjectionSystem);
+			}
+			else
+			{
+				return RasterizeToLine(coordSystem);
+			}
 		}
 	}
 
@@ -104,6 +97,37 @@ namespace cs
 				)
 			);
 		}
+
+		if (_points.size() > 2)
+		{
+			_plane = Plane::Ptr( new Plane(
+				_points[0],
+				_points[1],
+				_points[2]
+			));
+
+			_line = false;
+		}
+		else
+		{
+			_line = true;
+		}
+	}
+
+
+	Rasterization::Ptr RasterizableGraphicObject::RasterizeToLine(const CoordinateSystem* coordSystem) const
+	{
+		auto projectionSegment = FindMaxDistanceProjectionLineSegment(coordSystem);
+		Axis projectionAxis(projectionSegment.first, projectionSegment.second);
+
+		return RasterizeLineSegment(
+			coordSystem,
+			projectionAxis,
+			projectionSegment.first,
+			projectionSegment.second,
+			_penColor,
+			_penWidth
+		);
 	}
 
 
