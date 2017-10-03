@@ -2,12 +2,16 @@
 #include "PrimitiveTypes.h"
 #include "PrimitiveTypesTemplates.h"
 #include "GraphicObject.h"
+#include "RasterizationPrimitiveTypes.h"
+#include <map>
+using namespace std;
 
 
 namespace cs
 {
 
 
+	class RasterizableGraphicObject;
 	class ZBuffer
 	{
 	public:
@@ -16,7 +20,7 @@ namespace cs
 			Element()
 			{
 				color = RGB(255, 255, 255);
-				zValue = INT_MAX;
+				zValue = INT_MIN;
 			}
 
 			double zValue;
@@ -32,14 +36,15 @@ namespace cs
 		void Render(CDC*);
 
 	public:
-		void Init(const CoordinateSystem* coordinateSystem, const vector<GraphicObject::Ptr>& objList);
+		void Init(const CoordinateSystem* coordinateSystem, const vector<GraphicObject::Ptr>& objList, bool invisibleLinesAsDash = true);
+		void RenderInvisibleLinesAsDash(const map<const RasterizableGraphicObject*, Rasterization::Ptr>&);
 		void Resize(int cRows, int cCols);
 
 	public:
 		Element* operator[](int row) const;
 
 	private:
-		void ProcessObj(__in const CoordinateSystem* coordinateSystem, __in const GraphicObject*);
+		void ProcessObj(__in const CoordinateSystem* coordinateSystem, __in const GraphicObject*, bool storeRasterInfo, map<const RasterizableGraphicObject*, Rasterization::Ptr>* = nullptr);
 
 	private:
 		Matrix<Element> _buffer;

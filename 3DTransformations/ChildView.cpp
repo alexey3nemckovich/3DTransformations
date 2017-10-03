@@ -60,7 +60,7 @@ afx_msg void CChildView::OnIncreaseAngle()
 {
 	static auto coordSystem = cs::CoordinateSystem::GetInstance();
 	static auto additionalAxis = AdditionalAxis::GetInstance();
-	const double deltaAngel = M_PI / 20;//M_PI / 45;
+	const double deltaAngel = /*M_PI / 20;*/M_PI / 45;
 
 	if (WorkingMode::RotatingSystemAroundAxis == _mode)
 	{

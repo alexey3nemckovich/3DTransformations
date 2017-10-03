@@ -2,6 +2,7 @@
 #include "ZBuffer.h"
 #include "CoordinateSystem.h"
 #include "LinearGraphicObject.h"
+#include "RasterizableGraphicObject.h"
 using namespace cs;
 
 
@@ -41,12 +42,81 @@ void ZBuffer::Render(CDC* dc)
 }
 
 
-void ZBuffer::Init(const CoordinateSystem* coordinateSystem, const vector<GraphicObject::Ptr>& objList)
+void ZBuffer::Init(const CoordinateSystem* coordinateSystem, const vector<GraphicObject::Ptr>& objList, bool renderInvisibleLinesAsDash/* = true*/)
 {
 	int cObj = objList.size();
+	map<const RasterizableGraphicObject*, Rasterization::Ptr> objRastersMap;
+
 	for (int i = 0; i < cObj; i++)
 	{
-		ProcessObj(coordinateSystem, objList[i].get());
+		if (renderInvisibleLinesAsDash)
+		{
+			ProcessObj(coordinateSystem, objList[i].get(), true, &objRastersMap);
+		}
+		else
+		{
+			ProcessObj(coordinateSystem, objList[i].get(), false);
+		}
+	}
+
+	if (renderInvisibleLinesAsDash)
+	{
+		RenderInvisibleLinesAsDash(objRastersMap);
+	}
+}
+
+
+void ZBuffer::RenderInvisibleLinesAsDash(const map<const RasterizableGraphicObject*, Rasterization::Ptr>& objRastersMap)
+{
+	int countPointsPerCurSegment = 0;
+	const int countPointsPerDashSegment = 30;
+	for (auto objRaster : objRastersMap)
+	{
+		bool drawing = false;
+		bool renderingDashLine = false;
+		int cBorderPoints = objRaster.second->borderPoints.size();
+		for (int i = 0; i < cBorderPoints; i++)
+		{
+			auto& rasterPoint = objRaster.second->borderPoints[i];
+
+			if (_buffer[rasterPoint->point.y][rasterPoint->point.x].zValue > rasterPoint->zValue)
+			{
+				if (!renderingDashLine)
+				{
+					renderingDashLine = true;
+
+					drawing = true;
+					countPointsPerCurSegment = 0;
+				}
+			}
+			else
+			{
+				renderingDashLine = false;
+			}
+
+			if (renderingDashLine)
+			{
+				if (drawing)
+				{
+					_buffer[rasterPoint->point.y][rasterPoint->point.x].color = rasterPoint->color;
+				}
+
+				countPointsPerCurSegment++;
+				if (countPointsPerCurSegment == countPointsPerDashSegment)
+				{
+					if (drawing)
+					{
+						drawing = false;
+					}
+					else
+					{
+						drawing = true;
+					}
+
+					countPointsPerCurSegment = 0;
+				}
+			}
+		}
 	}
 }
 
@@ -66,7 +136,7 @@ ZBuffer::Element* ZBuffer::operator[](int row) const
 }
 
 
-void ZBuffer::ProcessObj(__in const CoordinateSystem* coordinateSystem, __in const GraphicObject* obj)
+void ZBuffer::ProcessObj(__in const CoordinateSystem* coordinateSystem, __in const GraphicObject* obj, __in bool storeRasterInfo, __out map<const RasterizableGraphicObject*, Rasterization::Ptr>* rasterMap/* = nullptr*/)
 {
 	auto objRasterizationPrimitivesList = obj->GetRasterizationPrimitives();
 	auto cRasterPrimitives = objRasterizationPrimitivesList.size();
@@ -74,8 +144,13 @@ void ZBuffer::ProcessObj(__in const CoordinateSystem* coordinateSystem, __in con
 	for (int i = 0; i < cRasterPrimitives; i++)
 	{
 		auto rasterization = objRasterizationPrimitivesList[i]->CalcRasterization(coordinateSystem);
-		auto cRasterPoints = (*rasterization).points.size();
 
+		if (storeRasterInfo)
+		{
+			(*rasterMap)[objRasterizationPrimitivesList[i]] = rasterization;
+		}
+
+		auto cRasterPoints = (*rasterization).points.size();
 		for (int j = 0; j < cRasterPoints; j++)
 		{
 			RasterizationPoint* objRasterPoint = (*rasterization).points[j].get();
@@ -83,7 +158,7 @@ void ZBuffer::ProcessObj(__in const CoordinateSystem* coordinateSystem, __in con
 			{
 				Element& buffElement = _buffer[objRasterPoint->point.y][objRasterPoint->point.x];
 
-				if (objRasterPoint->zValue < buffElement.zValue)
+				if (objRasterPoint->zValue > buffElement.zValue)
 				{
 					buffElement.color = objRasterPoint->color;
 					buffElement.zValue = objRasterPoint->zValue;

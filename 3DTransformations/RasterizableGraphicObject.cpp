@@ -76,7 +76,8 @@ namespace cs
 		}
 		else
 		{
-			auto projectionSegment = FindMaxDistanceProjectionLineSegment(coordSystem);
+			return Rasterization::Ptr(new Rasterization());
+			/*auto projectionSegment = FindMaxDistanceProjectionLineSegment(coordSystem);
 			Axis projectionAxis(projectionSegment.first, projectionSegment.second);
 
 			return RasterizeLineSegment(
@@ -86,7 +87,7 @@ namespace cs
 				projectionSegment.second,
 				_penColor,
 				_penWidth
-			);
+			);*/
 		}
 	}
 
