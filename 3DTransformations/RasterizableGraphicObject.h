@@ -31,7 +31,7 @@ namespace cs
 		void Init();
 
 	private:
-		Rasterization::Ptr Rasterize(const CoordinateSystem*) const;
+		Rasterization::Ptr Rasterize(const CoordinateSystem*, const Plane& planeInProjectionSystem) const;
 		void CalcRasterizationBounds(const CoordinateSystem*, int& minX, int& minY, int& maxX, int& maxY) const;
 		pair<LogicPoint, LogicPoint> FindMaxDistanceProjectionLineSegment(const CoordinateSystem*) const;
 

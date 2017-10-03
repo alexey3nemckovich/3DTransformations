@@ -141,36 +141,47 @@ namespace cs
 	)
 	{
 		borderPoint = false;
-		double halfBorderThickness = (double)borderThickness / 2;
-		auto cAxises = sidesAxises.size();
+		const auto cAxises = sidesAxises.size();
+		const double halfBorderThickness = (double)borderThickness / 2;
+
+		int countAxisesForWitchPointIsOnLeftSide = 0;
+		int countAxisesForWitchPointIsOnRightSide = 0;
+
 		for (int i = 0; i < cAxises; i++)
 		{
 			auto positionToAxis = sidesAxises[i].FindPointRelativePosition(x, y);
 
-			if (borderThickness)
+			switch (positionToAxis.sideToAxis)
 			{
-				if (Axis::PointSideToAxis::LEFT == positionToAxis.sideToAxis &&
-					positionToAxis.distance > halfBorderThickness
-				)
-				{
-					return false;
-				}
-			}
-			else
-			{
-				if (Axis::PointSideToAxis::LEFT == positionToAxis.sideToAxis)
-				{
-					return false;
-				}
+			case Axis::PointSideToAxis::LEFT:
+				countAxisesForWitchPointIsOnLeftSide++;
+				break;
+			case Axis::PointSideToAxis::RIGHT:
+				countAxisesForWitchPointIsOnRightSide++;
+				break;
+			case Axis::PointSideToAxis::ON_AXIS:
+				countAxisesForWitchPointIsOnLeftSide++;
+				countAxisesForWitchPointIsOnRightSide++;
+				break;
+			default:
+				break;
 			}
 
-			if (positionToAxis.distance <= halfBorderThickness)
+			if (positionToAxis.distance <= borderThickness)
 			{
 				borderPoint = true;
 			}
 		}
 
-		return true;
+		if (cAxises == countAxisesForWitchPointIsOnLeftSide ||
+			cAxises == countAxisesForWitchPointIsOnRightSide)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 

@@ -34,4 +34,6 @@ private:
 
 	bool _moving = false;
 	bool _firstMove = true;
+public:
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 };

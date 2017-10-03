@@ -72,7 +72,7 @@ namespace cs
 
 		if (false == planeInProjectionSystem.IsParallelToOz())
 		{
-			return Rasterize(coordSystem);
+			return Rasterize(coordSystem, planeInProjectionSystem);
 		}
 		else
 		{
@@ -107,17 +107,10 @@ namespace cs
 	}
 
 
-	Rasterization::Ptr RasterizableGraphicObject::Rasterize(const CoordinateSystem* coordSystem) const
+	Rasterization::Ptr RasterizableGraphicObject::Rasterize(const CoordinateSystem* coordSystem, const Plane& planeInProjectionSystem) const
 	{
 		int minX = 0, minY = 0, maxX = 0, maxY = 0;
 		CalcRasterizationBounds(coordSystem, minX, minY, maxX, maxY);
-
-		//Find rasterization
-		int y = minY;
-		double zValue = 0;
-		LogicPoint tmpPoint;
-		bool borderPoint = false;
-		Rasterization* rasterization = new Rasterization();
 
 		//Find corners points screen coordinates
 		vector<CPoint> cornersPoints;
@@ -142,6 +135,14 @@ namespace cs
 			));
 		}
 
+		//Find rasterization
+		int y = minY;
+		double zValue = 0;
+		bool borderPoint = false;
+		auto physOrigin = coordSystem->GetPhysOrigin();
+		Rasterization* rasterization = new Rasterization();
+
+		int lx = 0, ly = 0;
 		while (y <= maxY)
 		{
 			int x = minX;
@@ -149,9 +150,9 @@ namespace cs
 			{
 				if (DoesPointBelongToPolygon(rasterizationAxises, _penWidth, x, y, borderPoint))
 				{
-					tmpPoint.x = x;
-					tmpPoint.y = y;
-					tmpPoint.z = -(_plane.A() * x + _plane.B() * y + _plane.D()) / _plane.C();
+					lx = x - physOrigin.x;
+					ly = y - physOrigin.y;
+					zValue = -(planeInProjectionSystem.A() * lx + planeInProjectionSystem.B() * ly + planeInProjectionSystem.D()) / planeInProjectionSystem.C();
 
 					if (borderPoint)
 					{

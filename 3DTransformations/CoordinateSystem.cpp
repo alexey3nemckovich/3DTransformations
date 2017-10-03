@@ -82,7 +82,7 @@ CoordinateSystem::~CoordinateSystem()
 void CoordinateSystem::Render(CPaintDC *dc, CWnd *wnd)
 {
 	RECT rect;
-	dc->GetClipBox(&rect);
+	wnd->GetClientRect(&rect);
 
 	int width = rect.right - rect.left;
 	int height = rect.bottom - rect.top;
@@ -97,8 +97,8 @@ void CoordinateSystem::Render(CPaintDC *dc, CWnd *wnd)
 
 	//Rendering algorithm
 
-	StandardRenderingAlgorithm(&memDc);
-	//ZBufferRenderingAlgorithm(&memDc);
+	//StandardRenderingAlgorithm(&memDc);
+	ZBufferRenderingAlgorithm(&memDc);
 
 	//
 

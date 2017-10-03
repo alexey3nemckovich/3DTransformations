@@ -43,6 +43,7 @@ BEGIN_MESSAGE_MAP(CChildView, CWnd)
 	ON_WM_LBUTTONUP()
 	ON_WM_LBUTTONDOWN()
 	ON_WM_LBUTTONUP()
+	ON_WM_ERASEBKGND()
 END_MESSAGE_MAP()
 
 
@@ -59,7 +60,7 @@ afx_msg void CChildView::OnIncreaseAngle()
 {
 	static auto coordSystem = cs::CoordinateSystem::GetInstance();
 	static auto additionalAxis = AdditionalAxis::GetInstance();
-	const double deltaAngel = M_PI / 45;
+	const double deltaAngel = M_PI / 20;//M_PI / 45;
 
 	if (WorkingMode::RotatingSystemAroundAxis == _mode)
 	{
@@ -192,4 +193,10 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 	_firstMove = true;
 
 	CWnd::OnLButtonUp(nFlags, point);
+}
+
+
+BOOL CChildView::OnEraseBkgnd(CDC* pDC)
+{
+	return TRUE;
 }
