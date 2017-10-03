@@ -111,6 +111,11 @@ namespace cs
 		};
 
 	public:
+		enum class RenderingAlgorithm
+		{
+			STANDARD,
+			ZBUFFER,
+		};
 		static CoordinateSystem *GetInstance();
 
 		//Main interface
@@ -120,6 +125,7 @@ namespace cs
 		void Move(double dx, double dy, double dz);
 		void MoveOriginPhysPoint(double dx, double dy);
 		void SetOriginTo(LogicPoint p);
+		void SetRenderingAlgorithm(RenderingAlgorithm);
 		void RotateAroundAxis(CoordinateAxisName axis, double deltaAngle);
 		void RotateAroundAxis(std::pair<LogicPoint, LogicPoint> axisPoints, double deltaAngle);
 		void Clear();
@@ -139,6 +145,7 @@ namespace cs
 
 		//Properties
 	public:
+		void EnableInvisibleLinesAsDash(bool enable = true);
 		inline void EnableGridRendering(bool enable = true);
 		inline void EnableAxisRendering(CoordinateAxisName axis, bool enable = true);
 
@@ -221,9 +228,11 @@ namespace cs
 		CPoint							  _physOrigin;
 		LogicPoint						  _origin;
 		HomogeneousPoint<double>		  _watcherVector;
+		RenderingAlgorithm				  _renderingAlg = RenderingAlgorithm::STANDARD;
 
+		bool						      _invisibleLinesAsDash = false;
 		bool							  _gridRender = false;
-		map<CoordinateAxisName, AxisInfo>				  _axisInfoMap;
+		map<CoordinateAxisName, AxisInfo> _axisInfoMap;
 		Matrix<double>					  _projectionMatrix;
 
 		//Constants

@@ -56,6 +56,25 @@ afx_msg void CChildView::OnPaint()
 }
 
 
+afx_msg void CChildView::OnSetStdRenderingAlg()
+{
+	cs::CoordinateSystem::GetInstance()->SetRenderingAlgorithm(cs::CoordinateSystem::RenderingAlgorithm::STANDARD);
+}
+
+
+afx_msg void CChildView::OnSetZBufferRenderingAlg()
+{
+	cs::CoordinateSystem::GetInstance()->SetRenderingAlgorithm(cs::CoordinateSystem::RenderingAlgorithm::ZBUFFER);
+}
+
+
+afx_msg void CChildView::OnEnableInvisibleLines()
+{
+	_invisibleLines = !_invisibleLines;
+	cs::CoordinateSystem::GetInstance()->EnableInvisibleLinesAsDash(_invisibleLines);
+}
+
+
 afx_msg void CChildView::OnIncreaseAngle()
 {
 	static auto coordSystem = cs::CoordinateSystem::GetInstance();
@@ -118,6 +137,15 @@ afx_msg void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 	switch (ch)
 	{
+	case 'q':
+		OnSetStdRenderingAlg();
+		break;
+	case 'w':
+		OnSetZBufferRenderingAlg();
+		break;
+	case 'e':
+		OnEnableInvisibleLines();
+		break;
 	case 'z':
 		_workingAxis = cs::CoordinateAxisName::Z;
 		break;

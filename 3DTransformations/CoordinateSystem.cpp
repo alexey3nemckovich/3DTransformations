@@ -95,13 +95,18 @@ void CoordinateSystem::Render(CPaintDC *dc, CWnd *wnd)
 	memDc.SelectObject(memBitmap);
 	memDc.FillSolidRect(&rect, GetSysColor(COLOR_WINDOW));
 
-	//Rendering algorithm
-
-	//StandardRenderingAlgorithm(&memDc);
-	ZBufferRenderingAlgorithm(&memDc);
-
-	//
-
+	switch (_renderingAlg)
+	{
+	case RenderingAlgorithm::STANDARD:
+		StandardRenderingAlgorithm(&memDc);
+		break;
+	case RenderingAlgorithm::ZBUFFER:
+		ZBufferRenderingAlgorithm(&memDc);
+		break;
+	default:
+		break;
+	}
+	
 	//Flushing
 	dc->BitBlt(0, 0, width, height, &memDc, 0, 0, SRCCOPY);
 }
@@ -132,6 +137,12 @@ void CoordinateSystem::SetOriginTo(LogicPoint p)
 	_physOrigin = physPointNewOrigin;
 
 	Move(-p.x, -p.y, -p.z);
+}
+
+
+void CoordinateSystem::SetRenderingAlgorithm(RenderingAlgorithm alg)
+{
+	_renderingAlg = alg;
 }
 
 
@@ -299,6 +310,12 @@ const vector<GraphicObject::Ptr>& CoordinateSystem::GetGraphicObejctsList() cons
 }
 
 
+void CoordinateSystem::EnableInvisibleLinesAsDash(bool enable/* = true*/)
+{
+	_invisibleLinesAsDash = enable;
+}
+
+
 void CoordinateSystem::EnableGridRendering(bool enable/* = true*/)
 {
 	_gridRender = enable;
@@ -406,7 +423,7 @@ void CoordinateSystem::ZBufferRenderingAlgorithm(CDC *dc)
 
 	ZBuffer buff;
 	buff.Resize(rect.bottom - rect.top, rect.right - rect.left);
-	buff.Init(this, _objects);
+	buff.Init(this, _objects, _invisibleLinesAsDash);
 	buff.Render(dc);
 }
 

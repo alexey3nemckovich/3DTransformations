@@ -24,7 +24,7 @@ Polygon::Polygon(const Polygon& other)
 
 void Polygon::Init()
 {
-	_brush.CreateSolidBrush(RGB(0, 255, 0));
+	_brush.CreateSolidBrush(_brushColor);
 	_nVector = FindNormalVectorToPlane(_points[0], _points[1], _points[2], 100, _rightHandNormalVector);
 }
 
@@ -39,7 +39,6 @@ void Polygon::Render(const CoordinateSystem* cs, CDC *dc) const
 		isVisible = false;
 	}
 
-	isVisible = true;
 	if (isVisible)
 	{
 		int countPoints = _points.size();

@@ -13,6 +13,9 @@ protected:
 
 protected:
 	afx_msg void OnPaint();
+	afx_msg void OnSetStdRenderingAlg();
+	afx_msg void OnSetZBufferRenderingAlg();
+	afx_msg void OnEnableInvisibleLines();
 	afx_msg void OnIncreaseAngle();
 	afx_msg void OnDecreaseAngle();
 	afx_msg void OnZoomIn();
@@ -34,6 +37,7 @@ private:
 
 	bool _moving = false;
 	bool _firstMove = true;
+	bool _invisibleLines = false;
 public:
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 };
