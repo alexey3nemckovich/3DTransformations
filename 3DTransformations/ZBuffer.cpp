@@ -77,44 +77,53 @@ void ZBuffer::RenderInvisibleLinesAsDash(const map<const RasterizableGraphicObje
 		int cBorderPoints = objRaster.second->borderPoints.size();
 		for (int i = 0; i < cBorderPoints; i++)
 		{
-			auto& rasterPoint = objRaster.second->borderPoints[i];
+			ProcessRasterBorderPoint(objRaster.second->borderPoints[i], countPointsPerCurSegment, renderingDashLine, drawing);
+		}
+	}
+}
 
-			if (_buffer[rasterPoint->point.y][rasterPoint->point.x].zValue > rasterPoint->zValue)
+
+void ZBuffer::ProcessRasterBorderPoint(RasterizationPoint::Ptr rasterPoint, int& countPointsPerCurSegment, bool& renderingDashLine, bool& drawing)
+{
+	const int countPointsPerDashSegment = 30;
+
+	if (PtInRect(&_buffRect, rasterPoint->point))
+	{
+		if (_buffer[rasterPoint->point.y][rasterPoint->point.x].zValue > rasterPoint->zValue)
+		{
+			if (!renderingDashLine)
 			{
-				if (!renderingDashLine)
-				{
-					renderingDashLine = true;
+				renderingDashLine = true;
 
-					drawing = true;
-					countPointsPerCurSegment = 0;
-				}
+				drawing = true;
+				countPointsPerCurSegment = 0;
 			}
-			else
+		}
+		else
+		{
+			renderingDashLine = false;
+		}
+
+		if (renderingDashLine)
+		{
+			if (drawing)
 			{
-				renderingDashLine = false;
+				_buffer[rasterPoint->point.y][rasterPoint->point.x].color = rasterPoint->color;
 			}
 
-			if (renderingDashLine)
+			countPointsPerCurSegment++;
+			if (countPointsPerCurSegment == countPointsPerDashSegment)
 			{
 				if (drawing)
 				{
-					_buffer[rasterPoint->point.y][rasterPoint->point.x].color = rasterPoint->color;
+					drawing = false;
 				}
-
-				countPointsPerCurSegment++;
-				if (countPointsPerCurSegment == countPointsPerDashSegment)
+				else
 				{
-					if (drawing)
-					{
-						drawing = false;
-					}
-					else
-					{
-						drawing = true;
-					}
-
-					countPointsPerCurSegment = 0;
+					drawing = true;
 				}
+
+				countPointsPerCurSegment = 0;
 			}
 		}
 	}
@@ -126,6 +135,9 @@ void ZBuffer::Resize(int cRows, int cCols)
 	if (cRows != _buffer.GetCountRows() || cCols != _buffer.GetCountColumns())
 	{
 		_buffer = Matrix<Element>(cRows, cCols);
+		_buffRect.left = _buffRect.top = 0;
+		_buffRect.right = cCols;
+		_buffRect.bottom = cRows;
 	}
 }
 
@@ -154,7 +166,7 @@ void ZBuffer::ProcessObj(__in const CoordinateSystem* coordinateSystem, __in con
 		for (int j = 0; j < cRasterPoints; j++)
 		{
 			RasterizationPoint* objRasterPoint = (*rasterization).points[j].get();
-			if (objRasterPoint->point.x >= 0 && objRasterPoint->point.y >= 0)
+			if (PtInRect(&_buffRect, objRasterPoint->point))
 			{
 				Element& buffElement = _buffer[objRasterPoint->point.y][objRasterPoint->point.x];
 
