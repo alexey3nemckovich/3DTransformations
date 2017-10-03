@@ -118,7 +118,10 @@ namespace cs
 	Rasterization::Ptr RasterizableGraphicObject::RasterizeToLine(const CoordinateSystem* coordSystem) const
 	{
 		auto projectionSegment = FindMaxDistanceProjectionLineSegment(coordSystem);
-		Axis projectionAxis(projectionSegment.first, projectionSegment.second);
+		Axis projectionAxis(
+			projectionSegment.first,
+			projectionSegment.second
+		);
 
 		return RasterizeLineSegment(
 			coordSystem,
@@ -255,10 +258,11 @@ namespace cs
 		{
 			for (int j = i + 1; i < cPoints; i++)
 			{
-				auto p1 = coordSystem->ConvertLogicPointToPhys(_points[i]);
-				auto p2 = coordSystem->ConvertLogicPointToPhys(_points[j]);
+				double dist = FindDistance(
+					coordSystem->ConvertToProjectionSytemPoint(_points[i]),
+					coordSystem->ConvertToProjectionSytemPoint(_points[j])
+				);
 
-				double dist = FindDistance(p1, p2);
 				if (dist > maxDistance)
 				{
 					line.first = _points[i];

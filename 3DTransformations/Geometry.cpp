@@ -7,6 +7,7 @@ namespace cs
 {
 
 
+	void ProcessPoint(const CoordinateSystem* coordSystem, Rasterization*, const Axis& axis, int x, int y, COLORREF color/* = 0*/);
 	Rasterization::Ptr RasterizeLineSegment(const CoordinateSystem* coordSystem, const Axis& axis, const LogicPoint& la, const LogicPoint& lb, COLORREF color/* = 0*/, int thickness/* = 1*/)
 	{
 		Rasterization* rasterization = new Rasterization();
@@ -15,70 +16,111 @@ namespace cs
 		CPoint a = coordSystem->ConvertLogicPointToPhys(la);
 		CPoint b = coordSystem->ConvertLogicPointToPhys(lb);
 
-		double zValue = -1;
+		int x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
+		dx = b.x - a.x;
+		dy = b.y - a.y;
+		dx1 = fabs(dx);
+		dy1 = fabs(dy);
+		px = 2 * dy1 - dx1;
+		py = 2 * dx1 - dy1;
+		if (dy1 <= dx1)
+		{
+			if (dx >= 0)
+			{
+				x = a.x;
+				y = a.y;
+				xe = b.x;
+			}
+			else
+			{
+				x = b.x;
+				y = b.y;
+				xe = a.x;
+			}
 
-		int dx = abs(b.x - a.x);
-		int dy = abs(b.y - a.y);
-		int sx = b.x >= a.x ? 1 : -1;
-		int sy = b.y >= a.y ? 1 : -1;
-		if (dy <= dx) {
-			int d = (dy << 1) - dx;
-			int d1 = dy << 1;
-			int d2 = (dy - dx) << 1;
+			ProcessPoint(coordSystem, rasterization, axis, x, y, color);
 
-			auto lp = axis.GetPointByProjection(a.x - physOrigin.x, a.y - physOrigin.y);
-			zValue = coordSystem->GetPointDistanceToProjectionPlane(lp);
-			rasterization->AddPoint(
-				coordSystem->ConvertLogicPointToPhys(lp), zValue, color, true
-			);
-			//dc->SetPixel(a, color);
-
-			for (int x = a.x + sx, y = a.y, i = 1; i <= dx; i++, x += sx) {
-				if (d > 0) {
-					d += d2; y += sy;
+			for (i = 0; x<xe; i++)
+			{
+				x = x + 1;
+				if (px<0)
+				{
+					px = px + 2 * dy1;
 				}
 				else
-					d += d1;
+				{
+					if ((dx<0 && dy<0) || (dx>0 && dy>0))
+					{
+						y = y + 1;
+					}
+					else
+					{
+						y = y - 1;
+					}
+					px = px + 2 * (dy1 - dx1);
+				}
 
-				auto lp = axis.GetPointByProjection(x - physOrigin.x, y - physOrigin.y);
-				zValue = coordSystem->GetPointDistanceToProjectionPlane(lp);
-				rasterization->AddPoint(
-					coordSystem->ConvertLogicPointToPhys(lp), zValue, color, true
-				);
-				//dc->SetPixel(x, y, color);
+				ProcessPoint(coordSystem, rasterization, axis, x, y, color);
 
 			}
 		}
-		else {
-			int d = (dx << 1) - dy;
-			int d1 = dx << 1;
-			int d2 = (dx - dy) << 1;
+		else
+		{
+			if (dy >= 0)
+			{
+				x = a.x;
+				y = a.y;
+				ye = b.y;
+			}
+			else
+			{
+				x = b.x;
+				y = b.y;
+				ye = a.y;
+			}
 
-			auto lp = axis.GetPointByProjection(a.x - physOrigin.x, a.y - physOrigin.y);
-			zValue = coordSystem->GetPointDistanceToProjectionPlane(lp);
-			rasterization->AddPoint(
-				coordSystem->ConvertLogicPointToPhys(lp), zValue, color, true
-			);
-			//dc->SetPixel(a, color);
+			ProcessPoint(coordSystem, rasterization, axis, x, y, color);
 
-			for (int x = a.x, y = a.y + sy, i = 1; i <= dy; i++, y += sy) {
-				if (d > 0) {
-					d += d2; x += sx;
+			for (i = 0; y<ye; i++)
+			{
+				y = y + 1;
+				if (py <= 0)
+				{
+					py = py + 2 * dx1;
 				}
 				else
-					d += d1;
+				{
+					if ((dx<0 && dy<0) || (dx>0 && dy>0))
+					{
+						x = x + 1;
+					}
+					else
+					{
+						x = x - 1;
+					}
+					py = py + 2 * (dx1 - dy1);
+				}
 
-				auto lp = axis.GetPointByProjection(x - physOrigin.x, y - physOrigin.y);
-				zValue = coordSystem->GetPointDistanceToProjectionPlane(lp);
-				rasterization->AddPoint(
-					coordSystem->ConvertLogicPointToPhys(lp), zValue, color, true
-				);
-				//dc->SetPixel(x, y, color);
-
+				ProcessPoint(coordSystem, rasterization, axis, x, y, color);
 			}
 		}
 
 		return Rasterization::Ptr(rasterization);
+	}
+
+
+	void ProcessPoint(const CoordinateSystem* coordSystem, Rasterization* raster, const Axis& axis, int x, int y, COLORREF color/* = 0*/)
+	{
+		auto physOrigin = coordSystem->GetPhysOrigin();
+
+		CPoint point(x, y);
+		CPoint lp(
+			point.x - physOrigin.x,
+			point.y - physOrigin.y
+		);
+		auto p = axis.GetPointByProjection(lp);
+		double z = coordSystem->GetPointDistanceToProjectionPlane(p);
+		raster->AddPoint(point, z, color, true);
 	}
 
 
