@@ -77,38 +77,48 @@ afx_msg void CChildView::OnEnableInvisibleLines()
 
 afx_msg void CChildView::OnIncreaseAngle()
 {
-	static auto coordSystem = cs::CoordinateSystem::GetInstance();
-	static auto additionalAxis = AdditionalAxis::GetInstance();
-	const double deltaAngel = /*M_PI / 20;*/M_PI / 45;
-
-	if (WorkingMode::RotatingSystemAroundAxis == _mode)
-	{
-		coordSystem->RotateAroundAxis(_workingAxis, deltaAngel);
-	}
-	else
-	{
-		auto points = additionalAxis->GetPoints();
-		coordSystem->RotateAroundAxis(pair<LogicPoint, LogicPoint>(points[0], points[1]), deltaAngel);
-	}
-
-	RedrawWindow();
+	OnAction(true);
 }
 
 
 afx_msg void CChildView::OnDecreaseAngle()
 {
-	auto coordSystem = cs::CoordinateSystem::GetInstance();
-	static auto additionalAxis = AdditionalAxis::GetInstance();
-	const double deltaAngel = - M_PI / 45;
+	OnAction(false);
+}
 
-	if (WorkingMode::RotatingSystemAroundAxis == _mode)
+
+afx_msg void CChildView::OnAction(bool increase)
+{
+	static auto coordSystem = cs::CoordinateSystem::GetInstance();
+	static auto additionalAxis = AdditionalAxis::GetInstance();
+
+	double delta = 0;
+	if (_mode == WorkingMode::RotatingObjectsArountAdditionalAxis || _mode == WorkingMode::RotatingSystemAroundAxis)
 	{
-		coordSystem->RotateAroundAxis(_workingAxis, deltaAngel);
+		delta = M_PI / 45;
 	}
 	else
 	{
+		delta = 10;
+	}
+
+	if (!increase)
+	{
+		delta *= -1;
+	}
+
+	switch (_mode)
+	{
+	case WorkingMode::RotatingSystemAroundAxis:
+		coordSystem->RotateAroundAxis(_workingAxis, delta);
+		break;
+	case WorkingMode::RotatingAxis:
+		additionalAxis->Move(delta);
+		break;
+	case WorkingMode::RotatingObjectsArountAdditionalAxis:
 		auto points = additionalAxis->GetPoints();
-		coordSystem->RotateAroundAxis(pair<LogicPoint, LogicPoint>(points[0], points[1]), deltaAngel);
+		coordSystem->RotateAroundAxis(pair<LogicPoint, LogicPoint>(points[0], points[1]), delta);
+		break;
 	}
 
 	RedrawWindow();
@@ -162,6 +172,9 @@ afx_msg void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		break;
 	case 's':
 		_mode = WorkingMode::RotatingObjectsArountAdditionalAxis;
+		break;
+	case 'c':
+		_mode = WorkingMode::RotatingAxis;
 		break;
 	}
 

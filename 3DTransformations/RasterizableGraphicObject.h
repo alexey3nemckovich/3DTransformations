@@ -25,6 +25,9 @@ namespace cs
 		virtual vector<const RasterizableGraphicObject*> GetRasterizationPrimitives() const override;
 
 	public:
+		void Move(int d);
+
+	public:
 		vector<LogicPoint> CalcProjectionSystemPoints(const CoordinateSystem*) const;
 		virtual const Rasterization::Ptr CalcRasterization(const CoordinateSystem*) const;
 

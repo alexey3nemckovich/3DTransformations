@@ -44,6 +44,18 @@ namespace cs
 	}
 
 
+	void RasterizableGraphicObject::Move(int d)
+	{
+		auto cPoints = _points.size();
+		for (int i = 0; i < cPoints; i++)
+		{
+			_points[i].x += d;
+			_points[i].y += d;
+			_points[i].z += d;
+		}
+	}
+
+
 	vector<LogicPoint> RasterizableGraphicObject::CalcProjectionSystemPoints(const CoordinateSystem* coordSystem) const
 	{
 		vector<LogicPoint> v;

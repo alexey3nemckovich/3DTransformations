@@ -18,6 +18,7 @@ protected:
 	afx_msg void OnEnableInvisibleLines();
 	afx_msg void OnIncreaseAngle();
 	afx_msg void OnDecreaseAngle();
+	afx_msg void OnAction(bool increase);
 	afx_msg void OnZoomIn();
 	afx_msg void OnZoomOut();
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
@@ -28,6 +29,7 @@ protected:
 
 private:
 	enum class WorkingMode {
+		RotatingAxis,
 		RotatingSystemAroundAxis,
 		RotatingObjectsArountAdditionalAxis
 	};
@@ -35,6 +37,7 @@ private:
 	WorkingMode _mode = WorkingMode::RotatingSystemAroundAxis;
 	cs::CoordinateAxisName _workingAxis;
 
+	bool _rotateAxis = false;
 	bool _moving = false;
 	bool _firstMove = true;
 	bool _invisibleLines = false;
