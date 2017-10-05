@@ -6,7 +6,7 @@ namespace cs
 {
 
 
-	Axis::Axis(LogicPoint a, LogicPoint b)
+	Axis::Axis(const LogicPoint& a,const LogicPoint& b)
 		: _directionVector(
 			b.x - a.x,
 			b.y - a.y,
@@ -23,7 +23,7 @@ namespace cs
 	}
 
 
-	Axis::Axis(LogicPoint directionVector, int x0, int y0, int z0/* = 0*/)
+	Axis::Axis(const LogicPoint& directionVector, int x0, int y0, int z0/* = 0*/)
 		: _directionVector(directionVector),
 		_x0(x0),
 		_y0(y0),

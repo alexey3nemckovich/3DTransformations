@@ -33,18 +33,22 @@ namespace cs
 	struct Rasterization
 	{
 	public:
+    Rasterization()
+    {
+      points.reserve(100000);
+      borderPoints.reserve(10000);
+    }
+
 		typedef shared_ptr<Rasterization> Ptr;
 
 	public:
 		void AddPoint(const CPoint& point, double zValue, COLORREF color, bool borderPoint)
 		{
-			RasterizationPoint* newPoint = new RasterizationPoint(
-				point,
-				zValue,
-				color
-			);
-
-			RasterizationPoint::Ptr pPoint = RasterizationPoint::Ptr(newPoint);
+			RasterizationPoint::Ptr pPoint = make_shared<RasterizationPoint>(
+        point,
+        zValue,
+        color
+      );
 			points.push_back(pPoint);
 			if (borderPoint)
 			{

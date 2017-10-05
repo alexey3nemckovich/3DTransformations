@@ -1,6 +1,7 @@
 #pragma once
+
 #include <vector>
-#include <exception>
+#include <assert.h>
 using namespace std;
 
 
@@ -12,236 +13,124 @@ namespace cs
 	class Matrix
 	{
 	public:
-		Matrix();
+    Matrix();
 		Matrix(int countRows, int countColumns);
 		Matrix(const Matrix& other);
-		virtual ~Matrix();
+    Matrix(Matrix&& m);
+    virtual ~Matrix() {};
+    Matrix<MatrixElement> T() const;
+
 
 	public:
-		int GetCountRows();
-		int GetCountColumns();
+		int GetCountRows() const;
+		int GetCountColumns() const;
 
 	public:
-		MatrixElement* operator[](int row) const;
-		Matrix<MatrixElement> operator*(const Matrix<MatrixElement>& other);
+		vector<MatrixElement>& operator[](int row);
+		Matrix<MatrixElement> operator*(const Matrix<MatrixElement>& other) const;
 		Matrix<MatrixElement>& operator=(const Matrix<MatrixElement>& other);
+    Matrix<MatrixElement>& operator=(Matrix<MatrixElement>&& other);
 		Matrix<MatrixElement>& operator*=(const Matrix<MatrixElement>& other);
 
-	private:
-		void AllocElements();
-		void AllocAndInitElements(const Matrix<MatrixElement>& other);
-		void ChangeCountColumns(int newColumnsCount);
-		void DeallocElements();
-		void InitElements(const Matrix<MatrixElement>& other);
-
 	protected:
-		MatrixElement** _elements;
-
-	private:
-		int _countRows;
-		int _countColumns;
+    vector<vector<MatrixElement>> elements_;
 	};
 
 
-	template<typename MatrixElement>
-	Matrix<MatrixElement>::Matrix()
-	{
-		_countRows = 0;
-		_countColumns = 0;
-	}
-
+  template<typename MatrixElement>
+  Matrix<MatrixElement>::Matrix()
+  {
+  }
 
 	template<typename MatrixElement>
 	Matrix<MatrixElement>::Matrix(int countRows, int countColumns)
-		: _countRows(countRows),
-		_countColumns(countColumns)
-	{
-		AllocElements();
-	}
-
+		: elements_(vector< vector<MatrixElement> >(countRows, vector<MatrixElement>(countColumns)))
+  {
+  }
 
 	template<typename MatrixElement>
-	Matrix<MatrixElement>::Matrix(const Matrix& other)
-	{
-		_countRows = other._countRows;
-		_countColumns = other._countColumns;
+  Matrix<MatrixElement>::Matrix(const Matrix& other) : elements_(other.elements_)
+  {
+  }
 
-		AllocAndInitElements(other);
-	}
+  template<typename MatrixElement>
+  Matrix<MatrixElement>::Matrix(Matrix&& m) : elements_(std::move(m.elements_)) 
+  {
+  }
 
-
-	template<typename MatrixElement>
-	Matrix<MatrixElement>::~Matrix()
-	{
-		DeallocElements();
-	}
-
-
-	template<typename MatrixElement>
-	void Matrix<MatrixElement>::AllocElements()
-	{
-		_elements = new MatrixElement*[_countRows];
-		for (int i = 0; i < _countRows; i++)
-		{
-			_elements[i] = new MatrixElement[_countColumns];
-			for (int j = 0; j < _countColumns; j++)
-			{
-				_elements[i][j] = MatrixElement();
-			}
-		}
-	}
-
+  template<typename MatrixElement>
+  inline Matrix<MatrixElement> Matrix<MatrixElement>::T() const
+  {
+    Matrix<MatrixElement> result(GetCountColumns(), GetCountRows());
+    for (int i = 0; i < GetCountRows(); ++i)
+      for (int j = 0; j < GetCountColumns(); ++j)
+        result[j][i] = elements_[i][j];
+    return result;
+  }
 
 	template<typename MatrixElement>
-	void Matrix<MatrixElement>::AllocAndInitElements(const Matrix<MatrixElement>& other)
+	int Matrix<MatrixElement>::GetCountRows() const
 	{
-		_elements = new MatrixElement*[_countRows];
-		for (int i = 0; i < _countRows; i++)
-		{
-			_elements[i] = new MatrixElement[_countColumns];
-			for (int j = 0; j < _countColumns; j++)
-			{
-				_elements[i][j] = other[i][j];
-			}
-		}
+		return elements_.size();
 	}
 
-
 	template<typename MatrixElement>
-	void Matrix<MatrixElement>::ChangeCountColumns(int newColumnsCount)
+	int Matrix<MatrixElement>::GetCountColumns() const
 	{
-		for (int i = 0; i < _countRows; i++)
-		{
-			delete _elements[i];
-		}
-
-		_countColumns = newColumnsCount;
-		for (int i = 0; i < _countRows; i++)
-		{
-			_elements[i] = new MatrixElement[_countColumns];
-			for (int j = 0; j < _countColumns; j++)
-			{
-				_elements[i][j] = MatrixElement();
-			}
-		}
+    return elements_.size() > 0 ? elements_[0].size() : 0;
 	}
 
-
 	template<typename MatrixElement>
-	void Matrix<MatrixElement>::DeallocElements()
+	Matrix<MatrixElement> Matrix<MatrixElement>::operator*(const Matrix<MatrixElement>& other) const
 	{
-		for (int i = 0; i < _countRows; i++)
-		{
-			delete[] _elements[i];
-		}
-		delete[] _elements;
-	}
+    assert(GetCountColumns() == other.GetCountRows());
+    Matrix<MatrixElement> otherTransporse(other.T());
 
-
-	template<typename MatrixElement>
-	void Matrix<MatrixElement>::InitElements(const Matrix<MatrixElement>& other)
-	{
-		for (int i = 0; i < _countRows; i++)
-		{
-			for (int j = 0; j < _countColumns; j++)
-			{
-				_elements[i][j] = other[i][j];
-			}
-		}
-	}
-
-
-	template<typename MatrixElement>
-	int Matrix<MatrixElement>::GetCountRows()
-	{
-		return _countRows;
-	}
-
-
-	template<typename MatrixElement>
-	int Matrix<MatrixElement>::GetCountColumns()
-	{
-		return _countColumns;
-	}
-
-
-	template<typename MatrixElement>
-	Matrix<MatrixElement> Matrix<MatrixElement>::operator*(const Matrix<MatrixElement>& other)
-	{
-		if (_countColumns != other._countRows)
-		{
-			throw exception();
-		}
-
-		Matrix<MatrixElement> result(_countRows, other._countColumns);
-		for (int i = 0; i < _countRows; i++)
-		{
-			for (int j = 0; j < other._countColumns; j++)
-			{
-				result[i][j] = 0;
-				for (int k = 0; k < _countColumns; k++)
-				{
-					result[i][j] += _elements[i][k] * other[k][j];
-				}
-			}
-		}
+    int countElements = GetCountColumns();
+    int countRows = GetCountRows();
+    int countColumns = other.GetCountColumns();
+		Matrix<MatrixElement> result(countRows, countColumns);
+    
+    for (int i = 0; i < GetCountRows(); ++i)
+      for (int j = 0; j < GetCountColumns(); ++j)
+      {
+        result[i][j] = 0;
+        for (int k = 0; k < countElements; ++k)
+          result[i][j] += elements_[i][k] * otherTransporse[j][k];
+      }
 		return result;
 	}
-
 
 	template<typename MatrixElement>
 	Matrix<MatrixElement>& Matrix<MatrixElement>::operator=(const Matrix<MatrixElement>& other)
 	{
-		if (_countRows == other._countRows)
-		{
-			ChangeCountColumns(other._countColumns);
-			InitElements(other);
-		}
-		else
-		{
-			DeallocElements();
-
-			_countRows = other._countRows;
-			_countColumns = other._countColumns;
-			AllocAndInitElements(other);
-		}
-
-		return *this;
+    if (this == &other)
+      return *this;
+    
+    elements_ = other.elements_;
+    return *this;
 	}
 
+  template<typename MatrixElement>
+  Matrix<MatrixElement>& Matrix<MatrixElement>::operator=(Matrix<MatrixElement>&& other)
+  {
+    elements_ = std::move(other.elements_);
+    return *this;
+  }
 
 	template<typename MatrixElement>
 	Matrix<MatrixElement>& Matrix<MatrixElement>::operator*=(const Matrix<MatrixElement>& other)
 	{
-		if (_countColumns != other._countRows)
-		{
-			throw exception();
-		}
-
-		if (other._countColumns != _countColumns)
-		{
-			ChangeCountColumns(other._countColumns);
-		}
-
-		Matrix<MatrixElement> prevState = *this;
-		for (int i = 0; i < _countRows; i++)
-		{
-			for (int j = 0; j < other._countColumns; j++)
-			{
-				_elements[i][j] = 0;
-				for (int k = 0; k < _countColumns; k++)
-				{
-					_elements[i][j] += prevState[i][k] * other[k][j];
-				}
-			}
-		}
+    elements_ = this * other;
+    return *this;
 	}
 
 
 	template<typename MatrixElement>
-	MatrixElement* Matrix<MatrixElement>::operator[](int row) const
+	inline vector<MatrixElement>& Matrix<MatrixElement>::operator[](int row)
 	{
-		return _elements[row];
+    assert(row < GetCountRows());
+		return elements_[row];
 	}
 
 
@@ -254,13 +143,13 @@ namespace cs
 		HomogeneousPoint(Element x, Element y, Element z);
 
 	public:
-		Element x();
-		Element y();
-		Element z();
+		Element x() const;
+		Element y() const;
+		Element z() const;
 
 	public:
-		Element& operator[](int coordinateIndex) const;
-		Matrix<Element> operator*(const Matrix<Element>& other);
+		Element& operator[](int coordinateIndex);
+		Matrix<Element> operator*(const Matrix<Element>& other) const;
 	};
 
 
@@ -268,7 +157,7 @@ namespace cs
 	HomogeneousPoint<Element>::HomogeneousPoint()
 		: Matrix<Element>(1, 4)
 	{
-		_elements[0][3] = 1;
+		elements_[0][3] = 1;
 	}
 
 
@@ -276,53 +165,51 @@ namespace cs
 	HomogeneousPoint<Element>::HomogeneousPoint(Element x, Element y, Element z)
 		: Matrix<Element>(1, 4)
 	{
-		_elements[0][0] = x;
-		_elements[0][1] = y;
-		_elements[0][2] = z;
-		_elements[0][3] = 1;
+		elements_[0][0] = x;
+		elements_[0][1] = y;
+		elements_[0][2] = z;
+		elements_[0][3] = 1;
 	}
 
 
 	template<typename Element>
-	Element HomogeneousPoint<Element>::x()
+	Element HomogeneousPoint<Element>::x() const
 	{
-		return _elements[0][0];
+		return elements_[0][0];
 	}
 
 
 	template<typename Element>
-	Element HomogeneousPoint<Element>::y()
+	Element HomogeneousPoint<Element>::y() const
 	{
-		return _elements[0][1];
+		return elements_[0][1];
 	}
 
 
 	template<typename Element>
-	Element HomogeneousPoint<Element>::z()
+	Element HomogeneousPoint<Element>::z() const
 	{
-		return _elements[0][2];
+		return elements_[0][2];
 	}
 
 
 	template<typename Element>
-	Element& HomogeneousPoint<Element>::operator[](int coordinateIndex) const
+	Element& HomogeneousPoint<Element>::operator[](int coordinateIndex)
 	{
-		return _elements[0][coordinateIndex];
+		return elements_[0][coordinateIndex];
 	}
 
 
 	template<typename Element>
-	Matrix<Element> HomogeneousPoint<Element>::operator*(const Matrix<Element>& other)
+	Matrix<Element> HomogeneousPoint<Element>::operator*(const Matrix<Element>& other) const
 	{
 		return this->Matrix<Element>::operator*(other);// (Matrix<Element>)this * other;
 	}
 
 
 	template<typename Element>
-	Matrix<Element> operator*(const HomogeneousPoint<Element>& point, const Matrix<Element>& other)
+	Matrix<Element> operator*(const Matrix<Element>& point, const Matrix<Element>& other)
 	{
-		return (Matrix<Element>)point * other;
+		return point * other;
 	}
-
-
 }

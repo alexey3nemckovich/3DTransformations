@@ -27,7 +27,7 @@ namespace cs
 			COLORREF color;
 		};
 
-		static ZBuffer* GetInstance();
+		static ZBuffer& GetInstance();
 
 	public:
 		ZBuffer();
@@ -42,7 +42,7 @@ namespace cs
 		void Resize(int cRows, int cCols);
 
 	public:
-		Element* operator[](int row) const;
+		Element* operator[](int row);
 
 	private:
 		void ProcessObj(__in const CoordinateSystem* coordinateSystem, __in const GraphicObject*, bool storeRasterInfo, map<const RasterizableGraphicObject*, Rasterization::Ptr>* = nullptr);

@@ -41,11 +41,11 @@ void Polygon::Render(const CoordinateSystem* cs, CDC *dc) const
 
 	if (isVisible)
 	{
-		int countPoints = _points.size();
+    size_t countPoints = _points.size();
 
 		//Get phys points
 		CPoint* physPoints = new CPoint[_points.size()];
-		for (int i = 0; i < countPoints; i++)
+		for (size_t i = 0; i < countPoints; i++)
 		{
 			physPoints[i] = cs->ConvertLogicPointToPhys(_points[i]);
 		}
@@ -55,7 +55,7 @@ void Polygon::Render(const CoordinateSystem* cs, CDC *dc) const
 			physPoints[0]
 		);
 
-		for (int i = 1; i < countPoints; i++)
+		for (size_t i = 1; i < countPoints; i++)
 		{
 			dc->LineTo(
 				physPoints[i]

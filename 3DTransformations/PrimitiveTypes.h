@@ -66,8 +66,8 @@ namespace cs
 
 	public:
 		Axis() = default;
-		Axis(LogicPoint a, LogicPoint b);
-		Axis(LogicPoint directionVector, int x0, int y0, int z0 = 0);
+		Axis(const LogicPoint& a, const LogicPoint& b);
+		Axis(const LogicPoint& directionVector, int x0, int y0, int z0 = 0);
 
 	public:
 		LogicPoint GetPointByProjection(int x, int y) const;

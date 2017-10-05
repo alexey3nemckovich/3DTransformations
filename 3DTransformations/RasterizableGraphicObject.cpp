@@ -58,12 +58,11 @@ namespace cs
 
 	vector<LogicPoint> RasterizableGraphicObject::CalcProjectionSystemPoints(const CoordinateSystem* coordSystem) const
 	{
-		vector<LogicPoint> v;
+		vector<LogicPoint> v(_points.size());
 
-		int cPoints = _points.size();
-		for (int i = 0; i < cPoints; i++)
+		for (auto& point : _points)
 		{
-			v.push_back(coordSystem->ConvertToProjectionSytemPoint(_points[i]));
+			v.push_back(coordSystem->ConvertToProjectionSytemPoint(point));
 		}
 
 		return v;
@@ -98,9 +97,9 @@ namespace cs
 
 	void RasterizableGraphicObject::Init()
 	{
-		int cAxises = _points.size();
+		size_t cAxises = _points.size();
 
-		for (int i = 0; i < cAxises; i++)
+		for (size_t i = 0; i < cAxises; i++)
 		{
 			_axises.push_back(
 				Axis(
@@ -112,11 +111,11 @@ namespace cs
 
 		if (_points.size() > 2)
 		{
-			_plane = Plane::Ptr( new Plane(
+			_plane = make_shared<Plane>(
 				_points[0],
 				_points[1],
 				_points[2]
-			));
+			);
 
 			_line = false;
 		}
@@ -265,10 +264,10 @@ namespace cs
 		line.first = _points[0];
 		line.second = _points[1];
 
-		int cPoints = _points.size();
-		for (int i = 0; i < cPoints; i++)
+		size_t cPoints = _points.size();
+		for (size_t i = 0; i < cPoints; i++)
 		{
-			for (int j = i + 1; i < cPoints; i++)
+			for (size_t j = i + 1; i < cPoints; i++)
 			{
 				double dist = FindDistance(
 					coordSystem->ConvertToProjectionSytemPoint(_points[i]),

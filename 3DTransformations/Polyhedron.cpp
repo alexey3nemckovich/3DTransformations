@@ -21,10 +21,9 @@ Polyhedron::Polyhedron(const Polyhedron& other)
 
 void Polyhedron::Init()
 {
-	int cFacets = _facets.size();
-	for (int i = 0; i < cFacets; i++)
+	for (auto facet : _facets)
 	{
-		_rasterPrimitives.push_back(_facets[i].get());
+		_rasterPrimitives.push_back(facet.get());
 	}
 }
 
@@ -37,10 +36,9 @@ cs::Polygon const* Polyhedron::operator[](int index)
 
 void Polyhedron::Render(const CoordinateSystem* cs, CDC *dc) const
 {
-	int countFacets = _facets.size();
-	for (int i = 0; i < countFacets; i++)
+	for (auto& facet : _facets)
 	{
-		_facets[i]->Render(cs, dc);
+    facet->Render(cs, dc);
 	}
 }
 

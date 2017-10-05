@@ -19,8 +19,8 @@ namespace cs
 		int x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
 		dx = b.x - a.x;
 		dy = b.y - a.y;
-		dx1 = fabs(dx);
-		dy1 = fabs(dy);
+		dx1 = abs(dx);
+		dy1 = abs(dy);
 		px = 2 * dy1 - dx1;
 		py = 2 * dx1 - dy1;
 		if (dy1 <= dx1)
@@ -189,9 +189,9 @@ namespace cs
 		int countAxisesForWitchPointIsOnLeftSide = 0;
 		int countAxisesForWitchPointIsOnRightSide = 0;
 
-		for (int i = 0; i < cAxises; i++)
+    for (auto& axis: sidesAxises)
 		{
-			auto positionToAxis = sidesAxises[i].FindPointRelativePosition(x, y);
+			auto positionToAxis = axis.FindPointRelativePosition(x, y);
 
 			switch (positionToAxis.sideToAxis)
 			{

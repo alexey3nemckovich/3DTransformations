@@ -6,10 +6,10 @@
 using namespace cs;
 
 
-ZBuffer* ZBuffer::GetInstance()
+ZBuffer& ZBuffer::GetInstance()
 {
 	static ZBuffer zBuffer;
-	return &zBuffer;
+	return zBuffer;
 }
 
 
@@ -25,17 +25,14 @@ void ZBuffer::Render(CDC* dc)
 	int cRows = _buffer.GetCountRows();
 	int cCols = _buffer.GetCountColumns();
 
-	CPoint point;
-	for (int i = 0; i < cRows; i++)
+	for (int x = 0; x < cRows; ++x)
 	{
-		for (int j = 0; j < cCols; j++)
+    vector<Element>& curElementLine = _buffer[x];
+		for (int y = 0; y < cCols; ++y)
 		{
-			if (RGB(255, 255, 255) != _buffer[i][j].color)
+			if (RGB(255, 255, 255) != curElementLine[y].color)
 			{
-				point.y = i;
-				point.x = j;
-
-				dc->SetPixel(point, _buffer[i][j].color);
+				dc->SetPixel(y, x, curElementLine[y].color);
 			}
 		}
 	}
@@ -44,18 +41,17 @@ void ZBuffer::Render(CDC* dc)
 
 void ZBuffer::Init(const CoordinateSystem* coordinateSystem, const vector<GraphicObject::Ptr>& objList, bool renderInvisibleLinesAsDash/* = true*/)
 {
-	int cObj = objList.size();
 	map<const RasterizableGraphicObject*, Rasterization::Ptr> objRastersMap;
 
-	for (int i = 0; i < cObj; i++)
+	for (auto& curObj : objList)
 	{
 		if (renderInvisibleLinesAsDash)
 		{
-			ProcessObj(coordinateSystem, objList[i].get(), true, &objRastersMap);
+			ProcessObj(coordinateSystem, curObj.get(), true, &objRastersMap);
 		}
 		else
 		{
-			ProcessObj(coordinateSystem, objList[i].get(), false);
+			ProcessObj(coordinateSystem, curObj.get(), false);
 		}
 	}
 
@@ -74,10 +70,9 @@ void ZBuffer::RenderInvisibleLinesAsDash(const map<const RasterizableGraphicObje
 	{
 		bool drawing = false;
 		bool renderingDashLine = false;
-		int cBorderPoints = objRaster.second->borderPoints.size();
-		for (int i = 0; i < cBorderPoints; i++)
+		for (auto& cBorderPoint : objRaster.second->borderPoints)
 		{
-			ProcessRasterBorderPoint(objRaster.second->borderPoints[i], countPointsPerCurSegment, renderingDashLine, drawing);
+			ProcessRasterBorderPoint(cBorderPoint, countPointsPerCurSegment, renderingDashLine, drawing);
 		}
 	}
 }
@@ -142,9 +137,9 @@ void ZBuffer::Resize(int cRows, int cCols)
 }
 
 
-ZBuffer::Element* ZBuffer::operator[](int row) const
+ZBuffer::Element* ZBuffer::operator[](int row)
 {
-	return _buffer[row];
+  return &(_buffer[row])[0];
 }
 
 
@@ -153,19 +148,17 @@ void ZBuffer::ProcessObj(__in const CoordinateSystem* coordinateSystem, __in con
 	auto objRasterizationPrimitivesList = obj->GetRasterizationPrimitives();
 	auto cRasterPrimitives = objRasterizationPrimitivesList.size();
 
-	for (int i = 0; i < cRasterPrimitives; i++)
+	for (auto& objRasterizationPrimitivesBlock : objRasterizationPrimitivesList)
 	{
-		auto rasterization = objRasterizationPrimitivesList[i]->CalcRasterization(coordinateSystem);
+		auto rasterization = objRasterizationPrimitivesBlock->CalcRasterization(coordinateSystem);
 
 		if (storeRasterInfo)
 		{
-			(*rasterMap)[objRasterizationPrimitivesList[i]] = rasterization;
+			(*rasterMap)[objRasterizationPrimitivesBlock] = rasterization;
 		}
 
-		auto cRasterPoints = (*rasterization).points.size();
-		for (int j = 0; j < cRasterPoints; j++)
+		for (auto& objRasterPoint : (*rasterization).points)
 		{
-			RasterizationPoint* objRasterPoint = (*rasterization).points[j].get();
 			if (PtInRect(&_buffRect, objRasterPoint->point))
 			{
 				Element& buffElement = _buffer[objRasterPoint->point.y][objRasterPoint->point.x];
