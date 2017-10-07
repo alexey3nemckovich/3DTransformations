@@ -15,6 +15,11 @@ namespace cs
 		typedef shared_ptr<RasterizationPoint> Ptr;
 
 	public:
+    RasterizationPoint(RasterizationPoint&& o) = default;
+    RasterizationPoint& operator=(RasterizationPoint&& o) = default;
+    RasterizationPoint(const RasterizationPoint& o) = default;
+    RasterizationPoint& operator=(const RasterizationPoint& o) = default;
+
 		RasterizationPoint(const CPoint& point, double zValue, COLORREF color)
 			: point(point),
 			zValue(zValue),
@@ -39,6 +44,12 @@ namespace cs
       borderPoints.reserve(10000);
     }
 
+    Rasterization(Rasterization&& o) = default;
+    Rasterization& operator=(Rasterization&& o) = default;
+    Rasterization(const Rasterization& o) = default;
+    Rasterization& operator=(const Rasterization& o) = default;
+
+
 		typedef shared_ptr<Rasterization> Ptr;
 
 	public:
@@ -49,19 +60,19 @@ namespace cs
         zValue,
         color
       );
-			points.push_back(pPoint);
 			if (borderPoint)
 			{
 				RasterizationPoint::Ptr pBorderPoint = pPoint;
 				borderPoints.push_back(pBorderPoint);
 			}
+			points.push_back(std::move(pPoint));
 		}
 
 
 		void AddPoint(int x, int y, double zValue, COLORREF color, bool borderPoint)
 		{
 			AddPoint(
-				CPoint(x, y),
+				std::move(CPoint(x, y)),
 				zValue,
 				color,
 				borderPoint

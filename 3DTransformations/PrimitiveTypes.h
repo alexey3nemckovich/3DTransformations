@@ -30,9 +30,10 @@ namespace cs
 		LogicPoint(double x, double y);
 		LogicPoint(double x, double y, double z);
 		LogicPoint(const LogicPoint& other);
-
+    LogicPoint(LogicPoint&& o) = default;
 	public:
 		LogicPoint& operator=(const LogicPoint& other);
+    LogicPoint& operator=(LogicPoint&& o) = default;
 		LogicPoint* operator+=(const LogicPoint& other);
 		LogicPoint* operator-=(const LogicPoint& other);	
 
@@ -66,6 +67,11 @@ namespace cs
 
 	public:
 		Axis() = default;
+    Axis(Axis&& o) = default;
+    Axis(const Axis& o) = default;
+    Axis& operator=(const Axis& o) = default;
+    Axis& operator=(Axis&& o) = default;
+
 		Axis(const LogicPoint& a, const LogicPoint& b);
 		Axis(const LogicPoint& directionVector, int x0, int y0, int z0 = 0);
 

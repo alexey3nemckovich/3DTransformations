@@ -32,22 +32,20 @@ namespace cs
 		{
 			LogicPoint logicPoint;
 			COLORREF color;
-			ColorLogicPoint(LogicPoint p, COLORREF cl)
+			ColorLogicPoint(const LogicPoint& p, COLORREF cl)
 			{
 				this->logicPoint = p;
 				this->color = cl;
 			}
-			ColorLogicPoint(const ColorLogicPoint& other)
-			{
-				this->logicPoint = other.logicPoint;
-				this->color = other.color;
-			}
+      ColorLogicPoint(const ColorLogicPoint& other) = default;
 			ColorLogicPoint* operator=(const ColorLogicPoint& other)
 			{
 				logicPoint = other.logicPoint;
 				color = other.color;
 				return this;
 			}
+      ColorLogicPoint& operator=(ColorLogicPoint&& o) = default;
+      ColorLogicPoint(ColorLogicPoint&& o) = default;
 			bool operator==(const ColorLogicPoint& other)
 			{
 				return logicPoint == other.logicPoint && color == other.color;
@@ -58,7 +56,7 @@ namespace cs
 			: ColorLogicPoint
 		{
 		public:
-			DetectLogicPoint(LogicPoint p, COLORREF cl, bool xDetection, bool yDetection, bool zDetection, bool xDetectionLine = true, bool yDetectionLine = true, bool zDetectionLine = true)
+			DetectLogicPoint(const LogicPoint& p, COLORREF cl, bool xDetection, bool yDetection, bool zDetection, bool xDetectionLine = true, bool yDetectionLine = true, bool zDetectionLine = true)
 				: ColorLogicPoint(p, cl)
 			{
 				this->xDetection = xDetection;
@@ -91,7 +89,7 @@ namespace cs
 		{
 			LogicPoint point;
 			CString text;
-			Text(LogicPoint p, CString text)
+			Text(const LogicPoint& p,const CString& text)
 			{
 				this->point = p;
 				this->text = text;

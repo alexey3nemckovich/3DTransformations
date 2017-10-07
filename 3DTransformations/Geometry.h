@@ -39,14 +39,14 @@ namespace cs
 
 
 	template<typename Element>
-	double FindVectorModule(HomogeneousPoint<Element> a)
+	double FindVectorModule(const HomogeneousPoint<Element>& a)
 	{
 		return sqrt(a.x() * a.x() + a.y() * a.y() + a.z() * a.z());
 	}
 
 
 	template<typename Element>
-	double FindAnglebetweenVectors(HomogeneousPoint<Element> a, HomogeneousPoint<Element> b)
+	double FindAnglebetweenVectors(const HomogeneousPoint<Element>& a,const HomogeneousPoint<Element>& b)
 	{
 		double scalarMul = a.x() * b.x() + a.y() * b.y() + a.z() * b.z();
 		double aModule = FindVectorModule(a);

@@ -17,6 +17,7 @@ namespace cs
 		
 		GraphicObject(int penStyle = PS_SOLID, int penWidth = 1, COLORREF penColor = RGB(0, 0, 0));
 		GraphicObject(const GraphicObject& other);
+    GraphicObject(GraphicObject&& o) = default;
 		~GraphicObject();
 
 	public:
@@ -25,7 +26,7 @@ namespace cs
 
 	public:
 		inline virtual GraphicObject* operator=(const GraphicObject& other);
-
+    GraphicObject& operator=(GraphicObject&& other) = default;
 	protected:
 		int _penStyle;
 		int _penWidth;

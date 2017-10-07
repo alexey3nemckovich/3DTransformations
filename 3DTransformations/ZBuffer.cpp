@@ -78,7 +78,7 @@ void ZBuffer::RenderInvisibleLinesAsDash(const map<const RasterizableGraphicObje
 }
 
 
-void ZBuffer::ProcessRasterBorderPoint(RasterizationPoint::Ptr rasterPoint, int& countPointsPerCurSegment, bool& renderingDashLine, bool& drawing)
+void ZBuffer::ProcessRasterBorderPoint(const RasterizationPoint::Ptr& rasterPoint, int& countPointsPerCurSegment, bool& renderingDashLine, bool& drawing)
 {
 	const int countPointsPerDashSegment = 30;
 
