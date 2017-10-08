@@ -18,7 +18,7 @@ namespace cs
 		GraphicObject(int penStyle = PS_SOLID, int penWidth = 1, COLORREF penColor = RGB(0, 0, 0));
 		GraphicObject(const GraphicObject& other);
     GraphicObject(GraphicObject&& o) = default;
-		~GraphicObject();
+    virtual ~GraphicObject();
 
 	public:
 		virtual void Render(const CoordinateSystem*, CDC *dc) const = 0;

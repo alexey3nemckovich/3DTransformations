@@ -46,23 +46,22 @@ namespace cs
 
 	void RasterizableGraphicObject::Move(int d)
 	{
-		auto cPoints = _points.size();
-		for (int i = 0; i < cPoints; i++)
+		for (auto& point : _points)
 		{
-			_points[i].x += d;
-			_points[i].y += d;
-			_points[i].z += d;
+      point.x += d;
+      point.y += d;
+      point.z += d;
 		}
 	}
 
 
 	vector<LogicPoint> RasterizableGraphicObject::CalcProjectionSystemPoints(const CoordinateSystem* coordSystem) const
 	{
-		vector<LogicPoint> v(_points.size());
-
+		vector<LogicPoint> v;
+    v.reserve(_points.size());
 		for (auto& point : _points)
 		{
-			v.push_back(coordSystem->ConvertToProjectionSytemPoint(point));
+			v.emplace_back(coordSystem->ConvertToProjectionSytemPoint(point));
 		}
 
 		return v;
@@ -98,10 +97,10 @@ namespace cs
 	void RasterizableGraphicObject::Init()
 	{
 		size_t cAxises = _points.size();
-
+    _axises.reserve(cAxises);
 		for (size_t i = 0; i < cAxises; i++)
 		{
-			_axises.push_back(
+			_axises.emplace_back(
 				Axis(
 					_points[i], 
 					_points[(i+1) % cAxises]
@@ -153,15 +152,17 @@ namespace cs
 		//Find corners points screen coordinates
 		vector<CPoint> cornersPoints;
 		auto cPoints = _points.size();
+    cornersPoints.reserve(cPoints);
 		for (int i = 0; i < cPoints; i++)
 		{
-			cornersPoints.push_back(coordSystem->ConvertLogicPointToPhys(_points[i]));
+			cornersPoints.emplace_back(coordSystem->ConvertLogicPointToPhys(_points[i]));
 		}
 
 		vector<Axis> rasterizationAxises;
+    rasterizationAxises.reserve(cPoints);
 		for (int i = 0; i < cPoints; i++)
 		{
-			rasterizationAxises.push_back(Axis(
+			rasterizationAxises.emplace_back(Axis(
 				LogicPoint(
 					cornersPoints[i].x,
 					cornersPoints[i].y
@@ -178,7 +179,7 @@ namespace cs
 		double zValue = 0;
 		bool borderPoint = false;
 		auto physOrigin = coordSystem->GetPhysOrigin();
-		Rasterization* rasterization = new Rasterization();
+		unique_ptr<Rasterization> rasterization = make_unique<Rasterization>();
 
 		int lx = 0, ly = 0;
 		while (y <= maxY)
@@ -208,7 +209,7 @@ namespace cs
 			y++;
 		}
 
-		return Rasterization::Ptr(rasterization);
+		return rasterization;
 	}
 
 
@@ -217,9 +218,10 @@ namespace cs
 		//Find corners points screen coordinates
 		vector<CPoint> cornersPoints;
 		auto cPoints = _points.size();
-		for (int i = 0; i < cPoints; i++)
+    cornersPoints.reserve(cPoints);
+		for (auto& point : _points)
 		{
-			cornersPoints.push_back(coordSystem->ConvertLogicPointToPhys(_points[i]));
+			cornersPoints.emplace_back(coordSystem->ConvertLogicPointToPhys(point));
 		}
 
 		//Find top left and bottom right points

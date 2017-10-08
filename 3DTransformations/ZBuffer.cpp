@@ -69,7 +69,7 @@ void ZBuffer::RenderInvisibleLinesAsDash(const map<const RasterizableGraphicObje
 {
 	int countPointsPerCurSegment = 0;
 	const int countPointsPerDashSegment = 30;
-	for (auto objRaster : objRastersMap)
+	for (auto& objRaster : objRastersMap)
 	{
 		bool drawing = false;
 		bool renderingDashLine = false;
@@ -83,7 +83,7 @@ void ZBuffer::RenderInvisibleLinesAsDash(const map<const RasterizableGraphicObje
 
 void ZBuffer::ProcessRasterBorderPoint(const RasterizationPoint::Ptr& rasterPoint, int& countPointsPerCurSegment, bool& renderingDashLine, bool& drawing)
 {
-	const int countPointsPerDashSegment = 30;
+	constexpr int countPointsPerDashSegment = 30;
 
 	if (PtInRect(&_buffRect, rasterPoint->point))
 	{
@@ -141,37 +141,35 @@ void ZBuffer::Resize(int cRows, int cCols)
 
 
 void ZBuffer::ProcessObj(
-    __in const CoordinateSystem* coordinateSystem, 
-    __in const GraphicObject* obj, 
-    __out map<const RasterizableGraphicObject*, Rasterization::Ptr>* rasterMap/* = nullptr*/
+  __in const CoordinateSystem* coordinateSystem,
+  __in const GraphicObject* obj,
+  __out map<const RasterizableGraphicObject*, Rasterization::Ptr>* rasterMap/* = nullptr*/
 )
 {
-	auto objRasterizationPrimitivesList = obj->GetRasterizationPrimitives();
-	auto cRasterPrimitives = objRasterizationPrimitivesList.size();
-    
-    vector<thread*> threads;
-    for (int i = 0; i < cRasterPrimitives; i++)
+  auto& objRasterizationPrimitivesList = obj->GetRasterizationPrimitives();
+
+  auto& taskFunc = [
+    this,
+      coordinateSystem,
+      rasterMap
+  ](auto&& rasterObj)
+  {
+    this->ProcessRasterizationPrimitive(coordinateSystem, rasterObj, rasterMap);
+  };
+
+    vector<thread> threads;
+    threads.reserve(objRasterizationPrimitivesList.size());
+    for (auto&& rasterObj : objRasterizationPrimitivesList)
     {
-        auto rasterObj = objRasterizationPrimitivesList[i];
-        threads.push_back(
-            new thread(
-                [
-                    this,
-                    coordinateSystem,
-                    rasterObj,
-                    rasterMap
-                ] 
-                {
-                    this->ProcessRasterizationPrimitive(coordinateSystem, rasterObj, rasterMap); 
-                }
-            )
+      threads.emplace_back(
+        taskFunc,
+        rasterObj
         );
     }
 
-    for (int i = 0; i < cRasterPrimitives; i++)
+    for (auto&& thread : threads)
     {
-        threads[i]->join();
-        delete threads[i];
+      thread.join();
     }
 }
 

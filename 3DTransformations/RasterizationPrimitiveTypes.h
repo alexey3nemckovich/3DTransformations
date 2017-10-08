@@ -72,7 +72,7 @@ namespace cs
 		void AddPoint(int x, int y, double zValue, COLORREF color, bool borderPoint)
 		{
 			AddPoint(
-				std::move(CPoint(x, y)),
+				CPoint(x, y),
 				zValue,
 				color,
 				borderPoint

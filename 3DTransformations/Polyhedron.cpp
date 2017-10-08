@@ -21,7 +21,7 @@ Polyhedron::Polyhedron(const Polyhedron& other)
 
 void Polyhedron::Init()
 {
-	for (auto facet : _facets)
+	for (auto& facet : _facets)
 	{
 		_rasterPrimitives.push_back(facet.get());
 	}
