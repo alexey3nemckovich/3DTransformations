@@ -25,17 +25,16 @@ void ZBuffer::Render(CDC* dc)
 	int cRows = _buffer.GetCountRows();
 	int cCols = _buffer.GetCountColumns();
 
-	for (int x = 0; x < cRows; ++x)
-	{
-    vector<Element>& curElementLine = _buffer[x];
-		for (int y = 0; y < cCols; ++y)
-		{
-			if (RGB(255, 255, 255) != curElementLine[y].color)
-			{
-				dc->SetPixel(y, x, curElementLine[y].color);
-			}
-		}
-	}
+    for (int y = 0; y < cRows; ++y)
+    {
+        for (int x = 0; x < cCols; ++x)
+        {
+            if (RGB(255, 255, 255) != _buffer(y, x).color)
+            {
+                dc->SetPixel(x, y, _buffer(y, x).color);
+            }
+        }
+    }
 }
 
 
@@ -84,7 +83,7 @@ void ZBuffer::ProcessRasterBorderPoint(const RasterizationPoint::Ptr& rasterPoin
 
 	if (PtInRect(&_buffRect, rasterPoint->point))
 	{
-		if (_buffer[rasterPoint->point.y][rasterPoint->point.x].zValue > rasterPoint->zValue)
+		if (_buffer(rasterPoint->point.y, rasterPoint->point.x).zValue > rasterPoint->zValue)
 		{
 			if (!renderingDashLine)
 			{
@@ -103,7 +102,7 @@ void ZBuffer::ProcessRasterBorderPoint(const RasterizationPoint::Ptr& rasterPoin
 		{
 			if (drawing)
 			{
-				_buffer[rasterPoint->point.y][rasterPoint->point.x].color = rasterPoint->color;
+				_buffer(rasterPoint->point.y, rasterPoint->point.x).color = rasterPoint->color;
 			}
 
 			countPointsPerCurSegment++;
@@ -137,12 +136,6 @@ void ZBuffer::Resize(int cRows, int cCols)
 }
 
 
-ZBuffer::Element* ZBuffer::operator[](int row)
-{
-  return &(_buffer[row])[0];
-}
-
-
 void ZBuffer::ProcessObj(__in const CoordinateSystem* coordinateSystem, __in const GraphicObject* obj, __in bool storeRasterInfo, __out map<const RasterizableGraphicObject*, Rasterization::Ptr>* rasterMap/* = nullptr*/)
 {
 	auto objRasterizationPrimitivesList = obj->GetRasterizationPrimitives();
@@ -161,7 +154,7 @@ void ZBuffer::ProcessObj(__in const CoordinateSystem* coordinateSystem, __in con
 		{
 			if (PtInRect(&_buffRect, objRasterPoint->point))
 			{
-				Element& buffElement = _buffer[objRasterPoint->point.y][objRasterPoint->point.x];
+				Element& buffElement = _buffer(objRasterPoint->point.y, objRasterPoint->point.x);
 
 				if (objRasterPoint->zValue > buffElement.zValue)
 				{

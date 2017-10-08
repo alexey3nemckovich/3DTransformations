@@ -41,9 +41,6 @@ namespace cs
 		void ProcessRasterBorderPoint(const RasterizationPoint::Ptr& rasterPoint, int& countPointsPerCurSegment, bool& renderingDashLine, bool& drawing);
 		void Resize(int cRows, int cCols);
 
-	public:
-		Element* operator[](int row);
-
 	private:
 		void ProcessObj(__in const CoordinateSystem* coordinateSystem, __in const GraphicObject*, bool storeRasterInfo, map<const RasterizableGraphicObject*, Rasterization::Ptr>* = nullptr);
 

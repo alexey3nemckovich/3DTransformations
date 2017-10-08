@@ -39,7 +39,7 @@ CoordinateSystem::CoordinateSystem(
 void CoordinateSystem::Init()
 {
 	_projectionMatrix = Matrix<double>(4, 4);
-	_projectionMatrix[0][0] = _projectionMatrix[1][1] = _projectionMatrix[2][2] = _projectionMatrix[3][3] = 1;
+	_projectionMatrix(0, 0) = _projectionMatrix(1, 1) = _projectionMatrix(2, 2) = _projectionMatrix(3, 3) = 1;
 
 	_origin = LogicPoint(0, 0);
 	_physOrigin = CPoint(200, 200);
@@ -172,9 +172,9 @@ void CoordinateSystem::RotateAroundAxis(CoordinateAxisName axis, double deltaAng
 		break;
 	}
 
-	_watcherVector[0] = newWatchVectorMatrix[0][0];
-	_watcherVector[1] = newWatchVectorMatrix[0][1];
-	_watcherVector[2] = newWatchVectorMatrix[0][2];
+	_watcherVector[0] = newWatchVectorMatrix(0, 0);
+	_watcherVector[1] = newWatchVectorMatrix(0, 1);
+	_watcherVector[2] = newWatchVectorMatrix(0, 2);
 }
 
 
@@ -228,7 +228,7 @@ void CoordinateSystem::Clear()
 double CoordinateSystem::GetPointDistanceToProjectionPlane(const LogicPoint& point) const
 {
 	Matrix<double> res = HomogeneousPoint<double>(point.x, point.y, point.z) * _projectionMatrix;
-	return res[0][2];
+	return res(0, 2);
 }
 
 
@@ -376,7 +376,7 @@ LogicPoint CoordinateSystem::ConvertToProjectionSytemPoint(const LogicPoint& lp)
 	point[2] = lp.z;
 
 	Matrix<double> res = point * _projectionMatrix;
-	return LogicPoint(res[0][0], res[0][1], res[0][2]);
+	return LogicPoint(res(0, 0), res(0, 1), res(0, 2));
 }
 
 
@@ -394,7 +394,7 @@ CPoint CoordinateSystem::ConvertLogicPointToPhys(const LogicPoint& lp) const
 CPoint CoordinateSystem::ConvertLogicPointToPhys(const HomogeneousPoint<double>& point) const
 {
 	Matrix<double> res = point * _projectionMatrix;
-	return CPoint( _scale * res[0][0] + _physOrigin.x, _scale * res[0][1] + _physOrigin.y);
+	return CPoint( _scale * res(0, 0) + _physOrigin.x, _scale * res(0, 1) + _physOrigin.y);
 }
 
 
@@ -631,9 +631,9 @@ void CoordinateSystem::RenderTextOnAxis(CDC *dc, CoordinateAxisName axis, double
 Matrix<double>& CoordinateSystem::GetXAxisRotationMatrix(double angle)
 {
 	static Matrix<double> matr(4, 4);
-	matr[0][0] = matr[3][3] = 1;
-	matr[1][1] = matr[2][2] = cos(angle);
-	matr[2][1] = -(matr[1][2] = sin(angle));
+	matr(0, 0) = matr(3, 3) = 1;
+	matr(1, 1) = matr(2, 2) = cos(angle);
+	matr(2, 1) = -(matr(1, 2) = sin(angle));
 
 	return matr;
 }
@@ -642,9 +642,9 @@ Matrix<double>& CoordinateSystem::GetXAxisRotationMatrix(double angle)
 Matrix<double>& CoordinateSystem::GetYAxisRotationMatrix(double angle)
 {
 	static Matrix<double> matr(4, 4);
-	matr[1][1] = matr[3][3] = 1;
-	matr[0][0] = matr[2][2] = cos(angle);
-	matr[2][0] = -(matr[0][2] = sin(angle));
+	matr(1, 1) = matr(3, 3) = 1;
+	matr(0, 0) = matr(2, 2) = cos(angle);
+	matr(2, 0) = -(matr(0, 2) = sin(angle));
 
 	return matr;
 }
@@ -653,9 +653,9 @@ Matrix<double>& CoordinateSystem::GetYAxisRotationMatrix(double angle)
 Matrix<double>& CoordinateSystem::GetZAxisRotationMatrix(double angle)
 {
 	static Matrix<double> matr(4, 4);
-	matr[2][2] = matr[3][3] = 1;
-	matr[0][0] = matr[1][1] = cos(angle);
-	matr[1][0] = -(matr[0][1] = sin(angle));
+	matr(2, 2) = matr(3, 3) = 1;
+	matr(0, 0) = matr(1, 1) = cos(angle);
+	matr(1, 0) = -(matr(0, 1) = sin(angle));
 
 	return matr;
 }
@@ -664,10 +664,10 @@ Matrix<double>& CoordinateSystem::GetZAxisRotationMatrix(double angle)
 Matrix<double>& CoordinateSystem::GetTransferenceMatrix(double dx, double dy, double dz)
 {
 	static Matrix<double> matr(4, 4);
-	matr[0][0] = matr[1][1] = matr[2][2] = matr[3][3] = 1;
-	matr[3][0] = dx;
-	matr[3][1] = dy;
-	matr[3][2] = dz;
+	matr(0, 0) = matr(1, 1) = matr(2, 2) = matr(3, 3) = 1;
+	matr(3, 0) = dx;
+	matr(3, 1) = dy;
+	matr(3, 2) = dz;
 
 	return matr;
 }
