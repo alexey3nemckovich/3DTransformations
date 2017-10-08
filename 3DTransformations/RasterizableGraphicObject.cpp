@@ -147,66 +147,119 @@ namespace cs
 
 	Rasterization::Ptr RasterizableGraphicObject::Rasterize(const CoordinateSystem* coordSystem, const Plane& planeInProjectionSystem) const
 	{
-		int minX = 0, minY = 0, maxX = 0, maxY = 0;
-		CalcRasterizationBounds(coordSystem, minX, minY, maxX, maxY);
-
-		//Find corners points screen coordinates
+		//Find points screen coordinates
+        pair<CPoint, int> topPointAndIndex;
+        pair<CPoint, int> bottomPointAndIndex;
+        topPointAndIndex.first.y = INT_MIN;
+        bottomPointAndIndex.first.y = INT_MAX;
 		vector<CPoint> cornersPoints;
 		auto cPoints = _points.size();
 		for (int i = 0; i < cPoints; i++)
 		{
 			cornersPoints.push_back(coordSystem->ConvertLogicPointToPhys(_points[i]));
-		}
 
-		vector<Axis> rasterizationAxises;
-		for (int i = 0; i < cPoints; i++)
-		{
-			rasterizationAxises.push_back(Axis(
-				LogicPoint(
-					cornersPoints[i].x,
-					cornersPoints[i].y
-				),
-				LogicPoint(
-					cornersPoints[(i + 1) % cPoints].x,
-					cornersPoints[(i + 1) % cPoints].y
-				)
-			));
+            if (topPointAndIndex.first.y < cornersPoints[i].y)
+            {
+                topPointAndIndex.first = cornersPoints[i];
+                topPointAndIndex.second = i;
+            }
+
+            if (bottomPointAndIndex.first.y > cornersPoints[i].y)
+            {
+                bottomPointAndIndex.first = cornersPoints[i];
+                bottomPointAndIndex.second = i;
+            }
 		}
 
 		//Find rasterization
-		int y = minY;
-		double zValue = 0;
-		bool borderPoint = false;
 		auto physOrigin = coordSystem->GetPhysOrigin();
-		Rasterization* rasterization = new Rasterization();
+        Rasterization* rasterization = new Rasterization();
 
-		int lx = 0, ly = 0;
-		while (y <= maxY)
-		{
-			int x = minX;
-			while (x <= maxX)
-			{
-				if (DoesPointBelongToPolygon(rasterizationAxises, _penWidth, x, y, borderPoint))
-				{
-					lx = x - physOrigin.x;
-					ly = y - physOrigin.y;
-					zValue = -(planeInProjectionSystem.A() * lx + planeInProjectionSystem.B() * ly + planeInProjectionSystem.D()) / planeInProjectionSystem.C();
+        int leftPointIndex = cornersPoints.size() - 1;
+        int rightPointIndex = 0;
 
-					if (borderPoint)
-					{
-						rasterization->AddPoint(x, y, zValue, _penColor, borderPoint);
-					}
-					else
-					{
-						rasterization->AddPoint(x, y, zValue, _brushColor, borderPoint);
-					}
-				}
+        if (topPointAndIndex.second)
+        {
+            leftPointIndex = topPointAndIndex.second - 1;
+        }
 
-				x++;
-			}
+        if (topPointAndIndex.second != (cornersPoints.size() - 1))
+        {
+            rightPointIndex = topPointAndIndex.second + 1;
+        }
 
-			y++;
-		}
+        pair<CPoint, int> leftPointAndIndex{
+            cornersPoints[leftPointIndex],
+            leftPointIndex
+        };
+
+        pair<CPoint, int> rightPointAndIndex{
+            cornersPoints[rightPointIndex],
+            rightPointIndex
+        };
+
+        Axis leftAxis(topPointAndIndex.first, leftPointAndIndex.first);
+        Axis rightAxis(topPointAndIndex.first, rightPointAndIndex.first);
+
+        double zValue = 0;
+        int lx = 0;
+        int ly = 0;
+
+        int y = topPointAndIndex.first.y;
+        while (y > bottomPointAndIndex.first.y)
+        {
+            while (y >= leftPointAndIndex.first.y &&
+                   y >= rightPointAndIndex.first.y)
+            {
+                int xLeft = -1, xRight = -1;
+                bool resLeft = leftAxis.FindIntersectionWithY(y, xLeft);
+                bool resRight = rightAxis.FindIntersectionWithY(y, xRight);
+
+                if (resLeft && resRight)
+                {
+                    int x = min(xLeft, xRight);
+                    int maxX = max(xLeft, xRight);
+                    while (x <= maxX)
+                    {
+                        lx = x - physOrigin.x;
+                        ly = y - physOrigin.y;
+                        zValue = -(planeInProjectionSystem.A() * lx + planeInProjectionSystem.B() * ly + planeInProjectionSystem.D()) / planeInProjectionSystem.C();
+                        rasterization->AddPoint(x, y, zValue, _brushColor, false);
+
+                        x++;
+                    }
+                }
+
+                y--;
+            }
+
+            if (y < leftPointAndIndex.first.y)
+            {
+                CPoint prevPoint = leftPointAndIndex.first;
+
+                leftPointAndIndex.second--;
+                if (leftPointAndIndex.second < 0)
+                {
+                    leftPointAndIndex.second = cornersPoints.size() - 1;
+                }
+
+                leftPointAndIndex.first = cornersPoints[leftPointAndIndex.second];
+                leftAxis = Axis(prevPoint, leftPointAndIndex.first);
+            }
+            else
+            {
+                CPoint prevPoint = rightPointAndIndex.first;
+
+                rightPointAndIndex.second++;
+                if (rightPointAndIndex.second > (cornersPoints.size() - 1))
+                {
+                    rightPointAndIndex.second = 0;
+                }
+
+                rightPointAndIndex.first = cornersPoints[rightPointAndIndex.second];
+                rightAxis = Axis(prevPoint, rightPointAndIndex.first);
+            }
+        }
 
 		return Rasterization::Ptr(rasterization);
 	}

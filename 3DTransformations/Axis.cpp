@@ -6,6 +6,23 @@ namespace cs
 {
 
 
+    Axis::Axis(const CPoint& a, const CPoint& b)
+        : _directionVector(
+            b.x - a.x,
+            b.y - a.y,
+            0
+        ),
+        _x0(a.x),
+        _y0(a.y),
+        _z0(0),
+        _A(a.y - b.y),
+        _B(b.x - a.x),
+        _C(a.x * b.y - b.x * a.y)
+    {
+
+    }
+
+
 	Axis::Axis(const LogicPoint& a,const LogicPoint& b)
 		: _directionVector(
 			b.x - a.x,
@@ -94,6 +111,20 @@ namespace cs
 	{
 		return false;
 	}
+
+
+    bool Axis::FindIntersectionWithY(int y, int& x)
+    {
+        if (_A)
+        {
+            x = -(_B * y + _C) / _A;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
 
 }

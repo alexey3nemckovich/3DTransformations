@@ -67,11 +67,12 @@ namespace cs
 
 	public:
 		Axis() = default;
-    Axis(Axis&& o) = default;
-    Axis(const Axis& o) = default;
-    Axis& operator=(const Axis& o) = default;
-    Axis& operator=(Axis&& o) = default;
+        Axis(Axis&& o) = default;
+        Axis(const Axis& o) = default;
+        Axis& operator=(const Axis& o) = default;
+        Axis& operator=(Axis&& o) = default;
 
+        Axis(const CPoint& a, const CPoint& b);
 		Axis(const LogicPoint& a, const LogicPoint& b);
 		Axis(const LogicPoint& directionVector, int x0, int y0, int z0 = 0);
 
@@ -79,6 +80,7 @@ namespace cs
 		LogicPoint GetPointByProjection(int x, int y) const;
 		LogicPoint GetPointByProjection(const CPoint&) const;
 		bool FindIntersectionWith(const Axis&, LogicPoint&);
+        bool FindIntersectionWithY(int y, int& x);
 		PointPositionToAxis FindPointRelativePosition(int x, int y) const;
 		PointPositionToAxis FindPointRelativePosition(const CPoint& p) const;
 
