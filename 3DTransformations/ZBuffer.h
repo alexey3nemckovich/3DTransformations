@@ -42,7 +42,23 @@ namespace cs
 		void Resize(int cRows, int cCols);
 
 	private:
-		void ProcessObj(__in const CoordinateSystem* coordinateSystem, __in const GraphicObject*, bool storeRasterInfo, map<const RasterizableGraphicObject*, Rasterization::Ptr>* = nullptr);
+        typedef void(*ProcessRasterizationPrimitiveFunction)(
+            __in ZBuffer* const buffer,
+            __in const CoordinateSystem* coordinateSystem, 
+            __in RasterizableGraphicObject* rasterizableGraphicObject,
+            __out map<const RasterizableGraphicObject*, Rasterization::Ptr>* rasterMap
+        );
+
+		void ProcessObj(
+            __in const CoordinateSystem* coordinateSystem, 
+            __in const GraphicObject*, 
+            __out map<const RasterizableGraphicObject*, Rasterization::Ptr>* = nullptr
+        );
+        void ProcessRasterizationPrimitive(
+            __in const CoordinateSystem* coordinateSystem,
+            __in const RasterizableGraphicObject* rasterizableGraphicObject,
+            __out map<const RasterizableGraphicObject*, Rasterization::Ptr>* rasterMap
+        );
 
 	private:
 		CRect _buffRect;

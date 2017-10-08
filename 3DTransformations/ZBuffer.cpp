@@ -1,4 +1,8 @@
 #include "stdafx.h"
+//
+#include <vector>
+#include <thread>
+//
 #include "ZBuffer.h"
 #include "CoordinateSystem.h"
 #include "LinearGraphicObject.h"
@@ -46,11 +50,11 @@ void ZBuffer::Init(const CoordinateSystem* coordinateSystem, const vector<Graphi
 	{
 		if (renderInvisibleLinesAsDash)
 		{
-			ProcessObj(coordinateSystem, curObj.get(), true, &objRastersMap);
+			ProcessObj(coordinateSystem, curObj.get(), &objRastersMap);
 		}
 		else
 		{
-			ProcessObj(coordinateSystem, curObj.get(), false);
+			ProcessObj(coordinateSystem, curObj.get());
 		}
 	}
 
@@ -136,32 +140,66 @@ void ZBuffer::Resize(int cRows, int cCols)
 }
 
 
-void ZBuffer::ProcessObj(__in const CoordinateSystem* coordinateSystem, __in const GraphicObject* obj, __in bool storeRasterInfo, __out map<const RasterizableGraphicObject*, Rasterization::Ptr>* rasterMap/* = nullptr*/)
+void ZBuffer::ProcessObj(
+    __in const CoordinateSystem* coordinateSystem, 
+    __in const GraphicObject* obj, 
+    __out map<const RasterizableGraphicObject*, Rasterization::Ptr>* rasterMap/* = nullptr*/
+)
 {
 	auto objRasterizationPrimitivesList = obj->GetRasterizationPrimitives();
 	auto cRasterPrimitives = objRasterizationPrimitivesList.size();
+    
+    vector<thread*> threads;
+    for (int i = 0; i < cRasterPrimitives; i++)
+    {
+        auto rasterObj = objRasterizationPrimitivesList[i];
+        threads.push_back(
+            new thread(
+                [
+                    this,
+                    coordinateSystem,
+                    rasterObj,
+                    rasterMap
+                ] 
+                {
+                    this->ProcessRasterizationPrimitive(coordinateSystem, rasterObj, rasterMap); 
+                }
+            )
+        );
+    }
 
-	for (auto& objRasterizationPrimitivesBlock : objRasterizationPrimitivesList)
-	{
-		auto rasterization = objRasterizationPrimitivesBlock->CalcRasterization(coordinateSystem);
+    for (int i = 0; i < cRasterPrimitives; i++)
+    {
+        threads[i]->join();
+        delete threads[i];
+    }
+}
 
-		if (storeRasterInfo)
-		{
-			(*rasterMap)[objRasterizationPrimitivesBlock] = rasterization;
-		}
 
-		for (auto& objRasterPoint : (*rasterization).points)
-		{
-			if (PtInRect(&_buffRect, objRasterPoint->point))
-			{
-				Element& buffElement = _buffer(objRasterPoint->point.y, objRasterPoint->point.x);
+void ZBuffer::ProcessRasterizationPrimitive(
+    __in const CoordinateSystem* coordinateSystem,
+    __in const RasterizableGraphicObject* rasterizableGraphicObject,
+    __out map<const RasterizableGraphicObject*, Rasterization::Ptr>* rasterMap/* = nullptr*/
+)
+{
+    auto rasterization = rasterizableGraphicObject->CalcRasterization(coordinateSystem);
 
-				if (objRasterPoint->zValue > buffElement.zValue)
-				{
-					buffElement.color = objRasterPoint->color;
-					buffElement.zValue = objRasterPoint->zValue;
-				}
-			}
-		}
-	}
+    if (rasterMap)
+    {
+        (*rasterMap)[rasterizableGraphicObject] = rasterization;
+    }
+
+    for (auto& objRasterPoint : (*rasterization).points)
+    {
+        if (PtInRect(&_buffRect, objRasterPoint->point))
+        {
+            Element& buffElement = _buffer(objRasterPoint->point.y, objRasterPoint->point.x);
+
+            if (objRasterPoint->zValue > buffElement.zValue)
+            {
+                buffElement.color = objRasterPoint->color;
+                buffElement.zValue = objRasterPoint->zValue;
+            }
+        }
+    }
 }
