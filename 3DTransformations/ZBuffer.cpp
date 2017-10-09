@@ -173,30 +173,10 @@ void ZBuffer::ProcessObj(
   __out map<const RasterizableGraphicObject*, Rasterization::Ptr>* rasterMap/* = nullptr*/
 )
 {
-  auto& objRasterizationPrimitivesList = obj->GetRasterizationPrimitives();
-
-  auto&& taskFunc = [
-    this,
-      coordinateSystem,
-      rasterMap
-  ](auto&& rasterObj)
-  {
-    this->ProcessRasterizationPrimitive(coordinateSystem, rasterObj, rasterMap);
-  };
-    vector<future<void>> asyncTasks;
-    asyncTasks.reserve(objRasterizationPrimitivesList.size());
+    auto& objRasterizationPrimitivesList = obj->GetRasterizationPrimitives();
     for (auto& rasterObj : objRasterizationPrimitivesList)
     {
-      asyncTasks.emplace_back(async(
-        launch::async,
-        taskFunc,
-        rasterObj
-        ));
-    }
-
-    for (auto& asyncTask : asyncTasks)
-    {
-      asyncTask.wait();
+        ProcessRasterizationPrimitive(coordinateSystem, rasterObj, rasterMap);
     }
 }
 
