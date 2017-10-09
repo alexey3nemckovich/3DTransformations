@@ -29,16 +29,27 @@ void ZBuffer::Render(CDC* dc)
   int cRows = _buffer.GetCountRows();
   int cCols = _buffer.GetCountColumns();
 
-  for (int y = 0; y < cRows; ++y)
+  vector<DWORD> colors;
+  colors.reserve(cRows* cCols);
+
+  for (int x = 0; x < cRows; ++x)
   {
-    for (int x = 0; x < cCols; ++x)
+    for (int y = 0; y < cCols; ++y)
     {
-      if (RGB(255, 255, 255) != _buffer(y, x).color)
-      {
-        dc->SetPixelV(x, y, _buffer(y, x).color);
-      }
+      COLORREF curColor = _buffer(x, y).color;
+      colors.emplace_back(RGB(GetBValue(curColor), GetGValue(curColor), GetRValue(curColor)));
     }
   }
+
+  BITMAPINFO bitmapInfo = {};
+  bitmapInfo.bmiHeader.biSize = sizeof(bitmapInfo.bmiHeader);
+  bitmapInfo.bmiHeader.biWidth = cCols;
+  bitmapInfo.bmiHeader.biHeight = -cRows; //if negative, start top left
+  bitmapInfo.bmiHeader.biPlanes = 1;
+  bitmapInfo.bmiHeader.biBitCount = sizeof(DWORD) * 8;
+  bitmapInfo.bmiHeader.biCompression = BI_RGB;
+
+  SetDIBitsToDevice(*dc, 0, 0, cCols, cRows, 0, 0, 0, cRows, &colors.front(), &bitmapInfo, DIB_RGB_COLORS);
 }
 
 
