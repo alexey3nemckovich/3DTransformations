@@ -39,7 +39,7 @@ namespace cs
 	public:
 		void Init(const CoordinateSystem* coordinateSystem, const vector<GraphicObject::Ptr>& objList, bool invisibleLinesAsDash = true);
 		void RenderInvisibleLinesAsDash(const map<const RasterizableGraphicObject*, Rasterization::Ptr>&);
-		void ProcessRasterBorderPoint(const RasterizationPoint::Ptr& rasterPoint, int& countPointsPerCurSegment, bool& renderingDashLine, bool& drawing);
+		void ProcessRasterBorderPoint(const RasterizationPoint& rasterPoint, int& countPointsPerCurSegment, bool& renderingDashLine, bool& drawing);
 		void Resize(int cRows, int cCols);
 
 	private:

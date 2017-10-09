@@ -108,13 +108,13 @@ void ZBuffer::RenderInvisibleLinesAsDash(const map<const RasterizableGraphicObje
 }
 
 
-void ZBuffer::ProcessRasterBorderPoint(const RasterizationPoint::Ptr& rasterPoint, int& countPointsPerCurSegment, bool& renderingDashLine, bool& drawing)
+void ZBuffer::ProcessRasterBorderPoint(const RasterizationPoint& rasterPoint, int& countPointsPerCurSegment, bool& renderingDashLine, bool& drawing)
 {
 	constexpr int countPointsPerDashSegment = 30;
 
-	if (PtInRect(&_buffRect, rasterPoint->point))
+	if (PtInRect(&_buffRect, rasterPoint.point))
 	{
-		if (_buffer(rasterPoint->point.y, rasterPoint->point.x).zValue > rasterPoint->zValue)
+		if (_buffer(rasterPoint.point.y, rasterPoint.point.x).zValue > rasterPoint.zValue)
 		{
 			if (!renderingDashLine)
 			{
@@ -133,7 +133,7 @@ void ZBuffer::ProcessRasterBorderPoint(const RasterizationPoint::Ptr& rasterPoin
 		{
 			if (drawing)
 			{
-				_buffer(rasterPoint->point.y, rasterPoint->point.x).color = rasterPoint->color;
+				_buffer(rasterPoint.point.y, rasterPoint.point.x).color = rasterPoint.color;
 			}
 
 			countPointsPerCurSegment++;
@@ -216,14 +216,14 @@ void ZBuffer::ProcessRasterizationPrimitive(
 
     for (auto& objRasterPoint : (*rasterization).points)
     {
-        if (PtInRect(&_buffRect, objRasterPoint->point))
+        if (PtInRect(&_buffRect, objRasterPoint.point))
         {
-            Element& buffElement = _buffer(objRasterPoint->point.y, objRasterPoint->point.x);
+            Element& buffElement = _buffer(objRasterPoint.point.y, objRasterPoint.point.x);
 
-            if (objRasterPoint->zValue > buffElement.zValue)
+            if (objRasterPoint.zValue > buffElement.zValue)
             {
-                buffElement.color = objRasterPoint->color;
-                buffElement.zValue = objRasterPoint->zValue;
+                buffElement.color = objRasterPoint.color;
+                buffElement.zValue = objRasterPoint.zValue;
             }
         }
     }

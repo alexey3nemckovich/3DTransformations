@@ -12,13 +12,12 @@ namespace cs
 	struct RasterizationPoint
 	{
 	public:
-		typedef shared_ptr<RasterizationPoint> Ptr;
 
 	public:
-    RasterizationPoint(RasterizationPoint&& o) = default;
-    RasterizationPoint& operator=(RasterizationPoint&& o) = default;
-    RasterizationPoint(const RasterizationPoint& o) = default;
-    RasterizationPoint& operator=(const RasterizationPoint& o) = default;
+        RasterizationPoint(RasterizationPoint&& o) = default;
+        RasterizationPoint& operator=(RasterizationPoint&& o) = default;
+        RasterizationPoint(const RasterizationPoint& o) = default;
+        RasterizationPoint& operator=(const RasterizationPoint& o) = default;
 
 		RasterizationPoint(const CPoint& point, double zValue, COLORREF color)
 			: point(point),
@@ -42,17 +41,15 @@ namespace cs
 
         Rasterization()
         {
-          //points.reserve(100000);
-          //borderPoints.reserve(10000);
+            points.reserve(20000);
+            borderPoints.reserve(2000);
         }
 
 	public:
 		void AddPoint(const CPoint& point, double zValue, COLORREF color, bool borderPoint)
 		{
             points.push_back(
-                RasterizationPoint::Ptr(new RasterizationPoint(
-                    point, zValue, color
-                ))
+                RasterizationPoint(point, zValue, color)
             );
 		}
 
@@ -68,8 +65,8 @@ namespace cs
 		}
 
 	public:
-		vector<RasterizationPoint::Ptr> points;
-		vector<RasterizationPoint::Ptr> borderPoints;
+		vector<RasterizationPoint> points;
+		vector<RasterizationPoint> borderPoints;
 	};
 
 
