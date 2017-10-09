@@ -6,6 +6,7 @@
 #include "PrimitiveTypes.h"
 #include "PrimitiveTypesTemplates.h"
 //
+#include "ZBuffer.h"
 #include "GraphicObject.h"
 using namespace std;
 
@@ -232,6 +233,7 @@ namespace cs
 		bool							  _gridRender = false;
 		map<CoordinateAxisName, AxisInfo> _axisInfoMap;
 		Matrix<double>					  _projectionMatrix;
+        ZBuffer                           _buff;
 
 		//Constants
 	private:

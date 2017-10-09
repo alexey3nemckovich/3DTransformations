@@ -24,6 +24,22 @@ ZBuffer::ZBuffer()
 }
 
 
+void ZBuffer::Reset()
+{
+    int cRows = _buffer.GetCountRows();
+    int cCols = _buffer.GetCountColumns();
+
+    for (int i = 0; i < cRows; i++)
+    {
+        for (int j = 0; j < cCols; j++)
+        {
+            _buffer(i, j).zValue = INT_MIN;
+            _buffer(i, j).color = RGB(255, 255, 255);
+        }
+    }
+}
+
+
 void ZBuffer::Render(CDC* dc)
 {
   int cRows = _buffer.GetCountRows();

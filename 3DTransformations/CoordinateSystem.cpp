@@ -428,10 +428,11 @@ void CoordinateSystem::ZBufferRenderingAlgorithm(CDC *dc)
 	CRect rect;
 	dc->GetClipBox(&rect);
 
-	ZBuffer buff;
-	buff.Resize(rect.bottom - rect.top, rect.right - rect.left);
-	buff.Init(this, _objects, _invisibleLinesAsDash);
-	buff.Render(dc);
+	_buff.Resize(rect.bottom - rect.top, rect.right - rect.left);
+
+    _buff.Reset();
+	_buff.Init(this, _objects, _invisibleLinesAsDash);
+	_buff.Render(dc);
 }
 
 

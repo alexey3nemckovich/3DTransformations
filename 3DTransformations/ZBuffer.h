@@ -34,6 +34,7 @@ namespace cs
 
 	public:
 		void Render(CDC*);
+        void Reset();
 
 	public:
 		void Init(const CoordinateSystem* coordinateSystem, const vector<GraphicObject::Ptr>& objList, bool invisibleLinesAsDash = true);
