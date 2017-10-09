@@ -1,7 +1,7 @@
 #include "stdafx.h"
 //
 #include <vector>
-#include <thread>
+#include <future>
 //
 #include "ZBuffer.h"
 #include "CoordinateSystem.h"
@@ -26,19 +26,19 @@ ZBuffer::ZBuffer()
 
 void ZBuffer::Render(CDC* dc)
 {
-	int cRows = _buffer.GetCountRows();
-	int cCols = _buffer.GetCountColumns();
+  int cRows = _buffer.GetCountRows();
+  int cCols = _buffer.GetCountColumns();
 
-    for (int y = 0; y < cRows; ++y)
+  for (int y = 0; y < cRows; ++y)
+  {
+    for (int x = 0; x < cCols; ++x)
     {
-        for (int x = 0; x < cCols; ++x)
-        {
-            if (RGB(255, 255, 255) != _buffer(y, x).color)
-            {
-                dc->SetPixel(x, y, _buffer(y, x).color);
-            }
-        }
+      if (RGB(255, 255, 255) != _buffer(y, x).color)
+      {
+        dc->SetPixelV(x, y, _buffer(y, x).color);
+      }
     }
+  }
 }
 
 
@@ -148,7 +148,7 @@ void ZBuffer::ProcessObj(
 {
   auto& objRasterizationPrimitivesList = obj->GetRasterizationPrimitives();
 
-  auto& taskFunc = [
+  auto&& taskFunc = [
     this,
       coordinateSystem,
       rasterMap
@@ -156,20 +156,20 @@ void ZBuffer::ProcessObj(
   {
     this->ProcessRasterizationPrimitive(coordinateSystem, rasterObj, rasterMap);
   };
-
-    vector<thread> threads;
-    threads.reserve(objRasterizationPrimitivesList.size());
-    for (auto&& rasterObj : objRasterizationPrimitivesList)
+    vector<future<void>> asyncTasks;
+    asyncTasks.reserve(objRasterizationPrimitivesList.size());
+    for (auto& rasterObj : objRasterizationPrimitivesList)
     {
-      threads.emplace_back(
+      asyncTasks.emplace_back(async(
+        launch::async,
         taskFunc,
         rasterObj
-        );
+        ));
     }
 
-    for (auto&& thread : threads)
+    for (auto& asyncTask : asyncTasks)
     {
-      thread.join();
+      asyncTask.wait();
     }
 }
 
