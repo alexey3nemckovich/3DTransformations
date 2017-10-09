@@ -122,10 +122,10 @@ namespace cs
 		void Zoom(double val);
 		void Move(double dx, double dy, double dz);
 		void MoveOriginPhysPoint(double dx, double dy);
-		void SetOriginTo(LogicPoint p);
+		void SetOriginTo(const LogicPoint& p);
 		void SetRenderingAlgorithm(RenderingAlgorithm);
 		void RotateAroundAxis(CoordinateAxisName axis, double deltaAngle);
-		void RotateAroundAxis(std::pair<LogicPoint, LogicPoint> axisPoints, double deltaAngle);
+		void RotateAroundAxis(const std::pair<LogicPoint, LogicPoint>& axisPoints, double deltaAngle);
 		void Clear();
 
 		//Vision interface
@@ -134,7 +134,7 @@ namespace cs
 
 	public:
 		void AddText(LogicPoint p, CString text);
-		void AddLogicPoint(LogicPoint point, COLORREF cl = RGB(0, 0, 0), bool xDetection = true, bool yDetection = true, bool zDetection = true, bool xDetectionLine = true, bool yDetectionLine = true, bool zDetectionLine = true);
+		void AddLogicPoint(const LogicPoint& point, COLORREF cl = RGB(0, 0, 0), bool xDetection = true, bool yDetection = true, bool zDetection = true, bool xDetectionLine = true, bool yDetectionLine = true, bool zDetectionLine = true);
 		void AddLogicPoint(double x, double y, COLORREF cl = RGB(0, 0, 0), bool xDetection = false, bool yDetection = false, bool xDetectionLine = true, bool yDetectionLine = true);
 		void AddLogicPoint(double x, double y, double z, COLORREF cl = RGB(0, 0, 0), bool xDetection = false, bool yDetection = false, bool zDetection = true, bool xDetectLine = true, bool yDetectLine = true, bool zDetectionLine = true);
 		void AddGraphicObject(GraphicObject* obj, bool deleteOnDestroy = true);

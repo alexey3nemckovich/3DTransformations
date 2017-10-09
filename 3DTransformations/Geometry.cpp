@@ -10,7 +10,7 @@ namespace cs
 	void ProcessPoint(const CoordinateSystem* coordSystem, Rasterization*, const Axis& axis, int x, int y, COLORREF color/* = 0*/);
 	Rasterization::Ptr RasterizeLineSegment(const CoordinateSystem* coordSystem, const Axis& axis, const LogicPoint& la, const LogicPoint& lb, COLORREF color/* = 0*/, int thickness/* = 1*/)
 	{
-		Rasterization* rasterization = new Rasterization();
+    unique_ptr<Rasterization> rasterization = make_unique<Rasterization>();
 
 		CPoint physOrigin = coordSystem->GetPhysOrigin();
 		CPoint a = coordSystem->ConvertLogicPointToPhys(la);
@@ -38,7 +38,7 @@ namespace cs
 				xe = a.x;
 			}
 
-			ProcessPoint(coordSystem, rasterization, axis, x, y, color);
+			ProcessPoint(coordSystem, rasterization.get(), axis, x, y, color);
 
 			for (i = 0; x<xe; i++)
 			{
@@ -60,7 +60,7 @@ namespace cs
 					px = px + 2 * (dy1 - dx1);
 				}
 
-				ProcessPoint(coordSystem, rasterization, axis, x, y, color);
+				ProcessPoint(coordSystem, rasterization.get(), axis, x, y, color);
 
 			}
 		}
@@ -79,7 +79,7 @@ namespace cs
 				ye = a.y;
 			}
 
-			ProcessPoint(coordSystem, rasterization, axis, x, y, color);
+			ProcessPoint(coordSystem, rasterization.get(), axis, x, y, color);
 
 			for (i = 0; y<ye; i++)
 			{
@@ -101,11 +101,11 @@ namespace cs
 					py = py + 2 * (dx1 - dy1);
 				}
 
-				ProcessPoint(coordSystem, rasterization, axis, x, y, color);
+				ProcessPoint(coordSystem, rasterization.get(), axis, x, y, color);
 			}
 		}
 
-		return Rasterization::Ptr(rasterization);
+		return rasterization;
 	}
 
 

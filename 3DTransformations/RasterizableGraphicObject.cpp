@@ -46,23 +46,22 @@ namespace cs
 
 	void RasterizableGraphicObject::Move(int d)
 	{
-		auto cPoints = _points.size();
-		for (int i = 0; i < cPoints; i++)
+		for (auto& point : _points)
 		{
-			_points[i].x += d;
-			_points[i].y += d;
-			_points[i].z += d;
+            point.x += d;
+            point.y += d;
+            point.z += d;
 		}
 	}
 
 
 	vector<LogicPoint> RasterizableGraphicObject::CalcProjectionSystemPoints(const CoordinateSystem* coordSystem) const
 	{
-		vector<LogicPoint> v(_points.size());
-
+		vector<LogicPoint> v;
+        v.reserve(_points.size());
 		for (auto& point : _points)
 		{
-			v.push_back(coordSystem->ConvertToProjectionSytemPoint(point));
+			v.emplace_back(coordSystem->ConvertToProjectionSytemPoint(point));
 		}
 
 		return v;
@@ -97,18 +96,6 @@ namespace cs
 
 	void RasterizableGraphicObject::Init()
 	{
-		size_t cAxises = _points.size();
-
-		for (size_t i = 0; i < cAxises; i++)
-		{
-			_axises.push_back(
-				Axis(
-					_points[i], 
-					_points[(i+1) % cAxises]
-				)
-			);
-		}
-
 		if (_points.size() > 2)
 		{
 			_plane = make_shared<Plane>(
@@ -154,9 +141,10 @@ namespace cs
         bottomPointAndIndex.first.y = INT_MAX;
 		vector<CPoint> cornersPoints;
 		auto cPoints = _points.size();
+        cornersPoints.reserve(cPoints);
 		for (int i = 0; i < cPoints; i++)
 		{
-			cornersPoints.push_back(coordSystem->ConvertLogicPointToPhys(_points[i]));
+			cornersPoints.emplace_back(coordSystem->ConvertLogicPointToPhys(_points[i]));
 
             if (topPointAndIndex.first.y < cornersPoints[i].y)
             {
@@ -270,9 +258,10 @@ namespace cs
 		//Find corners points screen coordinates
 		vector<CPoint> cornersPoints;
 		auto cPoints = _points.size();
-		for (int i = 0; i < cPoints; i++)
+        cornersPoints.reserve(cPoints);
+		for (auto& point : _points)
 		{
-			cornersPoints.push_back(coordSystem->ConvertLogicPointToPhys(_points[i]));
+			cornersPoints.emplace_back(coordSystem->ConvertLogicPointToPhys(point));
 		}
 
 		//Find top left and bottom right points

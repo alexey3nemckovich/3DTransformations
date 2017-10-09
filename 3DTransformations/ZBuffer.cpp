@@ -1,7 +1,7 @@
 #include "stdafx.h"
 //
 #include <vector>
-#include <thread>
+#include <future>
 //
 #include "ZBuffer.h"
 #include "CoordinateSystem.h"
@@ -26,19 +26,30 @@ ZBuffer::ZBuffer()
 
 void ZBuffer::Render(CDC* dc)
 {
-	int cRows = _buffer.GetCountRows();
-	int cCols = _buffer.GetCountColumns();
+  int cRows = _buffer.GetCountRows();
+  int cCols = _buffer.GetCountColumns();
 
-    for (int y = 0; y < cRows; ++y)
+  vector<DWORD> colors;
+  colors.reserve(cRows* cCols);
+
+  for (int x = 0; x < cRows; ++x)
+  {
+    for (int y = 0; y < cCols; ++y)
     {
-        for (int x = 0; x < cCols; ++x)
-        {
-            if (RGB(255, 255, 255) != _buffer(y, x).color)
-            {
-                dc->SetPixel(x, y, _buffer(y, x).color);
-            }
-        }
+      COLORREF curColor = _buffer(x, y).color;
+      colors.emplace_back(RGB(GetBValue(curColor), GetGValue(curColor), GetRValue(curColor)));
     }
+  }
+
+  BITMAPINFO bitmapInfo = {};
+  bitmapInfo.bmiHeader.biSize = sizeof(bitmapInfo.bmiHeader);
+  bitmapInfo.bmiHeader.biWidth = cCols;
+  bitmapInfo.bmiHeader.biHeight = -cRows; //if negative, start top left
+  bitmapInfo.bmiHeader.biPlanes = 1;
+  bitmapInfo.bmiHeader.biBitCount = sizeof(DWORD) * 8;
+  bitmapInfo.bmiHeader.biCompression = BI_RGB;
+
+  SetDIBitsToDevice(*dc, 0, 0, cCols, cRows, 0, 0, 0, cRows, &colors.front(), &bitmapInfo, DIB_RGB_COLORS);
 }
 
 
@@ -69,7 +80,7 @@ void ZBuffer::RenderInvisibleLinesAsDash(const map<const RasterizableGraphicObje
 {
 	int countPointsPerCurSegment = 0;
 	const int countPointsPerDashSegment = 30;
-	for (auto objRaster : objRastersMap)
+	for (auto& objRaster : objRastersMap)
 	{
 		bool drawing = false;
 		bool renderingDashLine = false;
@@ -83,7 +94,7 @@ void ZBuffer::RenderInvisibleLinesAsDash(const map<const RasterizableGraphicObje
 
 void ZBuffer::ProcessRasterBorderPoint(const RasterizationPoint::Ptr& rasterPoint, int& countPointsPerCurSegment, bool& renderingDashLine, bool& drawing)
 {
-	const int countPointsPerDashSegment = 30;
+	constexpr int countPointsPerDashSegment = 30;
 
 	if (PtInRect(&_buffRect, rasterPoint->point))
 	{
@@ -141,37 +152,35 @@ void ZBuffer::Resize(int cRows, int cCols)
 
 
 void ZBuffer::ProcessObj(
-    __in const CoordinateSystem* coordinateSystem, 
-    __in const GraphicObject* obj, 
-    __out map<const RasterizableGraphicObject*, Rasterization::Ptr>* rasterMap/* = nullptr*/
+  __in const CoordinateSystem* coordinateSystem,
+  __in const GraphicObject* obj,
+  __out map<const RasterizableGraphicObject*, Rasterization::Ptr>* rasterMap/* = nullptr*/
 )
 {
-	auto objRasterizationPrimitivesList = obj->GetRasterizationPrimitives();
-	auto cRasterPrimitives = objRasterizationPrimitivesList.size();
-    
-    vector<thread*> threads;
-    for (int i = 0; i < cRasterPrimitives; i++)
+  auto& objRasterizationPrimitivesList = obj->GetRasterizationPrimitives();
+
+  auto&& taskFunc = [
+    this,
+      coordinateSystem,
+      rasterMap
+  ](auto&& rasterObj)
+  {
+    this->ProcessRasterizationPrimitive(coordinateSystem, rasterObj, rasterMap);
+  };
+    vector<future<void>> asyncTasks;
+    asyncTasks.reserve(objRasterizationPrimitivesList.size());
+    for (auto& rasterObj : objRasterizationPrimitivesList)
     {
-        auto rasterObj = objRasterizationPrimitivesList[i];
-        threads.push_back(
-            new thread(
-                [
-                    this,
-                    coordinateSystem,
-                    rasterObj,
-                    rasterMap
-                ] 
-                {
-                    this->ProcessRasterizationPrimitive(coordinateSystem, rasterObj, rasterMap); 
-                }
-            )
-        );
+      asyncTasks.emplace_back(async(
+        launch::async,
+        taskFunc,
+        rasterObj
+        ));
     }
 
-    for (int i = 0; i < cRasterPrimitives; i++)
+    for (auto& asyncTask : asyncTasks)
     {
-        threads[i]->join();
-        delete threads[i];
+      asyncTask.wait();
     }
 }
 

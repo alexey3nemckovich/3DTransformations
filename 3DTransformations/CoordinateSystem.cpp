@@ -131,7 +131,7 @@ void CoordinateSystem::MoveOriginPhysPoint(double dx, double dy)
 }
 
 
-void CoordinateSystem::SetOriginTo(LogicPoint p)
+void CoordinateSystem::SetOriginTo(const LogicPoint& p)
 {
 	auto physPointNewOrigin = ConvertLogicPointToPhys(p);
 	_physOrigin = physPointNewOrigin;
@@ -178,7 +178,7 @@ void CoordinateSystem::RotateAroundAxis(CoordinateAxisName axis, double deltaAng
 }
 
 
-void CoordinateSystem::RotateAroundAxis(std::pair<LogicPoint, LogicPoint> axisPoints, double deltaAngle)
+void CoordinateSystem::RotateAroundAxis(const std::pair<LogicPoint, LogicPoint>& axisPoints, double deltaAngle)
 {
 	double cx = axisPoints.second.x - axisPoints.first.x;
 	double cy = axisPoints.second.y - axisPoints.first.y;
@@ -238,7 +238,7 @@ void CoordinateSystem::AddText(LogicPoint p, CString text)
 }
 
 
-void CoordinateSystem::AddLogicPoint(LogicPoint point, COLORREF color/* = RGB(0, 0, 0)*/, bool xDetection/* = true*/, bool yDetection/* = true*/, bool zDetection/* = true*/, bool xDetectionLine/* = true*/, bool yDetectionLine/* = true*/, bool zDetectionLine/* = true*/)
+void CoordinateSystem::AddLogicPoint(const LogicPoint& point, COLORREF color/* = RGB(0, 0, 0)*/, bool xDetection/* = true*/, bool yDetection/* = true*/, bool zDetection/* = true*/, bool xDetectionLine/* = true*/, bool yDetectionLine/* = true*/, bool zDetectionLine/* = true*/)
 {
 	bool exist = false;
 	if (xDetection || yDetection || zDetection)
