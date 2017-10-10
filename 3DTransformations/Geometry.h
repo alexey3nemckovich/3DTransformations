@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 #include "PrimitiveTypes.h"
 #include "RasterizationPrimitiveTypes.h"
 #include "PrimitiveTypesTemplates.h"
@@ -14,7 +15,25 @@ namespace cs
 	class CoordinateSystem;
 
 
-	Rasterization::Ptr RasterizeLineSegment(const CoordinateSystem* coordSystem, const Axis& axis, const LogicPoint& a, const LogicPoint& b, COLORREF color = 0, int thickness = 1);
+	void RasterizeLineSegment(
+        const CoordinateSystem* coordSystem,
+        Rasterization*,
+        std::function<double(double, double)> getZValueAlgorithm,
+        const LogicPoint& a,
+        const LogicPoint& b,
+        COLORREF color = 0,
+        int thickness = 1
+    );
+
+
+    void RasterizeLineSegment(
+        const CoordinateSystem* coordSystem,
+        Rasterization*,
+        const LogicPoint& a,
+        const LogicPoint& b,
+        COLORREF color = 0,
+        int thickness = 1
+    );
 
 
 	HomogeneousPoint<double> FindNormalVectorToPlane(const LogicPoint& a, const LogicPoint& b, const LogicPoint& c, double module, bool rightHande = true);
