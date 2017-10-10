@@ -20,7 +20,17 @@ ZBuffer& ZBuffer::GetInstance()
 ZBuffer::ZBuffer()
 	: _buffer(0, 0)
 {
-
+    _segmentProcessingLambda = [this](int firstRow, int lastRow)
+    {
+        for (int row = firstRow; row < lastRow; row++)
+        {
+            for (int col = 0; col < _cCols; col++)
+            {
+                COLORREF& curColor = _buffer(row, col).color;
+                _colors[row * _cCols + col] = RGB(GetBValue(curColor), GetGValue(curColor), GetRValue(curColor));
+            }
+        }
+    };
 }
 
 
@@ -42,32 +52,36 @@ void ZBuffer::Reset()
 
 void ZBuffer::Render(CDC* dc)
 {
-    int cRows = _buffer.GetCountRows();
-    int cCols = _buffer.GetCountColumns();
+    constexpr int segmentHeight = 200;
 
-    vector<DWORD> colors;
-    colors.reserve(cRows* cCols);
-
-    for (int x = 0; x < cRows; ++x)
+    vector<future<void>> tasks;
+    for (int row = 0; row < _cRows; row += segmentHeight)
     {
-        for (int y = 0; y < cCols; ++y)
-        {
-            COLORREF& curColor = _buffer(x, y).color;
-            colors.emplace_back(
-                RGB(GetBValue(curColor), GetGValue(curColor), GetRValue(curColor))
-            );
-        }
+        tasks.push_back(
+            async(
+                launch::async,
+                _segmentProcessingLambda,
+                row,
+                ((row + segmentHeight) > _cRows)? _cRows : row + segmentHeight
+            )
+        );
+    }
+
+    size_t cTasks = tasks.size();
+    for (int i = 0; i < cTasks; i++)
+    {
+        tasks[i].wait();
     }
 
     BITMAPINFO bitmapInfo = {};
     bitmapInfo.bmiHeader.biSize = sizeof(bitmapInfo.bmiHeader);
-    bitmapInfo.bmiHeader.biWidth = cCols;
-    bitmapInfo.bmiHeader.biHeight = -cRows; //if negative, start top left
+    bitmapInfo.bmiHeader.biWidth = _cCols;
+    bitmapInfo.bmiHeader.biHeight = -_cRows; //if negative, start top left
     bitmapInfo.bmiHeader.biPlanes = 1;
     bitmapInfo.bmiHeader.biBitCount = sizeof(DWORD) * 8;
     bitmapInfo.bmiHeader.biCompression = BI_RGB;
 
-    SetDIBitsToDevice(*dc, 0, 0, cCols, cRows, 0, 0, 0, cRows, &colors.front(), &bitmapInfo, DIB_RGB_COLORS);
+    SetDIBitsToDevice(*dc, 0, 0, _cCols, _cRows, 0, 0, 0, _cRows, &_colors.front(), &bitmapInfo, DIB_RGB_COLORS);
 }
 
 
@@ -159,12 +173,16 @@ void ZBuffer::ProcessRasterBorderPoint(const RasterizationPoint& rasterPoint, in
 
 void ZBuffer::Resize(int cRows, int cCols)
 {
-	if (cRows != _buffer.GetCountRows() || cCols != _buffer.GetCountColumns())
+    if (cRows != _cRows || cCols != _cCols)
 	{
+        _colors.reserve(cRows * cCols);
 		_buffer = Matrix<Element>(cRows, cCols);
+
 		_buffRect.left = _buffRect.top = 0;
 		_buffRect.right = cCols;
 		_buffRect.bottom = cRows;
+        _cRows = cRows;
+        _cCols = cCols;
 	}
 }
 

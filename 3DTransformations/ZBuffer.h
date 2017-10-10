@@ -4,6 +4,7 @@
 #include "GraphicObject.h"
 #include "RasterizationPrimitiveTypes.h"
 #include <map>
+#include <functional>
 using namespace std;
 
 
@@ -62,8 +63,14 @@ namespace cs
         );
 
 	private:
+        int _cRows;
+        int _cCols;
 		CRect _buffRect;
 		Matrix<Element> _buffer;
+        vector<DWORD>   _colors;
+
+    private:
+        std::function<void(int xStart, int xEnd)> _segmentProcessingLambda;
 	};
 
 
