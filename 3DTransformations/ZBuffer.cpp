@@ -111,7 +111,6 @@ void ZBuffer::Init(const CoordinateSystem* coordinateSystem, const vector<Graphi
 void ZBuffer::RenderInvisibleLinesAsDash(const map<const RasterizableGraphicObject*, Rasterization::Ptr>& objRastersMap)
 {
 	int countPointsPerCurSegment = 0;
-	const int countPointsPerDashSegment = 30;
 	for (auto& objRaster : objRastersMap)
 	{
 		bool drawing = false;
@@ -126,7 +125,7 @@ void ZBuffer::RenderInvisibleLinesAsDash(const map<const RasterizableGraphicObje
 
 void ZBuffer::ProcessRasterBorderPoint(const RasterizationPoint& rasterPoint, int& countPointsPerCurSegment, bool& renderingDashLine, bool& drawing)
 {
-	constexpr int countPointsPerDashSegment = 30;
+	constexpr int countPointsPerDashSegment = 10;
 
 	if (PtInRect(&_buffRect, rasterPoint.point))
 	{
@@ -175,7 +174,7 @@ void ZBuffer::Resize(int cRows, int cCols)
 {
     if (cRows != _cRows || cCols != _cCols)
 	{
-        _colors.reserve(cRows * cCols);
+        _colors.resize(cRows * cCols);
 		_buffer = Matrix<Element>(cRows, cCols);
 
 		_buffRect.left = _buffRect.top = 0;
@@ -214,6 +213,7 @@ void ZBuffer::ProcessRasterizationPrimitive(
         (*rasterMap)[rasterizableGraphicObject] = rasterization;
     }
 
+    //Brush points
     for (auto& objRasterPoint : (*rasterization).points)
     {
         if (PtInRect(&_buffRect, objRasterPoint.point))
@@ -224,6 +224,21 @@ void ZBuffer::ProcessRasterizationPrimitive(
             {
                 buffElement.color = objRasterPoint.color;
                 buffElement.zValue = objRasterPoint.zValue;
+            }
+        }
+    }
+
+    //Border points
+    for (auto& objBorderPoint : (*rasterization).borderPoints)
+    {
+        if (PtInRect(&_buffRect, objBorderPoint.point))
+        {
+            Element& buffElement = _buffer(objBorderPoint.point.y, objBorderPoint.point.x);
+
+            if ((objBorderPoint.zValue + 1) > buffElement.zValue)
+            {
+                buffElement.color = objBorderPoint.color;
+                buffElement.zValue = objBorderPoint.zValue;
             }
         }
     }

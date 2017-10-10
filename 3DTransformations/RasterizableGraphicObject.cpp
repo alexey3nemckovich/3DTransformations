@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <functional>
 #include "Geometry.h"
 #include "CoordinateSystem.h"
 #include "RasterizableGraphicObject.h"
@@ -116,54 +117,55 @@ namespace cs
 	Rasterization::Ptr RasterizableGraphicObject::RasterizeToLine(const CoordinateSystem* coordSystem) const
 	{
 		auto projectionSegment = FindMaxDistanceProjectionLineSegment(coordSystem);
-		Axis projectionAxis(
-			projectionSegment.first,
-			projectionSegment.second
-		);
-
-		return RasterizeLineSegment(
+        Rasterization* rasterization = new Rasterization();
+        
+        RasterizeLineSegment(
 			coordSystem,
-			projectionAxis,
+			rasterization,
 			projectionSegment.first,
 			projectionSegment.second,
 			_penColor,
 			_penWidth
 		);
+
+        return Rasterization::Ptr(rasterization);
 	}
 
 
 	Rasterization::Ptr RasterizableGraphicObject::Rasterize(const CoordinateSystem* coordSystem, const Plane& planeInProjectionSystem) const
 	{
 		//Find points screen coordinates
+        auto physOrigin = coordSystem->GetPhysOrigin();
         pair<CPoint, int> topPointAndIndex;
         pair<CPoint, int> bottomPointAndIndex;
         topPointAndIndex.first.y = INT_MIN;
         bottomPointAndIndex.first.y = INT_MAX;
-		vector<CPoint> cornersPoints;
+		vector<CPoint> cornersPointsScreenCoordinates;
 		auto cPoints = _points.size();
-        cornersPoints.reserve(cPoints);
+        cornersPointsScreenCoordinates.reserve(cPoints);
 		for (int i = 0; i < cPoints; i++)
 		{
-			cornersPoints.emplace_back(coordSystem->ConvertLogicPointToPhys(_points[i]));
+			cornersPointsScreenCoordinates.emplace_back(
+                coordSystem->ConvertLogicPointToPhys(_points[i])
+            );
 
-            if (topPointAndIndex.first.y < cornersPoints[i].y)
+            if (topPointAndIndex.first.y < cornersPointsScreenCoordinates[i].y)
             {
-                topPointAndIndex.first = cornersPoints[i];
+                topPointAndIndex.first = cornersPointsScreenCoordinates[i];
                 topPointAndIndex.second = i;
             }
 
-            if (bottomPointAndIndex.first.y > cornersPoints[i].y)
+            if (bottomPointAndIndex.first.y > cornersPointsScreenCoordinates[i].y)
             {
-                bottomPointAndIndex.first = cornersPoints[i];
+                bottomPointAndIndex.first = cornersPointsScreenCoordinates[i];
                 bottomPointAndIndex.second = i;
             }
 		}
 
 		//Find rasterization
-		auto physOrigin = coordSystem->GetPhysOrigin();
         Rasterization* rasterization = new Rasterization();
 
-        int leftPointIndex = cornersPoints.size() - 1;
+        int leftPointIndex = cornersPointsScreenCoordinates.size() - 1;
         int rightPointIndex = 0;
 
         if (topPointAndIndex.second)
@@ -171,18 +173,18 @@ namespace cs
             leftPointIndex = topPointAndIndex.second - 1;
         }
 
-        if (topPointAndIndex.second != (cornersPoints.size() - 1))
+        if (topPointAndIndex.second != (cornersPointsScreenCoordinates.size() - 1))
         {
             rightPointIndex = topPointAndIndex.second + 1;
         }
 
         pair<CPoint, int> leftPointAndIndex{
-            cornersPoints[leftPointIndex],
+            cornersPointsScreenCoordinates[leftPointIndex],
             leftPointIndex
         };
 
         pair<CPoint, int> rightPointAndIndex{
-            cornersPoints[rightPointIndex],
+            cornersPointsScreenCoordinates[rightPointIndex],
             rightPointIndex
         };
 
@@ -193,6 +195,17 @@ namespace cs
         int lx = 0;
         int ly = 0;
 
+        //
+        double A = planeInProjectionSystem.A();
+        double B = planeInProjectionSystem.B();
+        double C = planeInProjectionSystem.C();
+        double D = planeInProjectionSystem.D();
+        std::function<double(double, double)> getZValue = [A, B, C, D](double lx, double ly)
+        {
+            return -(A * lx + B * ly + D) / C;
+        };
+
+        //
         int y = topPointAndIndex.first.y;
         while (y > bottomPointAndIndex.first.y)
         {
@@ -205,13 +218,15 @@ namespace cs
 
                 if (resLeft && resRight)
                 {
-                    int x = min(xLeft, xRight);
+                    int minX = min(xLeft, xRight);
                     int maxX = max(xLeft, xRight);
+                    int x = minX;
                     while (x <= maxX)
                     {
                         lx = x - physOrigin.x;
                         ly = y - physOrigin.y;
-                        zValue = -(planeInProjectionSystem.A() * lx + planeInProjectionSystem.B() * ly + planeInProjectionSystem.D()) / planeInProjectionSystem.C();
+                        zValue = getZValue(lx, ly);
+
                         rasterization->AddPoint(x, y, zValue, _brushColor, false);
 
                         x++;
@@ -228,10 +243,10 @@ namespace cs
                 leftPointAndIndex.second--;
                 if (leftPointAndIndex.second < 0)
                 {
-                    leftPointAndIndex.second = cornersPoints.size() - 1;
+                    leftPointAndIndex.second = cornersPointsScreenCoordinates.size() - 1;
                 }
 
-                leftPointAndIndex.first = cornersPoints[leftPointAndIndex.second];
+                leftPointAndIndex.first = cornersPointsScreenCoordinates[leftPointAndIndex.second];
                 leftAxis = Axis(prevPoint, leftPointAndIndex.first);
             }
             else
@@ -239,62 +254,31 @@ namespace cs
                 CPoint prevPoint = rightPointAndIndex.first;
 
                 rightPointAndIndex.second++;
-                if (rightPointAndIndex.second > (cornersPoints.size() - 1))
+                if (rightPointAndIndex.second > (cornersPointsScreenCoordinates.size() - 1))
                 {
                     rightPointAndIndex.second = 0;
                 }
 
-                rightPointAndIndex.first = cornersPoints[rightPointAndIndex.second];
+                rightPointAndIndex.first = cornersPointsScreenCoordinates[rightPointAndIndex.second];
                 rightAxis = Axis(prevPoint, rightPointAndIndex.first);
             }
         }
 
+        //Rasterize borders
+        for (int i = 0; i < cPoints; i++)
+        {
+            RasterizeLineSegment(
+                coordSystem,
+                rasterization,
+                getZValue,
+                _points[i],
+                _points[(i + 1) % cPoints],
+                _penColor,
+                _penWidth
+            );
+        }
+
 		return Rasterization::Ptr(rasterization);
-	}
-
-
-	void RasterizableGraphicObject::CalcRasterizationBounds(const CoordinateSystem* coordSystem, int& minX, int& minY, int& maxX, int& maxY) const
-	{
-		//Find corners points screen coordinates
-		vector<CPoint> cornersPoints;
-		auto cPoints = _points.size();
-        cornersPoints.reserve(cPoints);
-		for (auto& point : _points)
-		{
-			cornersPoints.emplace_back(coordSystem->ConvertLogicPointToPhys(point));
-		}
-
-		//Find top left and bottom right points
-		minX = cornersPoints[0].x;
-		minY = cornersPoints[0].y;
-		maxX = cornersPoints[0].x;
-		maxY = cornersPoints[0].y;
-		for (int i = 1; i < cPoints; i++)
-		{
-			if (maxY < cornersPoints[i].y)
-			{
-				maxY = cornersPoints[i].y;
-				goto checkX;
-			}
-
-			if (minY > cornersPoints[i].y)
-			{
-				minY = cornersPoints[i].y;
-			}
-
-		checkX:
-
-			if (maxX < cornersPoints[i].x)
-			{
-				maxX = cornersPoints[i].x;
-				continue;
-			}
-
-			if (minX > cornersPoints[i].x)
-			{
-				minX = cornersPoints[i].x;
-			}
-		}
 	}
 
 
@@ -309,7 +293,7 @@ namespace cs
 		size_t cPoints = _points.size();
 		for (size_t i = 0; i < cPoints; i++)
 		{
-			for (size_t j = i + 1; i < cPoints; i++)
+			for (size_t j = i + 1; j < cPoints; j++)
 			{
 				double dist = FindDistance(
 					coordSystem->ConvertToProjectionSytemPoint(_points[i]),

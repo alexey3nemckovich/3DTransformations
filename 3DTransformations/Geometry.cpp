@@ -7,14 +7,63 @@ namespace cs
 {
 
 
-	void ProcessPoint(const CoordinateSystem* coordSystem, Rasterization*, const Axis& axis, int x, int y, COLORREF color/* = 0*/);
-	Rasterization::Ptr RasterizeLineSegment(const CoordinateSystem* coordSystem, const Axis& axis, const LogicPoint& la, const LogicPoint& lb, COLORREF color/* = 0*/, int thickness/* = 1*/)
+	void ProcessPoint(
+        const CoordinateSystem* coordSystem,
+        Rasterization*,
+        std::function<double(double, double)> getZValueAlgorithm, 
+        int x,
+        int y,
+        COLORREF color/* = 0*/
+    );
+
+
+    void RasterizeLineSegment(
+        const CoordinateSystem* coordSystem,
+        Rasterization* rasterization,
+        const LogicPoint& a,
+        const LogicPoint& b,
+        COLORREF color/* = 0*/,
+        int thickness/* = 1*/
+    )
+    {
+        Axis axisInProjectionSystem(
+            coordSystem->ConvertToProjectionSytemPoint(a), 
+            coordSystem->ConvertToProjectionSytemPoint(b)
+        );
+        
+        std::function<double(double, double)> getZValue = [axisInProjectionSystem](double lx, double ly)
+        {
+            return axisInProjectionSystem.GetPointByProjection(lx, ly).z;
+        };
+
+        RasterizeLineSegment(
+            coordSystem,
+            rasterization,
+            getZValue,
+            a,
+            b,
+            color,
+            thickness
+        );
+    }
+
+
+	void RasterizeLineSegment(
+        const CoordinateSystem* coordSystem,
+        Rasterization* rasterization,
+        std::function<double(double, double)> getZValueAlgorithm,
+        const LogicPoint& la,
+        const LogicPoint& lb,
+        COLORREF color/* = 0*/,
+        int thickness/* = 1*/
+    )
 	{
-    unique_ptr<Rasterization> rasterization = make_unique<Rasterization>();
+        LogicPoint laInProjectionSystem = coordSystem->ConvertToProjectionSytemPoint(la);
+        LogicPoint lbInProjectionSystem = coordSystem->ConvertToProjectionSytemPoint(lb);
 
 		CPoint physOrigin = coordSystem->GetPhysOrigin();
-		CPoint a = coordSystem->ConvertLogicPointToPhys(la);
-		CPoint b = coordSystem->ConvertLogicPointToPhys(lb);
+        CPoint a{ (int)round(laInProjectionSystem.x + physOrigin.x), (int)round(laInProjectionSystem.y + physOrigin.y) };
+        CPoint b{ (int)round(lbInProjectionSystem.x + physOrigin.x), (int)round(lbInProjectionSystem.y + physOrigin.y) };
 
 		int x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
 		dx = b.x - a.x;
@@ -38,7 +87,7 @@ namespace cs
 				xe = a.x;
 			}
 
-			ProcessPoint(coordSystem, rasterization.get(), axis, x, y, color);
+			ProcessPoint(coordSystem, rasterization, getZValueAlgorithm, x, y, color);
 
 			for (i = 0; x<xe; i++)
 			{
@@ -60,7 +109,7 @@ namespace cs
 					px = px + 2 * (dy1 - dx1);
 				}
 
-				ProcessPoint(coordSystem, rasterization.get(), axis, x, y, color);
+				ProcessPoint(coordSystem, rasterization, getZValueAlgorithm, x, y, color);
 
 			}
 		}
@@ -79,7 +128,7 @@ namespace cs
 				ye = a.y;
 			}
 
-			ProcessPoint(coordSystem, rasterization.get(), axis, x, y, color);
+			ProcessPoint(coordSystem, rasterization, getZValueAlgorithm, x, y, color);
 
 			for (i = 0; y<ye; i++)
 			{
@@ -101,15 +150,20 @@ namespace cs
 					py = py + 2 * (dx1 - dy1);
 				}
 
-				ProcessPoint(coordSystem, rasterization.get(), axis, x, y, color);
+                ProcessPoint(coordSystem, rasterization, getZValueAlgorithm, x, y, color);
 			}
 		}
-
-		return rasterization;
 	}
-
-
-	void ProcessPoint(const CoordinateSystem* coordSystem, Rasterization* raster, const Axis& axis, int x, int y, COLORREF color/* = 0*/)
+    
+    
+	void ProcessPoint(
+        const CoordinateSystem* coordSystem,
+        Rasterization* raster,
+        std::function<double(double, double)> getZValueAlgorithm,
+        int x,
+        int y,
+        COLORREF color/* = 0*/
+    )
 	{
 		auto physOrigin = coordSystem->GetPhysOrigin();
 
@@ -118,9 +172,9 @@ namespace cs
 			point.x - physOrigin.x,
 			point.y - physOrigin.y
 		);
-		auto p = axis.GetPointByProjection(lp);
-		double z = coordSystem->GetPointDistanceToProjectionPlane(p);
-		raster->AddPoint(point, z, color, true);
+
+        double zValue = getZValueAlgorithm(lp.x, lp.y);
+		raster->AddPoint(point, zValue, color, true);
 	}
 
 

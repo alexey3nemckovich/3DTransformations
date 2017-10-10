@@ -48,9 +48,16 @@ namespace cs
 	public:
 		void AddPoint(const CPoint& point, double zValue, COLORREF color, bool borderPoint)
 		{
-            points.push_back(
-                RasterizationPoint(point, zValue, color)
-            );
+            if (borderPoint)
+            {
+                borderPoints.push_back(RasterizationPoint(point, zValue, color));
+            }
+            else
+            {
+                points.push_back(
+                    RasterizationPoint(point, zValue, color)
+                );
+            }
 		}
 
 
