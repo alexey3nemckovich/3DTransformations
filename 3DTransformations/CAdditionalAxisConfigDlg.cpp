@@ -2,6 +2,7 @@
 #include "resource.h"
 #include "CAdditionalAxisConfigDlg.h"
 #include "AdditionalAxis.h"
+#include "PrimitiveTypes.h"
 
 
 CAdditionalAxisConfigDlg::CAdditionalAxisConfigDlg()
@@ -19,7 +20,7 @@ CAdditionalAxisConfigDlg::CAdditionalAxisConfigDlg()
 
 std::pair<cs::LogicPoint, cs::LogicPoint> CAdditionalAxisConfigDlg::GetAxisPoints()
 {
-	return std::pair<cs::LogicPoint, cs::LogicPoint>(
+	return make_pair(
 		cs::LogicPoint(_p1X, _p1Y, _p1Z),
 		cs::LogicPoint(_p2X, _p2Y, _p2Z)
 	);

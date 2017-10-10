@@ -1,11 +1,7 @@
 #pragma once
 #include <functional>
-#include "PrimitiveTypes.h"
-#include "RasterizationPrimitiveTypes.h"
 #include "PrimitiveTypesTemplates.h"
 
-#define _USE_MATH_DEFINES
-#include <math.h>
 
 
 namespace cs
@@ -13,7 +9,9 @@ namespace cs
 
 
 	class CoordinateSystem;
-
+  struct LogicPoint;
+  class Axis;
+  struct Rasterization;
 
 	void RasterizeLineSegment(
         const CoordinateSystem* coordSystem,

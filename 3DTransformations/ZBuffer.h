@@ -1,5 +1,4 @@
 #pragma once
-#include "PrimitiveTypes.h"
 #include "PrimitiveTypesTemplates.h"
 #include "GraphicObject.h"
 #include "RasterizationPrimitiveTypes.h"
@@ -11,9 +10,8 @@ using namespace std;
 namespace cs
 {
 
-
-	class RasterizableGraphicObject;
-	class ZBuffer
+  class CoordinateSystem;
+ class ZBuffer
 	{
 	public:
 		struct Element

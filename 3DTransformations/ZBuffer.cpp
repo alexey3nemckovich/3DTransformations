@@ -1,12 +1,9 @@
 #include "stdafx.h"
 //
-#include <vector>
 #include <future>
 //
-#include "ZBuffer.h"
-#include "CoordinateSystem.h"
-#include "LinearGraphicObject.h"
 #include "RasterizableGraphicObject.h"
+#include "ZBuffer.h"
 using namespace cs;
 
 

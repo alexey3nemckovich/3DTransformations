@@ -10,7 +10,7 @@ namespace cs
 	void ProcessPoint(
         const CoordinateSystem* coordSystem,
         Rasterization*,
-        std::function<double(double, double)> getZValueAlgorithm, 
+        const std::function<double(double, double)>& getZValueAlgorithm, 
         int x,
         int y,
         COLORREF color/* = 0*/
@@ -31,7 +31,7 @@ namespace cs
             coordSystem->ConvertToProjectionSytemPoint(b)
         );
         
-        std::function<double(double, double)> getZValue = [axisInProjectionSystem](double lx, double ly)
+        std::function<double(double,double)> getZValue = [&axisInProjectionSystem](double lx, double ly)
         {
             return axisInProjectionSystem.GetPointByProjection(lx, ly).z;
         };
@@ -159,7 +159,7 @@ namespace cs
 	void ProcessPoint(
         const CoordinateSystem* coordSystem,
         Rasterization* raster,
-        std::function<double(double, double)> getZValueAlgorithm,
+        const std::function<double(double, double)>& getZValueAlgorithm,
         int x,
         int y,
         COLORREF color/* = 0*/

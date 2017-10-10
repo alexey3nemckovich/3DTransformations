@@ -1,11 +1,8 @@
 #include "stdafx.h"
-#define _USE_MATH_DEFINES
-#include <math.h>
 #include "AdditionalAxis.h"
-#include "Polygon.h"
 #include "Polyhedron.h"
-#include "SimpleShapesGenerator.h"
 #include "CoordinateSystem.h"
+#include "SimpleShapesGenerator.h"
 
 
 namespace cs
@@ -68,9 +65,11 @@ namespace cs
 
 		//Find facets
 		vector<Polygon::Ptr> facets;
+    //4 - count calls facets
+    facets.reserve(4 * 3);
 		for (int i = 0; i < 3; i++)
 		{
-			facets.push_back(
+			facets.emplace_back(
 				Polygon::Ptr(new Polygon({
 					topLittleTrianglePoints[i],
 					bottomLittleTrianglePoints[i],
@@ -79,7 +78,7 @@ namespace cs
 				}, false, 0, 1, RGB(0, 0, 0), RGB(100, 100, 100)))
 			);
 
-			facets.push_back(
+			facets.emplace_back(
 				Polygon::Ptr(new Polygon({ 
 						topBigTrianglePoints[i], 
 						bottomBigTrianglePoints[i], 
@@ -88,7 +87,7 @@ namespace cs
 				}, true, 0, 1, RGB(0, 0, 0), RGB(0, 255, 0)))
 			);
 
-			facets.push_back(
+			facets.emplace_back(
 				Polygon::Ptr(new Polygon({
 					bottomLittleTrianglePoints[i],
 					bottomBigTrianglePoints[i],
@@ -97,7 +96,7 @@ namespace cs
 				}, false, 0, 1, RGB(0, 0, 0), RGB(100, 100, 100)))
 			);
 
-			facets.push_back(
+			facets.emplace_back(
 				Polygon::Ptr(new Polygon({
 					topLittleTrianglePoints[i],
 					topBigTrianglePoints[i],

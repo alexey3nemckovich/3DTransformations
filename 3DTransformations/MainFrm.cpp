@@ -3,8 +3,6 @@
 //
 
 #include "stdafx.h"
-#include "3DTransformations.h"
-
 #include "MainFrm.h"
 
 #ifdef _DEBUG

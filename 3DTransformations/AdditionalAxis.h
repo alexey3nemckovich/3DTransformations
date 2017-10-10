@@ -1,9 +1,11 @@
 #pragma once
-#include "PrimitiveTypes.h"
 #include "LinearGraphicObject.h"
 using namespace cs;
 
-
+namespace cs
+{
+  struct LogicPoint;
+};
 class AdditionalAxis
 	: public LinearGraphicObject
 {

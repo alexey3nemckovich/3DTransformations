@@ -1,13 +1,9 @@
 #pragma once
 #include <map>
-#include <memory>
-#include <vector>
 #include <exception>
 #include "PrimitiveTypes.h"
-#include "PrimitiveTypesTemplates.h"
 //
 #include "ZBuffer.h"
-#include "GraphicObject.h"
 using namespace std;
 
 
@@ -217,7 +213,7 @@ namespace cs
 
 	private:
 		vector<Text>				      _texts;
-		vector<GraphicObject::Ptr>	      _objects;
+		vector<shared_ptr<GraphicObject>>	      _objects;
 		vector<ColorLogicPoint>			  _points;
 		vector<DetectLogicPoint>		  _detectPoints;
 

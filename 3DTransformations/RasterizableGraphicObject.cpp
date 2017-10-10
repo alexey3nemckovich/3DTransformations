@@ -59,7 +59,7 @@ namespace cs
 	vector<LogicPoint> RasterizableGraphicObject::CalcProjectionSystemPoints(const CoordinateSystem* coordSystem) const
 	{
 		vector<LogicPoint> v;
-        v.reserve(_points.size());
+    v.reserve(_points.size());
 		for (auto& point : _points)
 		{
 			v.emplace_back(coordSystem->ConvertToProjectionSytemPoint(point));
@@ -114,22 +114,22 @@ namespace cs
 	}
 
 
-	Rasterization::Ptr RasterizableGraphicObject::RasterizeToLine(const CoordinateSystem* coordSystem) const
-	{
-		auto projectionSegment = FindMaxDistanceProjectionLineSegment(coordSystem);
-        Rasterization* rasterization = new Rasterization();
-        
-        RasterizeLineSegment(
-			coordSystem,
-			rasterization,
-			projectionSegment.first,
-			projectionSegment.second,
-			_penColor,
-			_penWidth
-		);
+  Rasterization::Ptr RasterizableGraphicObject::RasterizeToLine(const CoordinateSystem* coordSystem) const
+  {
+    auto projectionSegment = FindMaxDistanceProjectionLineSegment(coordSystem);
+    unique_ptr<Rasterization> rasterization = make_unique<Rasterization>();
 
-        return Rasterization::Ptr(rasterization);
-	}
+    RasterizeLineSegment(
+      coordSystem,
+      rasterization.get(),
+      projectionSegment.first,
+      projectionSegment.second,
+      _penColor,
+      _penWidth
+    );
+
+    return rasterization;
+  }
 
 
 	Rasterization::Ptr RasterizableGraphicObject::Rasterize(const CoordinateSystem* coordSystem, const Plane& planeInProjectionSystem) const
@@ -142,7 +142,7 @@ namespace cs
         bottomPointAndIndex.first.y = INT_MAX;
 		vector<CPoint> cornersPointsScreenCoordinates;
 		auto cPoints = _points.size();
-        cornersPointsScreenCoordinates.reserve(cPoints);
+    cornersPointsScreenCoordinates.reserve(cPoints);
 		for (int i = 0; i < cPoints; i++)
 		{
 			cornersPointsScreenCoordinates.emplace_back(
@@ -163,7 +163,7 @@ namespace cs
 		}
 
 		//Find rasterization
-        Rasterization* rasterization = new Rasterization();
+        unique_ptr<Rasterization> rasterization = make_unique<Rasterization>();
 
         int leftPointIndex = cornersPointsScreenCoordinates.size() - 1;
         int rightPointIndex = 0;
@@ -269,7 +269,7 @@ namespace cs
         {
             RasterizeLineSegment(
                 coordSystem,
-                rasterization,
+                rasterization.get(),
                 getZValue,
                 _points[i],
                 _points[(i + 1) % cPoints],
@@ -278,7 +278,7 @@ namespace cs
             );
         }
 
-		return Rasterization::Ptr(rasterization);
+		return rasterization;
 	}
 
 

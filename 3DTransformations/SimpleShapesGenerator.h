@@ -1,11 +1,10 @@
 #pragma once
-#include "GraphicObject.h"
 
 
 namespace cs
 {
 
-
+  class GraphicObject;
 	class SimpleShapesGenerator
 	{
 	public:

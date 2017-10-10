@@ -1,6 +1,5 @@
 ﻿#include "stdafx.h"
 #include "CoordinateSystem.h"
-#include "ZBuffer.h"
 using namespace cs;
 
 

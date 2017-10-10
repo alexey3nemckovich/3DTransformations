@@ -3,12 +3,10 @@
 //
 
 #include "stdafx.h"
-#include "afxwinappex.h"
-#include "afxdialogex.h"
 #include "3DTransformations.h"
 #include "MainFrm.h"
 #include "CTriangleDlg.h"
-#include "CAdditionalAxisConfigDlg.h"
+#include "CoordinateSystem.h"
 
 
 #ifdef _DEBUG

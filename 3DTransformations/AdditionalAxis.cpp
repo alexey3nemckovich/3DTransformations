@@ -1,6 +1,6 @@
 ﻿#include "stdafx.h"
 #include "AdditionalAxis.h"
-#include "CoordinateSystem.h"
+#include "PrimitiveTypes.h"
 
 
 AdditionalAxis* AdditionalAxis::GetInstance()

@@ -1,15 +1,16 @@
 #pragma once
 #include "GraphicObject.h"
-#include "PrimitiveTypes.h"
-#include "RasterizationPrimitiveTypes.h"
 using namespace std;
 
 
 namespace cs
 {
 
-
+  struct LogicPoint;
 	class CoordinateSystem;
+  struct Plane;
+  class Axis;
+  struct Rasterization;
 	class RasterizableGraphicObject
 		: public GraphicObject
 	{
@@ -29,14 +30,14 @@ namespace cs
 
 	public:
 		vector<LogicPoint> CalcProjectionSystemPoints(const CoordinateSystem*) const;
-		virtual const Rasterization::Ptr CalcRasterization(const CoordinateSystem*) const;
+		virtual const shared_ptr<Rasterization> CalcRasterization(const CoordinateSystem*) const;
 
 	private:
 		void Init();
 
 	private:
-		Rasterization::Ptr RasterizeToLine(const CoordinateSystem*) const;
-		Rasterization::Ptr Rasterize(const CoordinateSystem*, const Plane& planeInProjectionSystem) const;
+    shared_ptr<Rasterization> RasterizeToLine(const CoordinateSystem*) const;
+    shared_ptr<Rasterization> Rasterize(const CoordinateSystem*, const Plane& planeInProjectionSystem) const;
 		pair<LogicPoint, LogicPoint> FindMaxDistanceProjectionLineSegment(const CoordinateSystem*) const;
 
 	protected:
@@ -44,7 +45,7 @@ namespace cs
 
 	protected:
 		bool _line;
-		Plane::Ptr _plane;
+		shared_ptr<Plane> _plane;
 		vector<Axis> _axises;
 		vector<LogicPoint> _points;
 	};

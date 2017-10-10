@@ -6,7 +6,6 @@
 namespace cs
 {
 
-
 	class Polygon
 		: public RasterizableGraphicObject
 	{

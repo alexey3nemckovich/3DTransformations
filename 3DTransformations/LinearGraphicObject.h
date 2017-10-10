@@ -1,6 +1,4 @@
 #pragma once
-#include <vector>
-#include "PrimitiveTypes.h"
 //
 #include "RasterizableGraphicObject.h"
 using namespace std;
@@ -9,8 +7,7 @@ using namespace std;
 namespace cs
 {
 
-
-	class LinearGraphicObject
+  class LinearGraphicObject
 		: public RasterizableGraphicObject
 	{
 	public:

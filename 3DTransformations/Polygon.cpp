@@ -1,10 +1,9 @@
 ﻿#include "stdafx.h"
 #include "Geometry.h"
 //
-#include "Polygon.h"
 #include "CoordinateSystem.h"
+#include "Polygon.h"
 using namespace cs;
-
 
 Polygon::Polygon(const vector<LogicPoint>& points, bool rightHandNormalVector/* = true*/, int penStyle/* = PS_SOLID*/, int penWidth/* = 1*/, COLORREF penColor/* = RGB(0, 0, 0)*/, COLORREF brushColor/* = RGB(0, 0, 0)*/)
 	: RasterizableGraphicObject(points, penStyle, penWidth, penColor, brushColor),

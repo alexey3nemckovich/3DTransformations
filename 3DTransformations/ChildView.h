@@ -1,6 +1,9 @@
 #pragma once
-#include "CoordinateSystem.h"
 
+namespace cs
+{
+  enum class CoordinateAxisName;
+}
 
 class CChildView : public CWnd
 {

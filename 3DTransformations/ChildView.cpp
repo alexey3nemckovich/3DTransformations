@@ -1,10 +1,7 @@
 #include "stdafx.h"
-#include "3DTransformations.h"
 #include "ChildView.h"
 #include "CoordinateSystem.h"
 #include "AdditionalAxis.h"
-#define _USE_MATH_DEFINES
-#include <math.h>
 
 
 CChildView::CChildView()

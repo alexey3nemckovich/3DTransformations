@@ -1,7 +1,4 @@
 #pragma once
-#include <vector>
-#include <memory>
-#include <afxwin.h>
 using namespace std;
 
 
@@ -50,11 +47,11 @@ namespace cs
 		{
             if (borderPoint)
             {
-                borderPoints.push_back(RasterizationPoint(point, zValue, color));
+                borderPoints.emplace_back(RasterizationPoint(point, zValue, color));
             }
             else
             {
-                points.push_back(
+                points.emplace_back(
                     RasterizationPoint(point, zValue, color)
                 );
             }

@@ -1,7 +1,5 @@
 #include "stdafx.h"
 #include "GraphicObject.h"
-#include "CoordinateSystem.h"
-#include "RasterizableGraphicObject.h"
 using namespace cs;
 
 

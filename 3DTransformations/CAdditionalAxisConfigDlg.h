@@ -1,7 +1,11 @@
 #pragma once
-#include "CoordinateSystem.h"
 
+#include <utility>
 
+namespace cs
+{
+  struct LogicPoint;
+}
 class CAdditionalAxisConfigDlg
 	: public CDialogEx
 {
