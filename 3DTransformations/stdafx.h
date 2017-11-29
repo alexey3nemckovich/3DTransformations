@@ -56,3 +56,4 @@
 #include <memory>
 #include <vector>
 
+#include <assert.h>

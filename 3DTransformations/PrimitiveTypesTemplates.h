@@ -26,6 +26,7 @@ namespace cs
 
   public:
     MatrixElement& operator()(int row, int column);
+    const MatrixElement& operator()(int row, int column) const;
     Matrix<MatrixElement> operator*(const Matrix<MatrixElement>& other) const;
     Matrix<MatrixElement>& operator=(const Matrix<MatrixElement>& other);
     Matrix<MatrixElement>& operator=(Matrix<MatrixElement>&& other);
@@ -81,6 +82,12 @@ namespace cs
 
   template<typename MatrixElement>
   inline MatrixElement& Matrix<MatrixElement>::operator()(int row, int column)
+  {
+    return const_cast<MatrixElement&>(const_cast<const Matrix<MatrixElement>*>(this)->operator()(row, column));
+  }
+
+  template<typename MatrixElement>
+  inline const MatrixElement & Matrix<MatrixElement>::operator()(int row, int column) const
   {
     assert(row < GetCountRows());
     assert(column < GetCountColumns());

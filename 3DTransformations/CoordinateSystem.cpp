@@ -1,7 +1,11 @@
 ﻿#include "stdafx.h"
+#include "CViewDlg.h"
+#include "CPerspectiveViewDlg.h"
 #include "CoordinateSystem.h"
+#include "ChildView.h"
 using namespace cs;
 
+extern CChildView* cwnd;
 
 CoordinateSystem *CoordinateSystem::GetInstance()
 {
@@ -34,17 +38,17 @@ CoordinateSystem::CoordinateSystem(
 	Init();
 }
 
-
 void CoordinateSystem::Init()
 {
-	_projectionMatrix = Matrix<double>(4, 4);
-	_projectionMatrix(0, 0) = _projectionMatrix(1, 1) = _projectionMatrix(2, 2) = _projectionMatrix(3, 3) = 1;
-
+  positionMatrix_ = Matrix<double>(4, 4);
+  for (int i = 0; i < 4; ++i)
+  {
+    positionMatrix_(i, i) = 1;
+  }
+  switchToOrthogonalProjectionMode();
+  moveViewToStart();
 	_origin = LogicPoint(0, 0);
 	_physOrigin = CPoint(200, 200);
-
-	_watcherVector[0] = _watcherVector[1] = 0;
-	_watcherVector[2] = 100;
 
 	for (int axisIndex = (int)CoordinateAxisName::X; (int)axisIndex < (int)CoordinateAxisName::Z + 1; axisIndex++)
 	{
@@ -119,7 +123,7 @@ void CoordinateSystem::Zoom(double val)
 
 void CoordinateSystem::Move(double dx, double dy, double dz)
 {
-	_projectionMatrix = GetTransferenceMatrix(dx, dy, dz) * _projectionMatrix;
+  positionMatrix_ = GetTransferenceMatrix(dx, dy, dz) * positionMatrix_;
 }
 
 
@@ -147,33 +151,24 @@ void CoordinateSystem::SetRenderingAlgorithm(RenderingAlgorithm alg)
 
 void CoordinateSystem::RotateAroundAxis(CoordinateAxisName axis, double deltaAngle)
 {
-	Matrix<double> newWatchVectorMatrix(1, 4);
-
 	switch (axis)
 	{
 	case CoordinateAxisName::X:
 		{
-			newWatchVectorMatrix = _watcherVector * GetXAxisRotationMatrix(-deltaAngle);
-			_projectionMatrix = GetXAxisRotationMatrix(deltaAngle) * _projectionMatrix;
+      positionMatrix_ = GetXAxisRotationMatrix(deltaAngle) * positionMatrix_;
 		}
 		break;
 	case CoordinateAxisName::Y:
 		{
-			newWatchVectorMatrix = _watcherVector * GetYAxisRotationMatrix(-deltaAngle);
-			_projectionMatrix = GetYAxisRotationMatrix(deltaAngle) * _projectionMatrix;
+      positionMatrix_ = GetYAxisRotationMatrix(deltaAngle) * positionMatrix_;
 		}
 		break;
 	case CoordinateAxisName::Z:
 		{
-			newWatchVectorMatrix = _watcherVector * GetZAxisRotationMatrix(-deltaAngle);
-			_projectionMatrix = GetZAxisRotationMatrix(deltaAngle) * _projectionMatrix;
+      positionMatrix_ = GetZAxisRotationMatrix(deltaAngle) * positionMatrix_;
 		}
 		break;
 	}
-
-	_watcherVector[0] = newWatchVectorMatrix(0, 0);
-	_watcherVector[1] = newWatchVectorMatrix(0, 1);
-	_watcherVector[2] = newWatchVectorMatrix(0, 2);
 }
 
 
@@ -209,9 +204,149 @@ CPoint CoordinateSystem::GetPhysOrigin() const
 }
 
 
-const HomogeneousPoint<double>& CoordinateSystem::GetWatcherVector() const
+HomogeneousPoint<double> CoordinateSystem::GetWatcherVector() const
 {
-	return _watcherVector;
+  return fabs(viewMatrix_(3, 3)) <= 0.000001 
+    ? HomogeneousPoint<double>() 
+    : HomogeneousPoint<double>(viewMatrix_(0,3)/ viewMatrix_(3, 3), viewMatrix_(1, 3)/ viewMatrix_(3, 3), viewMatrix_(2, 3)/ viewMatrix_(3, 3));
+}
+
+
+template<class T>
+constexpr Matrix<T> ProjectionOrthogonalOffCenterLH(T left, T right, T bottom, T top, T zNear, T zFar)
+{
+  Matrix<T> orthogonalMatrix {4, 4};
+  orthogonalMatrix(0, 0) = static_cast<T>(2) / (right - left);
+  orthogonalMatrix(1, 1) = static_cast<T>(2) / (top - bottom);
+  orthogonalMatrix(2, 2) = static_cast<T>(-2) / (zFar - zNear);
+  orthogonalMatrix(3, 0) = -(right + left) / (right - left);
+  orthogonalMatrix(3, 1) = -(top + bottom) / (top - bottom);
+  orthogonalMatrix(3, 2) = -(zFar + zNear) / (zFar - zNear);
+  orthogonalMatrix(3, 3) = static_cast<T>(1);
+  return orthogonalMatrix;
+}
+
+
+void cs::CoordinateSystem::switchToOrthogonalProjectionMode()
+{
+  projectionMatrix_ = ProjectionOrthogonalOffCenterLH<double>(1, 3, 1, 3, 1, 3);
+}
+
+//fovy in degrees
+template<class T>
+Matrix<T> ProjectionPerspectiveOffCenterLH(T fovy, T aspect, T zNear, T zFar)
+{
+  T f = 1.0 / std::tan(((fovy * M_PI) / 180.0) / 2);
+  Matrix<T> perspectiveMatrix{ 4, 4 };
+  perspectiveMatrix(0, 0) = f / aspect;
+  perspectiveMatrix(1, 1) = f;
+  perspectiveMatrix(2, 2) = (zFar + zNear) / (zNear -zFar);
+  perspectiveMatrix(2, 3) = -1;
+  perspectiveMatrix(3, 2) = (2 * zFar * zNear) / zNear - zFar;
+  return perspectiveMatrix;
+}
+
+void cs::CoordinateSystem::switchToPerspectiveProjectionMode(CWnd *wnd)
+{
+  RECT rect;
+  wnd->GetClientRect(&rect);
+
+  int width = rect.right - rect.left;
+  int height = rect.bottom - rect.top;
+
+  changePerspectiveProjection(60, static_cast<double>(width) / height, 1, 2);
+}
+
+template<class T, size_t N>
+void normalize(T (&vec)[N])
+{
+  T length = 0;
+  for (size_t i = 0; i < N; ++i)
+    length += vec[i] * vec[i];
+
+  if (fabs(length) > 0.000001)
+  {
+    length = sqrt(length);
+
+    for (size_t i = 0; i < N; ++i)
+      vec[i] /= length;
+  }
+}
+
+template<class T, size_t N>
+void crossProduct(T (&a)[N], T (&b)[N], T (&result)[N]) 
+{
+  static_assert(N == 3);
+  result[0] = a[1] * b[2] - a[2] * b[1];
+  result[1] = -a[0] * b[2] + a[2] * b[0];
+  result[2] = a[0] * b[1] - a[1] * b[0];
+}
+
+template<class T>
+Matrix<T> ViewLookAt(T eyeX, T eyeY, T eyeZ, T centerX, T centerY, T centerZ, T upX, T upY, T upZ)
+{
+  T F[] = { centerX - eyeX, centerY - eyeY, centerZ - eyeZ }, UP[] = { upX, upY, upZ };
+
+  normalize(F);
+  normalize(UP);
+
+  T s[3];
+  crossProduct(F, UP, s);
+
+  T s_norm[] = { s[0], s[1], s[2] };
+  normalize(s_norm);
+
+  T u[3];
+  crossProduct(s_norm, F, u);
+
+  Matrix<T> viewMatrix{ 4, 4 };
+  // update matrix values
+  for (int i = 0; i < 3; ++i)
+  {
+    viewMatrix(i, 0) = s[i];
+    viewMatrix(i, 1) = u[i];
+    viewMatrix(i, 2) = -F[i];
+  }
+  viewMatrix(3, 3) = 1;
+  return viewMatrix;
+}
+
+void cs::CoordinateSystem::moveViewToStart()
+{
+  changeView(0, 0, 1, -1, 0, 0);
+}
+
+void cs::CoordinateSystem::changeView(double eyeX, double eyeY, double eyeZ, double upX, double upY, double upZ)
+{
+  //save values to set in dialog as default
+  auto &dlgViewData = CViewDlg::data;
+  dlgViewData.eye[0] = eyeX;
+  dlgViewData.eye[1] = eyeY;
+  dlgViewData.eye[2] = eyeZ;
+  dlgViewData.up[0] = upX;
+  dlgViewData.up[1] = upY;
+  dlgViewData.up[2] = upZ;
+
+  viewMatrix_ = ViewLookAt<double>(eyeX, eyeY, eyeZ, positionMatrix_(0, 3), positionMatrix_(1, 3), positionMatrix_(2, 3), upX, upY, upZ);
+}
+
+void cs::CoordinateSystem::changePerspectiveView(double fovy, double zNear, double zFar, double sigma, double fi)
+{
+  double x = zFar * cos((sigma * M_PI) / 180.0) * sin((fi * M_PI) / 180.0),
+    y = zFar * sin((sigma * M_PI) / 180.0) * sin((fi* M_PI) / 180.0),
+    z = zFar * cos((fi * M_PI) / 180.0);
+  auto &dlgViewData = CViewDlg::data;
+  changeView(x, y, z, dlgViewData.up[0], dlgViewData.up[1], dlgViewData.up[2]);
+
+
+  RECT rect;
+  cwnd->GetClientRect(&rect);
+
+  int width = rect.right - rect.left;
+  int height = rect.bottom - rect.top;
+
+  cwnd->setProjectionMode(CChildView::ProjectionMode::Perspective);
+  changePerspectiveProjection(fovy, static_cast<double>(width) / height, zNear, zFar);
 }
 
 
@@ -226,7 +361,7 @@ void CoordinateSystem::Clear()
 
 double CoordinateSystem::GetPointDistanceToProjectionPlane(const LogicPoint& point) const
 {
-	Matrix<double> res = HomogeneousPoint<double>(point.x, point.y, point.z) * _projectionMatrix;
+	Matrix<double> res = HomogeneousPoint<double>(point.x, point.y, point.z) * getMVP();
 	return res(0, 2);
 }
 
@@ -374,7 +509,7 @@ LogicPoint CoordinateSystem::ConvertToProjectionSytemPoint(const LogicPoint& lp)
 	point[1] = lp.y;
 	point[2] = lp.z;
 
-	Matrix<double> res = point * _projectionMatrix;
+	Matrix<double> res = point * getMVP();
 	return LogicPoint(res(0, 0), res(0, 1), res(0, 2));
 }
 
@@ -392,7 +527,7 @@ CPoint CoordinateSystem::ConvertLogicPointToPhys(const LogicPoint& lp) const
 
 CPoint CoordinateSystem::ConvertLogicPointToPhys(const HomogeneousPoint<double>& point) const
 {
-	Matrix<double> res = point * _projectionMatrix;
+	Matrix<double> res = point * getMVP();
 	return CPoint( _scale * res(0, 0) + _physOrigin.x, _scale * res(0, 1) + _physOrigin.y);
 }
 
@@ -407,6 +542,25 @@ void CoordinateSystem::CheckAxisBounds(CoordinateAxisName ax, double v)
 	{
 		_axisInfoMap[ax].maxRenderingValue = v - 1;
 	}*/
+}
+
+Matrix<double> cs::CoordinateSystem::getMVP() const
+{
+  return projectionMatrix_ * viewMatrix_ * positionMatrix_;
+}
+
+void cs::CoordinateSystem::changePerspectiveProjection(double fovy, double aspect, double zNear, double zFar)
+{
+  auto &dlgPerspectiveViewData = CPerspectiveViewDlg::data;
+  dlgPerspectiveViewData.fovy = fovy;
+  dlgPerspectiveViewData.p = zFar;
+  dlgPerspectiveViewData.d = zNear;
+  auto &dlgViewData = CViewDlg::data;
+  auto r = sqrt(dlgViewData.eye[0] * dlgViewData.eye[0] + dlgViewData.eye[1] * dlgViewData.eye[1] + dlgViewData.eye[2] * dlgViewData.eye[2]);
+  dlgPerspectiveViewData.sigma = (atan(dlgViewData.eye[1] / dlgViewData.eye[0]) * 180.0) / M_PI;
+  dlgPerspectiveViewData.fi = (acos(dlgViewData.eye[2] / r) * 180.0) / M_PI;
+
+  projectionMatrix_ = ProjectionPerspectiveOffCenterLH<double>(fovy, aspect, zNear, zFar);
 }
 
 

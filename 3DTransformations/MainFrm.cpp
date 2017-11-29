@@ -18,10 +18,13 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_WM_SETFOCUS()
 END_MESSAGE_MAP()
 
+CChildView* cwnd;
+
 // CMainFrame construction/destruction
 
 CMainFrame::CMainFrame()
 {
+  cwnd = &m_wndView;
 	// TODO: add member initialization code here
 }
 

@@ -81,6 +81,12 @@
     <ClInclude Include="RasterizationPrimitiveTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CViewDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CPerspectiveViewDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3DTransformations.cpp">
@@ -138,6 +144,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Axis.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CViewDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CPerspectiveViewDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -11,6 +11,13 @@ public:
 	CChildView();
 	virtual ~CChildView();
 
+  enum class ProjectionMode {
+    Perspective,
+    Orthogonal
+  };
+
+  void setProjectionMode(ProjectionMode newProjectionMode);
+
 protected:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 
@@ -31,6 +38,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 private:
+
 	enum class WorkingMode {
 		RotatingAxis,
 		RotatingSystemAroundAxis,
@@ -39,6 +47,8 @@ private:
 
 	WorkingMode _mode = WorkingMode::RotatingSystemAroundAxis;
 	cs::CoordinateAxisName _workingAxis;
+  void switchProjectionMode(ProjectionMode newProjectionMode);
+  ProjectionMode projMode_ = ProjectionMode::Orthogonal;
 
 	bool _rotateAxis = false;
 	bool _moving = false;

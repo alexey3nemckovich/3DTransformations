@@ -151,7 +151,12 @@ namespace cs
 		inline void SetPhysOrigin(CPoint physOrigin);
 		CPoint GetPhysOrigin() const;
 
-		const HomogeneousPoint<double>& GetWatcherVector() const;
+		HomogeneousPoint<double> GetWatcherVector() const;
+    void switchToOrthogonalProjectionMode();
+    void switchToPerspectiveProjectionMode(CWnd *wnd);
+    void moveViewToStart();
+    void changeView(double eyeX, double eyeY, double eyeZ, double upX, double upY, double upZ);
+    void changePerspectiveView(double fovy, double zNear, double zFar, double sigma, double fi);
 
 		//Convertations
 	public:
@@ -178,6 +183,8 @@ namespace cs
 
 	private:
 		void CheckAxisBounds(CoordinateAxisName axis, double v);
+    Matrix<double> getMVP() const;
+    void changePerspectiveProjection(double fovy, double aspect, double zNear, double zFar);
 
 	private:
 		void StandardRenderingAlgorithm(CDC *dc);
@@ -222,13 +229,14 @@ namespace cs
 		double							  _scale = 1;
 		CPoint							  _physOrigin;
 		LogicPoint						  _origin;
-		HomogeneousPoint<double>		  _watcherVector;
 		RenderingAlgorithm				  _renderingAlg = RenderingAlgorithm::STANDARD;
 
 		bool						      _invisibleLinesAsDash = false;
 		bool							  _gridRender = false;
 		map<CoordinateAxisName, AxisInfo> _axisInfoMap;
-		Matrix<double>					  _projectionMatrix;
+		Matrix<double>					  projectionMatrix_;
+    Matrix<double>            positionMatrix_;
+    Matrix<double>            viewMatrix_;
         ZBuffer                           _buff;
 
 		//Constants

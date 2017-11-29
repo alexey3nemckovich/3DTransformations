@@ -6,6 +6,8 @@
 #include "3DTransformations.h"
 #include "MainFrm.h"
 #include "CTriangleDlg.h"
+#include "CViewDlg.h"
+#include "CPerspectiveViewDlg.h"
 #include "CoordinateSystem.h"
 
 
@@ -19,6 +21,8 @@
 BEGIN_MESSAGE_MAP(CMy3DTransformationsApp, CWinApp)
 	ON_COMMAND(ID_APP_ABOUT, &CMy3DTransformationsApp::OnAppAbout)
 	ON_COMMAND(ID_FILE_SHOWTRIANGLE, &CMy3DTransformationsApp::OnShowTriangle)
+  ON_COMMAND(ID_FILE_SETTINGS_VIEW, &CMy3DTransformationsApp::OnSettingsView)
+  ON_COMMAND(ID_FILE_SETTINGS_PERSPECTIVE_VIEW, &CMy3DTransformationsApp::OnSettingsPerspectiveView)
 	ON_COMMAND(ID_FILE_CONFIGUREADDITIONALAXIS, &CMy3DTransformationsApp::OnConfigureAdditionalAxis)
 END_MESSAGE_MAP()
 
@@ -169,6 +173,18 @@ afx_msg void CMy3DTransformationsApp::OnShowTriangle()
 {
 	CTriangleDlg trDlg;
 	trDlg.DoModal();
+}
+
+afx_msg void CMy3DTransformationsApp::OnSettingsView()
+{
+  CViewDlg viewDlg;
+  viewDlg.DoModal();
+}
+
+afx_msg void CMy3DTransformationsApp::OnSettingsPerspectiveView()
+{
+  CPerspectiveViewDlg perspectiveViewDlg;
+  perspectiveViewDlg.DoModal();
 }
 
 

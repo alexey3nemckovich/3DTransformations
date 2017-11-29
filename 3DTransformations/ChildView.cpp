@@ -16,6 +16,11 @@ CChildView::~CChildView()
 }
 
 
+void CChildView::setProjectionMode(ProjectionMode newProjectionMode)
+{
+  projMode_ = newProjectionMode;
+}
+
 BOOL CChildView::PreCreateWindow(CREATESTRUCT& cs)
 {
 	if (!CWnd::PreCreateWindow(cs))
@@ -173,6 +178,16 @@ afx_msg void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	case 'c':
 		_mode = WorkingMode::RotatingAxis;
 		break;
+  case 'p':
+    switchProjectionMode(ProjectionMode::Perspective);
+    break;
+  case 'o':
+    switchProjectionMode(ProjectionMode::Orthogonal);
+    break;
+  case 'i':
+    cs::CoordinateSystem::GetInstance()->moveViewToStart();
+    RedrawWindow();
+    break;
 	}
 
 	switch (nChar)
@@ -192,6 +207,23 @@ afx_msg void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 
 	CWnd::OnKeyUp(nChar, nRepCnt, nFlags);
+}
+
+void CChildView::switchProjectionMode(ProjectionMode projectionMode)
+{
+  setProjectionMode(projectionMode);
+  switch (projectionMode)
+  {
+  case ProjectionMode::Perspective:
+    cs::CoordinateSystem::GetInstance()->switchToPerspectiveProjectionMode(this);
+    break;
+  case ProjectionMode::Orthogonal:
+    cs::CoordinateSystem::GetInstance()->switchToOrthogonalProjectionMode();
+    break;
+  default:
+    assert(false && "Not implemented");
+  }
+  RedrawWindow();
 }
 
 

@@ -31,14 +31,14 @@ void Polygon::Init()
 void Polygon::Render(const CoordinateSystem* cs, CDC *dc) const
 {
 	bool isVisible = true;
-	auto& watcherVector = cs->GetWatcherVector();
+	auto watcherVector = cs->GetWatcherVector();
 	double angleToWatcher = FindAnglebetweenVectors(watcherVector, _nVector);
 	if (angleToWatcher > M_PI_2)
 	{
 		isVisible = false;
 	}
 
-    isVisible = true;
+    //isVisible = true;
 	if (isVisible)
 	{
     size_t countPoints = _points.size();

@@ -22,7 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{928D5C24-A190-4520-9151-CBF4ACF3D3A0}</ProjectGuid>
     <RootNamespace>My3DTransformations</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
     <Keyword>MFCProj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -115,10 +115,10 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <Profile>true</Profile>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -165,6 +165,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -191,7 +192,9 @@
     <ClInclude Include="CAdditionalAxisConfigDlg.h" />
     <ClInclude Include="ChildView.h" />
     <ClInclude Include="CoordinateSystem.h" />
+    <ClInclude Include="CPerspectiveViewDlg.h" />
     <ClInclude Include="CTriangleDlg.h" />
+    <ClInclude Include="CViewDlg.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="GraphicObject.h" />
     <ClInclude Include="LinearGraphicObject.h" />
@@ -215,7 +218,9 @@
     <ClCompile Include="CAdditionalAxisConfigDlg.cpp" />
     <ClCompile Include="ChildView.cpp" />
     <ClCompile Include="CoordinateSystem.cpp" />
+    <ClCompile Include="CPerspectiveViewDlg.cpp" />
     <ClCompile Include="CTriangleDlg.cpp" />
+    <ClCompile Include="CViewDlg.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="LinearGraphicObject.cpp" />
     <ClCompile Include="LogicPoint.cpp" />
